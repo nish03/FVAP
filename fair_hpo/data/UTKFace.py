@@ -17,16 +17,20 @@ class UTKFaceDataset(Dataset):
         image_directory_path,
         transform=None,
         target_transform=None,
+        in_memory=False
     ):
         self.image_directory = image_directory_path
         self.image_file_paths = glob(path_join(image_directory_path, "*_*_*_*.jpg"))
         self.transform = transform
         self.target_transform = target_transform
+        self.data = []
+        if in_memory:
+            self.data = [self.get_data(i) for i in range(len(self.image_file_paths))]
 
     def __len__(self):
         return len(self.image_file_paths)
 
-    def __getitem__(self, index):
+    def get_data(self, index):
         image_file_path = self.image_file_paths[index]
         image_data = read_image(image_file_path)
         if self.transform:
@@ -37,8 +41,13 @@ class UTKFaceDataset(Dataset):
         target = (age, gender, race)
         if self.target_transform:
             target = self.target_transform(target)
-        return image_data, target
-
+        return image_data, target 
+            
+    def __getitem__(self, index):
+        if index < len(self.data):
+            return self.data[index]
+        else:
+            return self.get_data(index)
 
 def load_utkface(train_split_factor=0.7, validation_split_factor=0.2, **kwargs):
     dataset = UTKFaceDataset(
