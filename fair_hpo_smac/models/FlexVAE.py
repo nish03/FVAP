@@ -19,7 +19,7 @@ class FlexVAE(Module):
 
         if isinstance(image_size, int):
             image_size = [image_size, image_size]
-
+        
         self.latent_dimension_count = latent_dimension_count
 
         # encoder
@@ -44,7 +44,9 @@ class FlexVAE(Module):
             )
             encoder_layers.append(hidden_layer)
             in_channel_count = out_channel_count
+
         self.encoder = Sequential(*encoder_layers)
+        
         test_input = zeros(1, 3, *image_size)
         test_encoder_output = self.encoder(test_input)
         self.encoder_output_image_size = test_encoder_output.shape[2:4]
