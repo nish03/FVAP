@@ -1,8 +1,6 @@
 from glob import glob
-from os.path import basename as path_basename
-from os.path import join as path_join
+from os import path
 
-import torch
 from torch.utils.data import Dataset
 from torch.utils.data import random_split
 from torchvision.io import read_image
@@ -17,10 +15,14 @@ class UTKFaceDataset(Dataset):
         image_directory_path,
         transform=None,
         target_transform=None,
-        in_memory=False
+        in_memory=False,
     ):
         self.image_directory = image_directory_path
-        self.image_file_paths = glob(path_join(image_directory_path, "*_*_*_*.jpg"))
+        if not path.isdir(self.image_directory):
+            raise ValueError(
+                f"Invalid image directory path {image_directory_path} - does not exist"
+            )
+        self.image_file_paths = glob(path.join(image_directory_path, "*_*_*_*.jpg"))
         self.transform = transform
         self.target_transform = target_transform
         self.data = []
@@ -35,19 +37,20 @@ class UTKFaceDataset(Dataset):
         image_data = read_image(image_file_path)
         if self.transform:
             image_data = self.transform(image_data)
-        image_file_name = path_basename(image_file_path)
+        image_file_name = path.basename(image_file_path)
         image_file_name_sections = image_file_name.split("_")
         age, gender, race = [int(x) for x in image_file_name_sections[0:3]]
         target = (age, gender, race)
         if self.target_transform:
             target = self.target_transform(target)
-        return image_data, target 
-            
+        return image_data, target
+
     def __getitem__(self, index):
         if index < len(self.data):
             return self.data[index]
         else:
             return self.get_data(index)
+
 
 def load_utkface(train_split_factor=0.7, validation_split_factor=0.2, **kwargs):
     dataset = UTKFaceDataset(
