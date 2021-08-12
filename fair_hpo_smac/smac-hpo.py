@@ -1,12 +1,42 @@
 #!/usr/bin/env python
 
 import logging
+from argparse import ArgumentParser
 from collections import defaultdict, namedtuple
 from copy import deepcopy
 from datetime import datetime
 from math import log
-from os import environ, mkdir, path
-from os.path import isdir
+from os import makedirs, path
+from sys import argv
+
+arg_parser = ArgumentParser(
+    description="Perform HPO with SMAC to train a generative model"
+)
+dataset_directory_group = arg_parser.add_mutually_exclusive_group(required=True)
+dataset_directory_group.add_argument(
+    "-u",
+    "--utkface-dir",
+    help="UTKFace dataset directory",
+    required=False,
+),
+arg_parser.add_argument(
+    "-o",
+    "--output-dir",
+    default=".",
+    required=False,
+    help="Directory for log files, save states and SMAC output",
+)
+args = arg_parser.parse_args(argv[1:])
+
+start_date = datetime.now()
+output_directory = path.join(
+    args.output_dir, start_date.strftime("%Y-%m-%d_%H:%M:%S_%f")
+)
+makedirs(output_directory, exist_ok=True)
+log_file_path = path.join(output_directory, "log.txt")
+# noinspection PyArgumentList
+logging.basicConfig(filename=log_file_path, encoding="utf-8", level=logging.DEBUG)
+print(f"Logging started with Output Directory {output_directory}")
 
 from ConfigSpace.hyperparameters import (
     UniformFloatHyperparameter,
@@ -28,23 +58,7 @@ from data.UTKFace import UTKFaceDataset, load_utkface
 from evaluation.Evaluation import evaluate_variational_autoencoder
 from models.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
-
-current_date = datetime.now()
-output_directory = path.join(
-    environ["HOME"],
-    "data",
-    "discoret",
-    f"fair-hpo-experiments_{current_date.strftime('%Y-%m-%d_%H:%M:%S_%f')}",
-)
-if not isdir(output_directory):
-    mkdir(output_directory)
-log_file_path = path.join(output_directory, "log.txt")
-# noinspection PyArgumentList
-logging.basicConfig(
-    filename=log_file_path, encoding="utf-8", level=logging.DEBUG, force=True
-)
-logging.info(f"Script started at {current_date}")
-print(f"Logging started with Output Directory ({output_directory})")
+logging.info(f"Script started at {start_date}")
 
 if cuda.is_available():
     device = "cuda"
@@ -64,59 +78,65 @@ logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
 
-dataset_directory = path.join(environ["HOME"], "data", "discoret", "UTKFace")
 image_size = 64
-
-transforms = [ConvertImageDtype(float32), Resize(image_size)]
-complete_dataset = UTKFaceDataset(dataset_directory, transform=Compose(transforms))
-complete_dataloader = DataLoader(complete_dataset, batch_size=len(complete_dataset))
-images, _ = next(iter(complete_dataloader))
-color_mean = images.mean((0, 2, 3))
-color_std = images.std((0, 2, 3))
-del images
-normalize_color = Normalize(mean=color_mean, std=color_std)
-denormalize_color = Normalize(mean=-color_mean / color_std, std=1 / color_std)
-dataset_transform = Compose(transforms)
-train_dataset, validation_dataset, test_dataset = load_utkface(
-    image_directory_path=dataset_directory,
-    transform=Compose(transforms),
-    target_transform=lambda attributes: tensor([*attributes]),
-    in_memory=True,
-)
-logging.info(
-    f"Datasets were loaded with Directory({dataset_directory}), "
-    f"Image Size({image_size}), Normalization Color Mean({color_mean}) and "
-    f"Normalization Color Standard Deviation({color_std})"
-)
-
 batch_size = 144
 num_workers = device_count * 4
 
-train_dataloader = DataLoader(
-    train_dataset,
-    batch_size=batch_size,
-    num_workers=num_workers,
-    shuffle=True,
-    pin_memory=True,
+logging.info(
+    f"Data will be loaded with Image Size {image_size} and Batch Size {batch_size}"
 )
-validation_dataloader = DataLoader(
-    validation_dataset,
-    batch_size=batch_size,
-    num_workers=num_workers,
-    shuffle=True,
-    pin_memory=True,
-)
-test_dataloader = DataLoader(
-    test_dataset,
-    batch_size=batch_size,
-    num_workers=num_workers,
-    shuffle=False,
-    pin_memory=True,
-)
-logging.info(f"Data Loaders were created with Batch Size({batch_size})")
+
+if args.utkface_dir is not None:
+    dataset_directory = args.utkface_dir
+    transforms = [ConvertImageDtype(float32), Resize(image_size)]
+    complete_dataset = UTKFaceDataset(dataset_directory, transform=Compose(transforms))
+    complete_dataloader = DataLoader(complete_dataset, batch_size=len(complete_dataset))
+    images, _ = next(iter(complete_dataloader))
+    color_mean = images.mean((0, 2, 3))
+    color_std = images.std((0, 2, 3))
+    del images
+    normalize_color = Normalize(mean=color_mean, std=color_std)
+    denormalize_color = Normalize(mean=-color_mean / color_std, std=1 / color_std)
+    transforms.append(normalize_color)
+    train_dataset, validation_dataset, test_dataset = load_utkface(
+        image_directory_path=dataset_directory,
+        transform=Compose(transforms),
+        target_transform=lambda attributes: tensor([*attributes]),
+        in_memory=True,
+    )
+
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=True,
+        pin_memory=True,
+    )
+    validation_dataloader = DataLoader(
+        validation_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=True,
+        pin_memory=True,
+    )
+    test_dataloader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=False,
+        pin_memory=True,
+    )
+
+    logging.info(
+        f"UTKFace dataset was loaded with Directory {dataset_directory}, "
+        f"Normalization Color Mean {color_mean} and "
+        f"Normalization Color Standard Deviation {color_std}"
+    )
+else:
+    raise RuntimeError("No dataset was specified")
 
 epoch_count = 4
-logging.info(f"Generative Models will be trained with Epochs({epoch_count})")
+logging.info(f"Generative Models will be trained with Epochs {epoch_count}")
 
 
 def train_generative_model(
@@ -292,8 +312,7 @@ def try_save_state(
 
 
 try_save_state.save_file_directory = path.join(output_directory, "save_states")
-if not isdir(try_save_state.save_file_directory):
-    mkdir(try_save_state.save_file_directory)
+makedirs(try_save_state.save_file_directory)
 
 max_hidden_layer_count = int(log(image_size, 2)) - 1
 max_iteration = epoch_count * len(train_dataloader)
@@ -351,7 +370,7 @@ scenario = {
     "limit_resources": False,
     "output_dir": smac_output_directory,
 }
-logging.info(f"SMAC HPO started with Scenario({scenario}) and Seed({seed})")
+logging.info(f"SMAC HPO started with Scenario {scenario} and Seed {seed}")
 smac = SMAC4HPO(
     scenario=Scenario(scenario), rng=RandomState(seed), tae_runner=hyperparameter_cost
 )
