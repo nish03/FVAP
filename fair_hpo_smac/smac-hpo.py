@@ -70,7 +70,7 @@ output_directory = path.join(
 makedirs(output_directory, exist_ok=True)
 log_file_path = path.join(output_directory, "log.txt")
 # noinspection PyArgumentList
-logging.basicConfig(filename=log_file_path, encoding="utf-8", level=logging.DEBUG)
+logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
 print(f"Logging started with Output Directory {output_directory}")
 
 from ConfigSpace.hyperparameters import (
