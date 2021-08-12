@@ -26,6 +26,41 @@ arg_parser.add_argument(
     required=False,
     help="Directory for log files, save states and SMAC output",
 )
+arg_parser.add_argument(
+    "--image_size",
+    default=64,
+    type=int,
+    required=False,
+    help="Image size used for loading the dataset",
+)
+arg_parser.add_argument(
+    "--batch_size",
+    default=144,
+    type=int,
+    required=False,
+    help="Batch size used for loading the dataset",
+)
+arg_parser.add_argument(
+    "--epochs",
+    default=100,
+    type=int,
+    required=False,
+    help="Epochs used for training the generative models",
+)
+arg_parser.add_argument(
+    "--smac-seed",
+    default=42,
+    type=int,
+    required=False,
+    help="Seed used for hyperparameter optimization with SMAC",
+)
+arg_parser.add_argument(
+    "--smac-runtime",
+    default=72000,
+    type=int,
+    required=False,
+    help="Runtime used for hyperparameter optimization with SMAC",
+)
 args = arg_parser.parse_args(argv[1:])
 
 start_date = datetime.now()
@@ -58,6 +93,7 @@ from data.UTKFace import UTKFaceDataset, load_utkface
 from evaluation.Evaluation import evaluate_variational_autoencoder
 from models.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
+
 logging.info(f"Script started at {start_date}")
 
 if cuda.is_available():
@@ -78,13 +114,22 @@ logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
 
-image_size = 64
-batch_size = 144
-num_workers = device_count * 4
+image_size = args.image_size
+batch_size = args.batch_size
+epoch_count = args.epochs
+time_limit = args.smac_runtime
+seed = args.smac_seed
 
 logging.info(
-    f"Data will be loaded with Image Size {image_size} and Batch Size {batch_size}"
+    f"Data will be loaded with image size {image_size} and batch size {batch_size}"
 )
+logging.info(f"Generative models will be trained for {epoch_count} epochs")
+logging.info(
+    f"Hyperparameter optimisation with SMAC will be run for {time_limit}s and "
+    f"with seed {seed}"
+)
+
+num_workers = device_count * 4
 
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
@@ -128,15 +173,12 @@ if args.utkface_dir is not None:
     )
 
     logging.info(
-        f"UTKFace dataset was loaded with Directory {dataset_directory}, "
-        f"Normalization Color Mean {color_mean} and "
-        f"Normalization Color Standard Deviation {color_std}"
+        f"UTKFace dataset was loaded from directory {dataset_directory}, "
+        f"Normalization color mean {color_mean} and "
+        f"Normalization color standard deviation {color_std}"
     )
 else:
     raise RuntimeError("No dataset was specified")
-
-epoch_count = 4
-logging.info(f"Generative Models will be trained with Epochs {epoch_count}")
 
 
 def train_generative_model(
@@ -192,7 +234,7 @@ def train_generative_model(
 
     logging.debug(
         f"Generative model training started with {hyperparameters}"
-        f"and Epochs({epoch_count})"
+        f"for {epoch_count} epochs"
     )
     for epoch in range(1, epoch_count + 1):
         logging.debug(f"  Epoch: {epoch}")
@@ -360,21 +402,22 @@ hyperparameter_config_space.add_hyperparameters(
 )
 
 smac_output_directory = path.join(output_directory, "smac")
-time_limit = 30 * 60
-seed = 42
 scenario = {
     "run_obj": "quality",
-    "runcount-limit": 4,
+    "wallclock-limit": time_limit,
     "cs": hyperparameter_config_space,
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_output_directory,
 }
-logging.info(f"SMAC HPO started with Scenario {scenario} and Seed {seed}")
 smac = SMAC4HPO(
     scenario=Scenario(scenario), rng=RandomState(seed), tae_runner=hyperparameter_cost
 )
 incumbent_hyperparameter_config = smac.optimize()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
 
-logging.info(f"Script finished at {datetime.now()}")
+end_date = datetime.now()
+duration = end_date - start_date
+logging.info(
+    f"Script finished at {end_date} with a runtime of {duration.total_seconds(10)}"
+)
