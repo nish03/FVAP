@@ -1,2 +1,4 @@
-# DiscoRet
-Automatic discovery of pathological features in retina with unsupervised deep neural networks
+# HyperFair
+Fairness aware Hyperparameter optimization for visual recognition tasks
+
+
