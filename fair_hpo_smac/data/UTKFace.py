@@ -1,6 +1,7 @@
 from glob import glob
 from os import path
 
+from torch import tensor
 from torch.utils.data import Dataset
 from torch.utils.data import random_split
 from torchvision.io import read_image
@@ -40,7 +41,7 @@ class UTKFaceDataset(Dataset):
         image_file_name = path.basename(image_file_path)
         image_file_name_sections = image_file_name.split("_")
         age, gender, race = [int(x) for x in image_file_name_sections[0:3]]
-        target = (age, gender, race)
+        target = tensor([age, gender, race])
         if self.target_transform:
             target = self.target_transform(target)
         return image_data, target

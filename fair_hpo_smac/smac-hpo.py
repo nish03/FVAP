@@ -81,7 +81,7 @@ from numpy.random import RandomState
 from smac.configspace import ConfigurationSpace
 from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.scenario.scenario import Scenario
-from torch import cuda, float32, save, tensor
+from torch import cuda, float32, save
 from torch.backends import cudnn
 from torch.nn import DataParallel
 from torch.optim import Adam
@@ -131,6 +131,8 @@ logging.info(
 
 num_workers = device_count * 4
 
+data_state = {"image_size": image_size, "batch_size": batch_size}
+
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
     transforms = [ConvertImageDtype(float32), Resize(image_size)]
@@ -143,10 +145,13 @@ if args.utkface_dir is not None:
     normalize_color = Normalize(mean=color_mean, std=color_std)
     denormalize_color = Normalize(mean=-color_mean / color_std, std=1 / color_std)
     transforms.append(normalize_color)
+    data_state["color_mean"] = color_mean
+    data_state["color_std"] = color_std
+    data_state["dataset_directory"] = dataset_directory
+    data_state["dataset"] = "UTKFace"
     train_dataset, validation_dataset, test_dataset = load_utkface(
         image_directory_path=dataset_directory,
         transform=Compose(transforms),
-        target_transform=lambda attributes: tensor([*attributes]),
         in_memory=True,
     )
 
@@ -179,6 +184,11 @@ if args.utkface_dir is not None:
     )
 else:
     raise RuntimeError("No dataset was specified")
+
+save_file_directory = path.join(output_directory, "save_states")
+makedirs(save_file_directory)
+data_save_file_path = path.join(save_file_directory, "data.pt")
+save(data_state, data_save_file_path)
 
 
 def train_generative_model(
@@ -267,7 +277,7 @@ def train_generative_model(
         for name, value in validation_losses.items():
             validation_epoch_losses[name].append(value)
 
-        try_save_state(
+        try_save_model(
             epoch,
             model,
             optimizer,
@@ -318,7 +328,7 @@ hyperparameter_cost.loss = "Reconstruction"
 hyperparameter_cost.current_config = {}
 
 
-def try_save_state(
+def try_save_model(
     epoch, model, optimizer, lr_scheduler, train_epoch_losses, validation_epoch_losses
 ):
     cost = validation_epoch_losses[hyperparameter_cost.loss][-1]
@@ -331,7 +341,7 @@ def try_save_state(
     if not is_best and not is_save_epoch:
         return
 
-    save_state = {
+    model_state = {
         "run": hyperparameter_cost.run,
         "epoch": epoch,
         "hyperparameter_config": hyperparameter_cost.current_config,
@@ -343,18 +353,17 @@ def try_save_state(
     }
 
     if is_best:
-        save_file_name = "best.pt"
-        save_file_path = path.join(try_save_state.save_file_directory, save_file_name)
-        save(save_state, save_file_path)
+        model_save_file_name = "model-best.pt"
+        model_save_file_path = path.join(save_file_directory, model_save_file_name)
+        save(model_state, model_save_file_path)
 
     if is_save_epoch:
-        save_file_name = f"run-{hyperparameter_cost.run:04}_epoch-{epoch:04}.pt"
-        save_file_path = path.join(try_save_state.save_file_directory, save_file_name)
-        save(save_state, save_file_path)
+        model_save_file_name = (
+            f"model-run-{hyperparameter_cost.run:04}_epoch-{epoch:04}.pt"
+        )
+        model_save_file_path = path.join(save_file_directory, model_save_file_name)
+        save(model_state, model_save_file_path)
 
-
-try_save_state.save_file_directory = path.join(output_directory, "save_states")
-makedirs(try_save_state.save_file_directory)
 
 max_hidden_layer_count = int(log(image_size, 2)) - 1
 max_iteration = epoch_count * len(train_dataloader)
@@ -419,5 +428,5 @@ logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config
 end_date = datetime.now()
 duration = end_date - start_date
 logging.info(
-    f"Script finished at {end_date} with a runtime of {duration.total_seconds(10)}"
+    f"Script finished at {end_date} with a runtime of {duration.total_seconds()}"
 )
