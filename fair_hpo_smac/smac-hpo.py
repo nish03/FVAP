@@ -341,6 +341,9 @@ def try_save_model(
     if not is_best and not is_save_epoch:
         return
 
+    if isinstance(model, DataParallel):
+        model = model.module
+
     model_state = {
         "run": hyperparameter_cost.run,
         "epoch": epoch,
@@ -411,7 +414,7 @@ hyperparameter_config_space.add_hyperparameters(
 )
 
 smac_output_directory = path.join(output_directory, "smac")
-scenario = {
+scenario_dict = {
     "run_obj": "quality",
     "wallclock-limit": time_limit,
     "cs": hyperparameter_config_space,
@@ -419,11 +422,20 @@ scenario = {
     "limit_resources": False,
     "output_dir": smac_output_directory,
 }
+scenario = Scenario(scenario_dict)
 smac = SMAC4HPO(
-    scenario=Scenario(scenario), rng=RandomState(seed), tae_runner=hyperparameter_cost
+    scenario=scenario, rng=RandomState(seed), tae_runner=hyperparameter_cost
 )
 incumbent_hyperparameter_config = smac.optimize()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
+
+smac_state = {
+    "scenario": scenario,
+    "seed": seed,
+    "incumbent_hyperparameter_config": incumbent_hyperparameter_config,
+}
+smac_save_file_path = path.join(save_file_directory, "smac.pt")
+save(smac_state, smac_save_file_path)
 
 end_date = datetime.now()
 duration = end_date - start_date
