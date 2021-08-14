@@ -48,6 +48,13 @@ arg_parser.add_argument(
     help="Epochs used for training the generative models",
 )
 arg_parser.add_argument(
+    "--datasplit-seed",
+    default=42,
+    type=int,
+    required=False,
+    help="Seed used for creating random train, validation and tast dataset splits",
+)
+arg_parser.add_argument(
     "--smac-seed",
     default=42,
     type=int,
@@ -117,21 +124,26 @@ logging.info(
 image_size = args.image_size
 batch_size = args.batch_size
 epoch_count = args.epochs
-time_limit = args.smac_runtime
-seed = args.smac_seed
+datasplit_seed = args.datasplit_seed
+smac_runtime = args.smac_runtime
+smac_seed = args.smac_seed
 
 logging.info(
     f"Data will be loaded with image size {image_size} and batch size {batch_size}"
 )
 logging.info(f"Generative models will be trained for {epoch_count} epochs")
 logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for {time_limit}s and "
-    f"with seed {seed}"
+    f"Hyperparameter optimisation with SMAC will be run for {smac_runtime}s and "
+    f"with seed {smac_seed}"
 )
 
 num_workers = device_count * 4
 
-data_state = {"image_size": image_size, "batch_size": batch_size}
+data_state = {
+    "image_size": image_size,
+    "batch_size": batch_size,
+    "datasplit_seed": datasplit_seed,
+}
 
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
@@ -150,6 +162,7 @@ if args.utkface_dir is not None:
     data_state["dataset_directory"] = dataset_directory
     data_state["dataset"] = "UTKFace"
     train_dataset, validation_dataset, test_dataset = load_utkface(
+        random_split_seed=datasplit_seed,
         image_directory_path=dataset_directory,
         transform=Compose(transforms),
         in_memory=True,
@@ -416,7 +429,7 @@ hyperparameter_config_space.add_hyperparameters(
 smac_output_directory = path.join(output_directory, "smac")
 scenario_dict = {
     "run_obj": "quality",
-    "wallclock-limit": time_limit,
+    "wallclock-limit": smac_runtime,
     "cs": hyperparameter_config_space,
     "deterministic": "false",
     "limit_resources": False,
@@ -424,14 +437,14 @@ scenario_dict = {
 }
 scenario = Scenario(scenario_dict)
 smac = SMAC4HPO(
-    scenario=scenario, rng=RandomState(seed), tae_runner=hyperparameter_cost
+    scenario=scenario, rng=RandomState(smac_seed), tae_runner=hyperparameter_cost
 )
 incumbent_hyperparameter_config = smac.optimize()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
 
 smac_state = {
     "scenario": scenario,
-    "seed": seed,
+    "seed": smac_seed,
     "incumbent_hyperparameter_config": incumbent_hyperparameter_config,
 }
 smac_save_file_path = path.join(save_file_directory, "smac.pt")

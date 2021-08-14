@@ -1,9 +1,8 @@
 from glob import glob
 from os import path
 
-from torch import tensor
-from torch.utils.data import Dataset
-from torch.utils.data import random_split
+from torch import Generator, tensor
+from torch.utils.data import Dataset, random_split
 from torchvision.io import read_image
 
 
@@ -53,7 +52,9 @@ class UTKFaceDataset(Dataset):
             return self.get_data(index)
 
 
-def load_utkface(train_split_factor=0.7, validation_split_factor=0.2, **kwargs):
+def load_utkface(
+    train_split_factor=0.7, validation_split_factor=0.2, random_split_seed=42, **kwargs
+):
     dataset = UTKFaceDataset(
         **kwargs,
     )
@@ -61,6 +62,8 @@ def load_utkface(train_split_factor=0.7, validation_split_factor=0.2, **kwargs):
     validation_count = int(validation_split_factor * len(dataset))
     test_count = len(dataset) - train_count - validation_count
     train_dataset, validation_dataset, test_dataset = random_split(
-        dataset, [train_count, validation_count, test_count]
+        dataset,
+        [train_count, validation_count, test_count],
+        Generator().manual_seed(random_split_seed),
     )
     return train_dataset, validation_dataset, test_dataset
