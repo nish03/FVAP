@@ -19,7 +19,7 @@ class FlexVAE(Module):
 
         if isinstance(image_size, int):
             image_size = [image_size, image_size]
-        
+
         self.latent_dimension_count = latent_dimension_count
 
         # encoder
@@ -37,7 +37,7 @@ class FlexVAE(Module):
                     kernel_size=(3, 3),
                     stride=(2, 2),
                     padding=1,
-                    bias=False
+                    bias=False,
                 ),
                 BatchNorm2d(out_channel_count),
                 LeakyReLU(inplace=True),
@@ -46,23 +46,19 @@ class FlexVAE(Module):
             in_channel_count = out_channel_count
 
         self.encoder = Sequential(*encoder_layers)
-        
+
         test_input = zeros(1, 3, *image_size)
         test_encoder_output = self.encoder(test_input)
         self.encoder_output_image_size = test_encoder_output.shape[2:4]
-        encoder_output_dims = self.max_hidden_channel_count * prod(self.encoder_output_image_size)
+        encoder_output_dims = self.max_hidden_channel_count * prod(
+            self.encoder_output_image_size
+        )
 
-        self.fc_mu = Linear(
-            encoder_output_dims, self.latent_dimension_count
-        )
-        self.fc_var = Linear(
-            encoder_output_dims, self.latent_dimension_count
-        )
+        self.fc_mu = Linear(encoder_output_dims, self.latent_dimension_count)
+        self.fc_var = Linear(encoder_output_dims, self.latent_dimension_count)
 
         # decoder
-        self.decoder_input = Linear(
-            self.latent_dimension_count, encoder_output_dims
-        )
+        self.decoder_input = Linear(self.latent_dimension_count, encoder_output_dims)
 
         decoder_layers = []
         hidden_channel_counts.reverse()
@@ -77,7 +73,7 @@ class FlexVAE(Module):
                     stride=(2, 2),
                     padding=(1, 1),
                     output_padding=(1, 1),
-                    bias=False
+                    bias=False,
                 ),
                 BatchNorm2d(out_channel_count),
                 LeakyReLU(inplace=True),
@@ -134,18 +130,24 @@ class FlexVAE(Module):
         return y, mu, log_var
 
     @staticmethod
-    def criterion(x, y, mu, log_var, gamma, c_max, c_stop_iteration, iteration, kld_weight):
+    def criterion(
+        x, y, mu, log_var, gamma, c_max, c_stop_iteration, iteration, kld_weight
+    ):
         reconstruction_loss = mse_loss(y, x)
         kld_loss = mean(-0.5 * sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
         C = clip(c_max / c_stop_iteration * iteration, 0, c_max)
         elbo_loss = reconstruction_loss + gamma * kld_weight * (kld_loss - C).abs()
-        return {"ELBO": elbo_loss, "Reconstruction": reconstruction_loss, "KLD": kld_loss}
+        return {
+            "ELBO": elbo_loss,
+            "Reconstruction": reconstruction_loss,
+            "KLD": kld_loss,
+        }
 
     def sample(self, num_samples, device):
         z = randn(num_samples, self.latent_dimension_count).to(device)
         samples = self.decode(z)
         return samples
 
-    def generate(self, x):
+    def reconstruct(self, x):
         y = self.forward(x)[0]
         return y
