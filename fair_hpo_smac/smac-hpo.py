@@ -94,9 +94,9 @@ from torch.nn import DataParallel
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Normalize, Resize
+from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 
-from data.UTKFace import UTKFaceDataset, load_utkface
+from data.UTKFace import load_utkface
 from evaluation.Evaluation import evaluate_variational_autoencoder
 from models.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
@@ -147,24 +147,17 @@ data_state = {
 
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
-    transforms = [ConvertImageDtype(float32), Resize(image_size)]
-    complete_dataset = UTKFaceDataset(dataset_directory, transform=Compose(transforms))
-    complete_dataloader = DataLoader(complete_dataset, batch_size=len(complete_dataset))
-    images, _ = next(iter(complete_dataloader))
-    color_mean = images.mean((0, 2, 3))
-    color_std = images.std((0, 2, 3))
-    del images
-    normalize_color = Normalize(mean=color_mean, std=color_std)
-    denormalize_color = Normalize(mean=-color_mean / color_std, std=1 / color_std)
-    transforms.append(normalize_color)
-    data_state["color_mean"] = color_mean
-    data_state["color_std"] = color_std
+    transform = Compose([
+        ConvertImageDtype(float32),
+        Resize(image_size),
+        Lambda(lambda x: 2 * x - 1),
+    ])
     data_state["dataset_directory"] = dataset_directory
     data_state["dataset"] = "UTKFace"
     train_dataset, validation_dataset, test_dataset = load_utkface(
         random_split_seed=datasplit_seed,
         image_directory_path=dataset_directory,
-        transform=Compose(transforms),
+        transform=transform,
         in_memory=True,
     )
 
@@ -190,11 +183,7 @@ if args.utkface_dir is not None:
         pin_memory=True,
     )
 
-    logging.info(
-        f"UTKFace dataset was loaded from directory {dataset_directory}, "
-        f"Normalization color mean {color_mean} and "
-        f"Normalization color standard deviation {color_std}"
-    )
+    logging.info(f"UTKFace dataset was loaded from directory {dataset_directory}, ")
 else:
     raise RuntimeError("No dataset was specified")
 
