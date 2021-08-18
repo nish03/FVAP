@@ -254,7 +254,7 @@ train_variational_autoencoder(
     validation_dataloader,
     save_model_state,
     schedule_lr_after_epoch=True,
-    display_progress=True,
+    display_progress=False,
 )
 
 end_date = datetime.now()
