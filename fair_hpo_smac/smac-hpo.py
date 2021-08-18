@@ -335,28 +335,28 @@ hidden_layer_count_hyperparameter = UniformIntegerHyperparameter(
     "hidden_layer_count",
     1,
     max_hidden_layer_count,
-    default_value=max_hidden_layer_count,
+    default_value=1,
 )
 latent_dimension_count_hyperparameter = UniformIntegerHyperparameter(
-    "latent_dimension_count", 16, 512, default_value=128
+    "latent_dimension_count", 16, 512, default_value=326
 )
 vae_loss_gamma_hyperparameter = UniformFloatHyperparameter(
-    "vae_loss_gamma", 1.0, 10000.0, default_value=10.0, log=True
+    "vae_loss_gamma", 1.0, 2000.0, default_value=316.0, log=True
 )
 C_max_hyperparameter = UniformFloatHyperparameter(
-    "C_max", 0.0, 50.0, default_value=25.0
+    "C_max", 5.0, 50.0, default_value=43.75
 )
 C_stop_iteration_fraction_hyperparameter = UniformFloatHyperparameter(
-    "C_stop_iteration_fraction", 0.1, 1.0, default_value=0.5
+    "C_stop_iteration_fraction", 0.15, 1.0, default_value=0.8875
 )
 learning_rate_hyperparameter = UniformFloatHyperparameter(
-    "learning_rate", 1e-5, 1e-2, default_value=5e-4, log=True
+    "learning_rate", 5e-6, 5e-3, default_value=1e-4, log=True
 )
 weight_decay_hyperparameter = UniformFloatHyperparameter(
-    "weight_decay", 0.0, 0.2, default_value=0.0
+    "weight_decay", 0.0, 0.25, default_value=0.025
 )
 lr_scheduler_gamma_hyperparameter = UniformFloatHyperparameter(
-    "lr_scheduler_gamma", 0.9, 1.0, default_value=0.95
+    "lr_scheduler_gamma", 0.85, 1.0, default_value=0.9375
 )
 hyperparameter_config_space.add_hyperparameters(
     [
