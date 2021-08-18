@@ -2,7 +2,7 @@
 
 import logging
 from argparse import ArgumentParser
-from collections import defaultdict, namedtuple
+from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime
 from math import log
@@ -97,7 +97,6 @@ from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 
 from data.UTKFace import load_utkface
-from evaluation.Evaluation import evaluate_variational_autoencoder
 from models.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
 
@@ -193,9 +192,32 @@ data_save_file_path = path.join(save_file_directory, "data.pt")
 save(data_state, data_save_file_path)
 
 
-def train_generative_model(
-    hyperparameters,
-):
+Hyperparameters = namedtuple(
+    "Hyperparameters",
+    [
+        "latent_dimension_count",
+        "hidden_layer_count",
+        "vae_loss_gamma",
+        "C_max",
+        "C_stop_iteration",
+        "learning_rate",
+        "weight_decay",
+        "lr_scheduler_gamma",
+    ],
+)
+
+
+def hyperparameter_cost(hyperparameter_config):
+    hyperparameter_cost.run += 1
+
+    hyperparameter_config = dict(**hyperparameter_config)
+    hyperparameter_cost.current_config = deepcopy(hyperparameter_config)
+    hyperparameter_config["C_stop_iteration"] = int(
+        hyperparameter_config["C_stop_iteration_fraction"] * max_iteration
+    )
+    del hyperparameter_config["C_stop_iteration_fraction"]
+    hyperparameters = Hyperparameters(**hyperparameter_config)
+
     def train_criterion(data, _, output, mu, log_var, data_fraction):
         train_criterion.iteration += 1
         return FlexVAE.criterion(
@@ -241,84 +263,18 @@ def train_generative_model(
     )
     lr_scheduler = ExponentialLR(optimizer, gamma=hyperparameters.lr_scheduler_gamma)
 
-    train_epoch_losses = defaultdict(list)
-    validation_epoch_losses = defaultdict(list)
-
-    logging.debug(
-        f"Generative model training started with {hyperparameters}"
-        f"for {epoch_count} epochs"
-    )
-    for epoch in range(1, epoch_count + 1):
-        logging.debug(f"  Epoch: {epoch}")
-
-        train_losses = train_variational_autoencoder(
-            model,
-            train_dataloader,
-            optimizer,
-            lr_scheduler,
-            train_criterion,
-            display_progress=False,
-        )
-        logging.debug(
-            "    Training Losses - "
-            + " ".join([f"{name}: {value}" for name, value in train_losses.items()])
-        )
-
-        validation_losses = evaluate_variational_autoencoder(
-            model, validation_dataloader, validation_criterion
-        )
-        logging.debug(
-            "    Validation Losses - "
-            + " ".join(
-                [f"{name}: {value}" for name, value in validation_losses.items()]
-            )
-        )
-
-        for name, value in train_losses.items():
-            train_epoch_losses[name].append(value)
-        for name, value in validation_losses.items():
-            validation_epoch_losses[name].append(value)
-
-        try_save_model(
-            epoch,
-            model,
-            optimizer,
-            lr_scheduler,
-            train_epoch_losses,
-            validation_epoch_losses,
-        )
-
-    return model, train_epoch_losses, validation_epoch_losses
-
-
-Hyperparameters = namedtuple(
-    "Hyperparameters",
-    [
-        "latent_dimension_count",
-        "hidden_layer_count",
-        "vae_loss_gamma",
-        "C_max",
-        "C_stop_iteration",
-        "learning_rate",
-        "weight_decay",
-        "lr_scheduler_gamma",
-    ],
-)
-
-
-def hyperparameter_cost(hyperparameter_config):
-    hyperparameter_cost.run += 1
-
-    hyperparameter_config = dict(**hyperparameter_config)
-    hyperparameter_cost.current_config = deepcopy(hyperparameter_config)
-    hyperparameter_config["C_stop_iteration"] = int(
-        hyperparameter_config["C_stop_iteration_fraction"] * max_iteration
-    )
-    del hyperparameter_config["C_stop_iteration_fraction"]
-    hyperparameters = Hyperparameters(**hyperparameter_config)
-
-    model, train_epoch_losses, validation_epoch_losses = train_generative_model(
-        hyperparameters
+    model, train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
+        model,
+        optimizer,
+        lr_scheduler,
+        epoch_count,
+        train_criterion,
+        validation_criterion,
+        train_dataloader,
+        validation_dataloader,
+        save_model_state,
+        schedule_lr_after_epoch=True,
+        display_progress=False,
     )
     final_cost = min(validation_epoch_losses[hyperparameter_cost.loss])
     return final_cost
@@ -330,7 +286,7 @@ hyperparameter_cost.loss = "Reconstruction"
 hyperparameter_cost.current_config = {}
 
 
-def try_save_model(
+def save_model_state(
     epoch, model, optimizer, lr_scheduler, train_epoch_losses, validation_epoch_losses
 ):
     cost = validation_epoch_losses[hyperparameter_cost.loss][-1]
@@ -338,9 +294,9 @@ def try_save_model(
     if is_best:
         hyperparameter_cost.best = cost
 
-    is_save_epoch = epoch % (epoch_count // 2) == 0
+    is_final_epoch = epoch == epoch_count
 
-    if not is_best and not is_save_epoch:
+    if not is_best and not is_final_epoch:
         return
 
     if isinstance(model, DataParallel):
@@ -362,9 +318,9 @@ def try_save_model(
         model_save_file_path = path.join(save_file_directory, model_save_file_name)
         save(model_state, model_save_file_path)
 
-    if is_save_epoch:
+    if is_final_epoch:
         model_save_file_name = (
-            f"model-run-{hyperparameter_cost.run:04}_epoch-{epoch:04}.pt"
+            f"model-run-{hyperparameter_cost.run:04}.pt"
         )
         model_save_file_path = path.join(save_file_directory, model_save_file_name)
         save(model_state, model_save_file_path)
