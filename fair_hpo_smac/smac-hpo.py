@@ -211,6 +211,8 @@ def hyperparameter_cost(hyperparameter_config):
     hyperparameters = Hyperparameters(**hyperparameter_config)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+        if isinstance(_model, DataParallel):
+            _model = _model.module
         train_criterion.iteration += 1
         return model.criterion(
             _data,
@@ -224,6 +226,8 @@ def hyperparameter_cost(hyperparameter_config):
     train_criterion.iteration = 0
 
     def validation_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+        if isinstance(_model, DataParallel):
+            _model = _model.module
         return model.criterion(
             _data,
             _output,
