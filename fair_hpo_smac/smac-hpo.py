@@ -208,10 +208,6 @@ def hyperparameter_cost(hyperparameter_config):
 
     hyperparameter_config = dict(**hyperparameter_config)
     hyperparameter_cost.current_config = deepcopy(hyperparameter_config)
-    hyperparameter_config["C_stop_iteration"] = int(
-        hyperparameter_config["C_stop_iteration_fraction"] * max_iteration
-    )
-    del hyperparameter_config["C_stop_iteration_fraction"]
     hyperparameters = Hyperparameters(**hyperparameter_config)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
@@ -337,8 +333,11 @@ vae_loss_gamma_hyperparameter = UniformFloatHyperparameter(
 C_max_hyperparameter = UniformFloatHyperparameter(
     "C_max", 5.0, 50.0, default_value=25.0
 )
-C_stop_iteration_fraction_hyperparameter = UniformFloatHyperparameter(
-    "C_stop_iteration_fraction", 0.15, 1.0, default_value=0.2
+C_stop_iteration_hyperparameter = UniformIntegerHyperparameter(
+    "C_stop_iteration",
+    int(0.05 * max_iteration),
+    max_iteration,
+    default_value=int(0.2 * max_iteration),
 )
 learning_rate_hyperparameter = UniformFloatHyperparameter(
     "learning_rate", 5e-6, 5e-3, default_value=5e-4, log=True
@@ -355,7 +354,7 @@ hyperparameter_config_space.add_hyperparameters(
         latent_dimension_count_hyperparameter,
         vae_loss_gamma_hyperparameter,
         C_max_hyperparameter,
-        C_stop_iteration_fraction_hyperparameter,
+        C_stop_iteration_hyperparameter,
         learning_rate_hyperparameter,
         weight_decay_hyperparameter,
         lr_scheduler_gamma_hyperparameter,
