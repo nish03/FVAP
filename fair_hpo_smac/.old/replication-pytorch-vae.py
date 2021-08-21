@@ -161,63 +161,57 @@ data_save_file_path = path.join(save_file_directory, "data.pt")
 save(data_state, data_save_file_path)
 
 
-def train_criterion(data, _, output, mu, log_var, data_fraction):
+def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
     train_criterion.iteration += 1
-    return FlexVAE.criterion(
-        data,
-        output,
-        mu,
-        log_var,
-        hyperparameters.vae_loss_gamma,
-        hyperparameters.C_max,
-        hyperparameters.C_stop_iteration,
+    return _model.criterion(
+        _data,
+        _output,
+        _mu,
+        _log_var,
         train_criterion.iteration,
-        data_fraction,
+        _data_fraction,
     )
 
 
 train_criterion.iteration = 0
 
 
-def validation_criterion(data, _, output, mu, log_var, data_fraction):
+def validation_criterion(_data, _, _output, _mu, _log_var, _data_fraction):
     return FlexVAE.criterion(
-        data,
-        output,
-        mu,
-        log_var,
-        hyperparameters.vae_loss_gamma,
-        hyperparameters.C_max,
-        hyperparameters.C_stop_iteration,
+        _data,
+        _output,
+        _mu,
+        _log_var,
         train_criterion.iteration,
-        data_fraction,
+        _data_fraction,
     )
 
 
 def save_model_state(
-    epoch,
+    _epoch,
     _model,
     _optimizer,
     _lr_scheduler,
-    train_epoch_losses,
-    validation_epoch_losses,
+    _train_epoch_losses,
+    _validation_epoch_losses,
 ):
-    is_save_epoch = epoch % (epoch_count // 5) == 0
+    is_save_epoch = _epoch % (epoch_count // 5) == 0
 
     if not is_save_epoch:
         return
 
     model_state = {
-        "epoch": epoch,
+        "epoch": _epoch,
         "model_state_dict": _model.module.state_dict()
         if isinstance(_model, DataParallel)
         else _model.state_dict(),
         "optimizer_state_dict": _optimizer.state_dict(),
         "lr_scheduler_state_dict": _lr_scheduler.state_dict(),
-        "train_epoch_losses": train_epoch_losses,
-        "validation_epoch_losses": validation_epoch_losses,
+        "train_epoch_losses": _train_epoch_losses,
+        "validation_epoch_losses": _validation_epoch_losses,
     }
 
-    model_save_file_name = f"model-epoch-{epoch:04}.pt"
+    model_save_file_name = f"model-epoch-{_epoch:04}.pt"
     model_save_file_path = path.join(save_file_directory, model_save_file_name)
     save(model_state, model_save_file_path)
 
@@ -231,6 +225,9 @@ model = FlexVAE(
     image_size,
     hyperparameters.latent_dimension_count,
     hyperparameters.hidden_layer_count,
+    hyperparameters.vae_loss_gamma,
+    hyperparameters.C_max,
+    hyperparameters.C_stop_iteration
 )
 if device_count > 1:
     model = DataParallel(model)
