@@ -8,18 +8,29 @@ from torch.nn import (
     LeakyReLU,
     ConvTranspose2d,
     Linear,
-    Tanh,
+    Sigmoid,
 )
-from torch.nn.functional import mse_loss
+from piq import VIFLoss
 
 
 class FlexVAE(Module):
-    def __init__(self, image_size, latent_dimension_count, hidden_layer_count=5):
+    def __init__(
+        self,
+        image_size,
+        latent_dimension_count,
+        hidden_layer_count,
+        gamma,
+        c_max,
+        c_stop_iteration,
+    ):
         super(FlexVAE, self).__init__()
 
         if isinstance(image_size, int):
             image_size = [image_size, image_size]
 
+        self.gamma = gamma
+        self.c_max = c_max
+        self.c_stop_iteration = c_stop_iteration
         self.latent_dimension_count = latent_dimension_count
 
         # encoder
@@ -93,10 +104,12 @@ class FlexVAE(Module):
             Conv2d(
                 self.min_hidden_channel_count, 3, kernel_size=(3, 3), padding=(1, 1)
             ),
-            Tanh(),
+            Sigmoid(),
         )
         decoder_layers.append(final_hidden_decoder_layer)
         self.decoder = Sequential(*decoder_layers)
+
+        self.vif_loss = VIFLoss()
 
     def encode(self, x):
         y = self.encoder(x)
@@ -129,14 +142,11 @@ class FlexVAE(Module):
         y = self.decode(z)
         return y, mu, log_var
 
-    @staticmethod
-    def criterion(
-        x, y, mu, log_var, gamma, c_max, c_stop_iteration, iteration, kld_weight
-    ):
-        reconstruction_loss = mse_loss(y, x)
+    def criterion(self, x, y, mu, log_var, iteration, kld_weight):
+        reconstruction_loss = self.vif_loss(y, x)
         kld_loss = mean(-0.5 * sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-        C = clip(c_max / c_stop_iteration * iteration, 0, c_max)
-        elbo_loss = reconstruction_loss + gamma * kld_weight * (kld_loss - C).abs()
+        C = clip(self.c_max / self.c_stop_iteration * iteration, 0, self.c_max)
+        elbo_loss = reconstruction_loss + self.gamma * kld_weight * (kld_loss - C).abs()
         return {
             "ELBO": elbo_loss,
             "Reconstruction": reconstruction_loss,

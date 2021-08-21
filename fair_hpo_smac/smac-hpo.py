@@ -94,7 +94,7 @@ from torch.nn import DataParallel
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
+from torchvision.transforms import Compose, ConvertImageDtype, Resize
 
 from data.UTKFace import load_utkface
 from models.FlexVAE import FlexVAE
@@ -146,11 +146,7 @@ data_state = {
 
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
-    transform = Compose([
-        ConvertImageDtype(float32),
-        Resize(image_size),
-        Lambda(lambda x: 2 * x - 1),
-    ])
+    transform = Compose([ConvertImageDtype(float32), Resize(image_size)])
     data_state["dataset_directory"] = dataset_directory
     data_state["dataset"] = "UTKFace"
     train_dataset, validation_dataset, test_dataset = load_utkface(
@@ -218,39 +214,36 @@ def hyperparameter_cost(hyperparameter_config):
     del hyperparameter_config["C_stop_iteration_fraction"]
     hyperparameters = Hyperparameters(**hyperparameter_config)
 
-    def train_criterion(data, _, output, mu, log_var, data_fraction):
+    def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
         train_criterion.iteration += 1
-        return FlexVAE.criterion(
-            data,
-            output,
-            mu,
-            log_var,
-            hyperparameters.vae_loss_gamma,
-            hyperparameters.C_max,
-            hyperparameters.C_stop_iteration,
+        return model.criterion(
+            _data,
+            _output,
+            _mu,
+            _log_var,
             train_criterion.iteration,
-            data_fraction,
+            _data_fraction,
         )
 
     train_criterion.iteration = 0
 
-    def validation_criterion(data, _, output, mu, log_var, data_fraction):
-        return FlexVAE.criterion(
-            data,
-            output,
-            mu,
-            log_var,
-            hyperparameters.vae_loss_gamma,
-            hyperparameters.C_max,
-            hyperparameters.C_stop_iteration,
+    def validation_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+        return model.criterion(
+            _data,
+            _output,
+            _mu,
+            _log_var,
             train_criterion.iteration,
-            data_fraction,
+            _data_fraction,
         )
 
     model = FlexVAE(
         image_size,
         hyperparameters.latent_dimension_count,
         hyperparameters.hidden_layer_count,
+        hyperparameters.vae_loss_gamma,
+        hyperparameters.C_max,
+        hyperparameters.C_stop_iteration,
     )
     if device_count > 1:
         model = DataParallel(model)
@@ -319,9 +312,7 @@ def save_model_state(
         save(model_state, model_save_file_path)
 
     if is_final_epoch:
-        model_save_file_name = (
-            f"model-run-{hyperparameter_cost.run:04}.pt"
-        )
+        model_save_file_name = f"model-run-{hyperparameter_cost.run:04}.pt"
         model_save_file_path = path.join(save_file_directory, model_save_file_name)
         save(model_state, model_save_file_path)
 
@@ -338,25 +329,25 @@ hidden_layer_count_hyperparameter = UniformIntegerHyperparameter(
     default_value=1,
 )
 latent_dimension_count_hyperparameter = UniformIntegerHyperparameter(
-    "latent_dimension_count", 16, 512, default_value=326
+    "latent_dimension_count", 16, 512, default_value=128
 )
 vae_loss_gamma_hyperparameter = UniformFloatHyperparameter(
-    "vae_loss_gamma", 1.0, 2000.0, default_value=316.0, log=True
+    "vae_loss_gamma", 1.0, 2000.0, default_value=10.0, log=True
 )
 C_max_hyperparameter = UniformFloatHyperparameter(
-    "C_max", 5.0, 50.0, default_value=43.75
+    "C_max", 5.0, 50.0, default_value=25.0
 )
 C_stop_iteration_fraction_hyperparameter = UniformFloatHyperparameter(
-    "C_stop_iteration_fraction", 0.15, 1.0, default_value=0.8875
+    "C_stop_iteration_fraction", 0.15, 1.0, default_value=0.2
 )
 learning_rate_hyperparameter = UniformFloatHyperparameter(
-    "learning_rate", 5e-6, 5e-3, default_value=1e-4, log=True
+    "learning_rate", 5e-6, 5e-3, default_value=5e-4, log=True
 )
 weight_decay_hyperparameter = UniformFloatHyperparameter(
-    "weight_decay", 0.0, 0.25, default_value=0.025
+    "weight_decay", 0.0, 0.25, default_value=0.0
 )
 lr_scheduler_gamma_hyperparameter = UniformFloatHyperparameter(
-    "lr_scheduler_gamma", 0.85, 1.0, default_value=0.9375
+    "lr_scheduler_gamma", 0.85, 1.0, default_value=0.95
 )
 hyperparameter_config_space.add_hyperparameters(
     [
