@@ -1,0 +1,1910 @@
+INFO:root:Script started at 2021-08-24 06:10:53.459506
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:12:21.584703
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:12:48.614372
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f2c1c474310; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:39589
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1139830842332992
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: only 1 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629785568.6419876
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1139830842332992
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1139830842332992
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 41.58113527395659, 'C_stop_iteration_ratio': 0.5985214952250256, 'hidden_layer_count': 4, 'latent_dimension_count': 101, 'lr': 0.0001897479491521522, 'lr_scheduler_gamma': 0.9219921430632275, 'vae_loss_gamma': 1.3468167727862488, 'weight_decay': 0.023183395290927694}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 76095931702.47197 Reconstruction: 0.07887237412588936 KLD: 9466383497714.81
+DEBUG:root:    Validation Losses - ELBO: 2372937320272.457 Reconstruction: 0.08002654878156526 KLD: 246223923337157.5
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 1.3804216559448887e+24 Reconstruction: 0.07561005013329643 KLD: 1.962827997654523e+26
+DEBUG:root:    Validation Losses - ELBO: 9.579155053763671e+23 Reconstruction: 0.07521503131304469 KLD: 9.906323148153466e+25
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:17:17.267430
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:19:31.149034
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:19:58.269465
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f59ee81e310; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:root:Script started at 2021-08-24 06:21:21.266735
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:21:48.281005
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f8680dd9310; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:38725
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140219076962112
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:HBMASTER: starting run at 1629786108.3055193
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140219076962112
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140219076962112
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 38.759996199292324, 'C_stop_iteration_ratio': 0.08507732007615451, 'hidden_layer_count': 4, 'latent_dimension_count': 119, 'lr': 0.0009301563436404563, 'lr_scheduler_gamma': 0.8751576812004009, 'vae_loss_gamma': 2.7773949323557463e-06, 'weight_decay': 0.2222935442257184}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.07598632616656167 Reconstruction: 0.07598563602992467 KLD: 1.4719861118389028
+DEBUG:root:    Validation Losses - ELBO: 0.08017016670533589 Reconstruction: 0.08016946486064366 KLD: 0.315280328478132
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.049250245094299316 Reconstruction: 0.049249718870435444 KLD: 9.21979992730277
+DEBUG:root:    Validation Losses - ELBO: 0.05141740441322327 Reconstruction: 0.05141703151166439 KLD: 18.360325050354003
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:26:26.437389
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:26:53.549158
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7fe5c83dd430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:37917
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140628295829312
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:HBMASTER: starting run at 1629786413.5732243
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140628295829312
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140628295829312
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 20.57635130344501, 'C_stop_iteration_ratio': 0.07825410488723056, 'hidden_layer_count': 2, 'latent_dimension_count': 390, 'lr': 0.000259422111674371, 'lr_scheduler_gamma': 0.9357441699001867, 'vae_loss_gamma': 9.680203093627931e-08, 'weight_decay': 0.021552757753891205}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.05010108609529708 Reconstruction: 0.05010096841364456 KLD: 187.85273149888292
+DEBUG:root:    Validation Losses - ELBO: 0.04318710478643576 Reconstruction: 0.04318697828853476 KLD: 199.21707650889522
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.02469705957785356 Reconstruction: 0.024696945862697182 KLD: 182.12658724338888
+DEBUG:root:    Validation Losses - ELBO: 0.028744102185727028 Reconstruction: 0.028744036291280518 KLD: 112.87917012753694
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:30:35.718236
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:31:02.833191
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7fc38b557430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:33473
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140481244301120
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:HBMASTER: starting run at 1629786662.8555834
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140481244301120
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140481244301120
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 32.25242125988238, 'C_stop_iteration_ratio': 0.8585709003226896, 'hidden_layer_count': 4, 'latent_dimension_count': 90, 'lr': 0.0008721461382269162, 'lr_scheduler_gamma': 0.9938022062346237, 'vae_loss_gamma': 1.852694168411721e-08, 'weight_decay': 0.21905470606356198}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.06172468057639307 Reconstruction: 0.06172468057639307 KLD: 5.478166923194909
+DEBUG:root:    Validation Losses - ELBO: 0.05155429411409558 Reconstruction: 0.05155429411409558 KLD: 5.9639173901599385
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.04312504399165833 Reconstruction: 0.04312504399165833 KLD: 7.851948672918964
+DEBUG:root:    Validation Losses - ELBO: 0.0634650826400173 Reconstruction: 0.06346508234307385 KLD: 1.1096770918887595
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:37:27.412745
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:37:54.458594
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f5c90121430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:42389
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140038942377792
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: starting run at 1629787074.4816136
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140038942377792
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140038942377792
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 28.024076404298732, 'C_stop_iteration_ratio': 0.14908309299548378, 'hidden_layer_count': 1, 'latent_dimension_count': 303, 'lr': 1.7907137758277916e-05, 'lr_scheduler_gamma': 0.940831739990749, 'vae_loss_gamma': 7.520161147807949e-07, 'weight_decay': 0.027857904188996585}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.08544393580594509 Reconstruction: 0.08544367873411385 KLD: 71.50826655875007
+DEBUG:root:    Validation Losses - ELBO: 0.07823548752112665 Reconstruction: 0.07823485163026962 KLD: 140.46927504608595
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.07490773831340049 Reconstruction: 0.07490690315155674 KLD: 178.20524663033245
+DEBUG:root:    Validation Losses - ELBO: 0.07224177002258923 Reconstruction: 0.07224080328276192 KLD: 201.09683481852213
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:40:51.829168
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:41:18.837173
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f5f6a1a2430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:37553
+DEBUG:hpbandster:HBMASTER: only 0 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140051190273856
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629787278.8592186
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140051190273856
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140051190273856
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 30.674852707903607, 'C_stop_iteration_ratio': 0.7607330960715623, 'hidden_layer_count': 2, 'latent_dimension_count': 23, 'lr': 0.0001180310471749877, 'lr_scheduler_gamma': 0.9267624153544172, 'vae_loss_gamma': 8.537021271515496e-07, 'weight_decay': 0.07555197327496838}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.07375792748958086 Reconstruction: 0.07375789079949152 KLD: 15.78294518697176
+DEBUG:root:    Validation Losses - ELBO: 0.06704809341201748 Reconstruction: 0.06704801442506521 KLD: 22.645435540572457
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.06333909684912764 Reconstruction: 0.0633389875828791 KLD: 27.79801966989641
+DEBUG:root:    Validation Losses - ELBO: 0.0604826837670112 Reconstruction: 0.06048256782409937 KLD: 28.662048630092453
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:43:13.503116
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:43:40.678290
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f179c1b4430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:43733
+DEBUG:hpbandster:HBMASTER: only 0 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1139742791563072
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629787420.7069447
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1139742791563072
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1139742791563072
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 13.157845846832721, 'C_stop_iteration_ratio': 0.08582416660181269, 'hidden_layer_count': 4, 'latent_dimension_count': 336, 'lr': 6.305967750750128e-05, 'lr_scheduler_gamma': 0.9899522628386381, 'vae_loss_gamma': 1.9922357344380127e-05, 'weight_decay': 0.18825033538290434}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.09003256604397039 Reconstruction: 0.09003109275865898 KLD: 19.47317915854694
+DEBUG:root:    Validation Losses - ELBO: 0.0825617321483467 Reconstruction: 0.08256070078283116 KLD: 5.256658771763677
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.08081897251683173 Reconstruction: 0.08081755277921827 KLD: 2.576487262043164
+DEBUG:root:    Validation Losses - ELBO: 0.07919446702884592 Reconstruction: 0.07919281353985054 KLD: 0.5664363127687703
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:45:59.372531
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:46:26.442697
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f55daad4430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:39279
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140010129291072
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:HBMASTER: starting run at 1629787586.4662495
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140010129291072
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140010129291072
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 9.057642017201196, 'C_stop_iteration_ratio': 0.19176610011874518, 'hidden_layer_count': 4, 'latent_dimension_count': 415, 'lr': 0.0013790210783929048, 'lr_scheduler_gamma': 0.9378616129997134, 'vae_loss_gamma': 5.224177509358749e-07, 'weight_decay': 0.23967879641818127}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.06696682710120146 Reconstruction: 0.06696681051159935 KLD: 5.549802079501984
+DEBUG:root:    Validation Losses - ELBO: 0.059544337130543114 Reconstruction: 0.05954419686526492 KLD: 44.38287895313208
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.05181307300067634 Reconstruction: 0.05181306201240999 KLD: 6.905384056859737
+DEBUG:root:    Validation Losses - ELBO: 0.06868916755353195 Reconstruction: 0.06868914369007816 KLD: 0.6723503975764565
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:48:21.004511
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:48:48.057499
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f4d3f1d3430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:34109
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1139973159405376
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: only 1 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629787728.0815623
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1139973159405376
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1139973159405376
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 19.898671073948822, 'C_stop_iteration_ratio': 0.11101080228371471, 'hidden_layer_count': 5, 'latent_dimension_count': 457, 'lr': 0.003242136714292693, 'lr_scheduler_gamma': 0.8886789527765221, 'vae_loss_gamma': 4.762059320390976e-06, 'weight_decay': 0.15324943623381973}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.06732848270548333 Reconstruction: 0.06732801246128493 KLD: 5.6783205922559015
+DEBUG:root:    Validation Losses - ELBO: 0.07454885402019473 Reconstruction: 0.0745482460960098 KLD: 0.07128656955192918
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.06611203702448083 Reconstruction: 0.066111505085187 KLD: 2.3796034167996414
+DEBUG:root:    Validation Losses - ELBO: 0.07685028259520946 Reconstruction: 0.07684967429309651 KLD: 0.025681533364822037
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 06:51:38.246167
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 06:52:05.292649
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7fac2222c430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:34425
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140380695123776
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:HBMASTER: starting run at 1629787925.3211873
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140380695123776
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140380695123776
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 32.04302447219317, 'C_stop_iteration_ratio': 0.28937034058533884, 'hidden_layer_count': 3, 'latent_dimension_count': 486, 'lr': 2.8667547128439192e-05, 'lr_scheduler_gamma': 0.8672325928453127, 'vae_loss_gamma': 2.957766971784111e-06, 'weight_decay': 0.19588687767030522}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.08983642254158747 Reconstruction: 0.08983599330238301 KLD: 36.76440941515586
+DEBUG:root:    Validation Losses - ELBO: 0.085264905963255 Reconstruction: 0.08526467823463937 KLD: 18.164688815241274
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.08375638659051854 Reconstruction: 0.08375604236297471 KLD: 11.42499265739386
+DEBUG:root:    Validation Losses - ELBO: 0.08198166509037433 Reconstruction: 0.0819812918594782 KLD: 5.8840764225393105
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Script started at 2021-08-24 07:02:57.483368
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 07:03:24.590431
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7f2d525ac430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:33655
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:HBMASTER: starting run at 1629788604.6169505
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 32.33387183686862, 'C_stop_iteration_ratio': 0.6200137340481633, 'hidden_layer_count': 4, 'latent_dimension_count': 488, 'lr': 7.80501348895294e-06, 'lr_scheduler_gamma': 0.8555047039988716, 'vae_loss_gamma': 1.925062246340615e-05, 'weight_decay': 0.18547966165426938}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.08886604091460756 Reconstruction: 0.08885997174669513 KLD: 56.744025882199516
+DEBUG:root:    Validation Losses - ELBO: 0.08733703887117082 Reconstruction: 0.08733187783239545 KLD: 49.8722681791886
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.08678149469464803 Reconstruction: 0.0867768780147429 KLD: 46.26075434513229
+DEBUG:root:    Validation Losses - ELBO: 0.08581553988050723 Reconstruction: 0.08581156413192334 KLD: 41.37295941339023
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) on hpbandster.run_example1.worker.vae.1139836043253568 finished
+DEBUG:hpbandster:job_id: (0, 0, 0)
+kwargs: {'config': {'C_max': 32.33387183686862, 'C_stop_iteration_ratio': 0.6200137340481633, 'hidden_layer_count': 4, 'latent_dimension_count': 488, 'lr': 7.80501348895294e-06, 'lr_scheduler_gamma': 0.8555047039988716, 'vae_loss_gamma': 1.925062246340615e-05, 'weight_decay': 0.18547966165426938}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.08581156413192334, 'info': {'test accuracy': 0.08581156413192334, 'train accuracy': 0.08581156413192334, 'validation accuracy': 0.08581156413192334, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 0) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 1) on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 29.10277303865698, 'C_stop_iteration_ratio': 0.39847386822958003, 'hidden_layer_count': 1, 'latent_dimension_count': 134, 'lr': 0.00024775489878781337, 'lr_scheduler_gamma': 0.890430644788831, 'vae_loss_gamma': 2.9676744257042603e-08, 'weight_decay': 0.10676256575493626}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.07427113551458867 Reconstruction: 0.07427113090487693 KLD: 38.372297853017024
+DEBUG:root:    Validation Losses - ELBO: 0.07013244516607645 Reconstruction: 0.0701324383093827 KLD: 46.97162321339483
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.0644871123510299 Reconstruction: 0.06448710388202461 KLD: 63.400063356907246
+DEBUG:root:    Validation Losses - ELBO: 0.056417545033753784 Reconstruction: 0.05641753183326859 KLD: 78.92971022232719
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) on hpbandster.run_example1.worker.vae.1139836043253568 finished
+DEBUG:hpbandster:job_id: (0, 0, 1)
+kwargs: {'config': {'C_max': 29.10277303865698, 'C_stop_iteration_ratio': 0.39847386822958003, 'hidden_layer_count': 1, 'latent_dimension_count': 134, 'lr': 0.00024775489878781337, 'lr_scheduler_gamma': 0.890430644788831, 'vae_loss_gamma': 2.9676744257042603e-08, 'weight_decay': 0.10676256575493626}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.05641753183326859, 'info': {'test accuracy': 0.05641753183326859, 'train accuracy': 0.05641753183326859, 'validation accuracy': 0.05641753183326859, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 1) started
+DEBUG:hpbandster:job_callback for (0, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 2 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 2) on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 2)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 21.05669827184514, 'C_stop_iteration_ratio': 0.12059823955671792, 'hidden_layer_count': 3, 'latent_dimension_count': 326, 'lr': 6.5969755414900795e-06, 'lr_scheduler_gamma': 0.8618574396460732, 'vae_loss_gamma': 1.9404111958178647e-06, 'weight_decay': 0.04761573925122192}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.0893678941207824 Reconstruction: 0.08936763281444851 KLD: 37.188927053547594
+DEBUG:root:    Validation Losses - ELBO: 0.08711119023138199 Reconstruction: 0.08711099662426589 KLD: 32.21570819357167
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.08577501280702275 Reconstruction: 0.08577486427782251 KLD: 29.103884991982
+DEBUG:root:    Validation Losses - ELBO: 0.0844278312895609 Reconstruction: 0.08442772973490797 KLD: 25.685047232586406
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 2), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 2) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) on hpbandster.run_example1.worker.vae.1139836043253568 finished
+DEBUG:hpbandster:job_id: (0, 0, 2)
+kwargs: {'config': {'C_max': 21.05669827184514, 'C_stop_iteration_ratio': 0.12059823955671792, 'hidden_layer_count': 3, 'latent_dimension_count': 326, 'lr': 6.5969755414900795e-06, 'lr_scheduler_gamma': 0.8618574396460732, 'vae_loss_gamma': 1.9404111958178647e-06, 'weight_decay': 0.04761573925122192}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.08442772973490797, 'info': {'test accuracy': 0.08442772973490797, 'train accuracy': 0.08442772973490797, 'validation accuracy': 0.08442772973490797, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 2) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 2) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 3 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 2) finished
+DEBUG:hpbandster:ITERATION: Advancing config (0, 0, 1) to next budget 8.000000
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 1) on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 29.10277303865698, 'C_stop_iteration_ratio': 0.39847386822958003, 'hidden_layer_count': 1, 'latent_dimension_count': 134, 'lr': 0.00024775489878781337, 'lr_scheduler_gamma': 0.890430644788831, 'vae_loss_gamma': 2.9676744257042603e-08, 'weight_decay': 0.10676256575493626}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.07454553755710451 Reconstruction: 0.07454553026732781 KLD: 44.901267748084855
+DEBUG:root:    Validation Losses - ELBO: 0.07080015318765157 Reconstruction: 0.07080014379344125 KLD: 53.808221899944805
+DEBUG:root:  Epoch: 2
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: 0.06545591935944214 Reconstruction: 0.06545590389546731 KLD: 75.62744900820067
+DEBUG:root:    Validation Losses - ELBO: 0.0580653238069752 Reconstruction: 0.05806530572042085 KLD: 88.4140196537626
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: 0.049780147270761806 Reconstruction: 0.04978012773308822 KLD: 97.60407273546397
+DEBUG:root:    Validation Losses - ELBO: 0.045110605792074966 Reconstruction: 0.045110586625726326 KLD: 94.92003637120344
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: 0.04185254459115241 Reconstruction: 0.04185252650071391 KLD: 90.09469922841024
+DEBUG:root:    Validation Losses - ELBO: 0.04008855997328309 Reconstruction: 0.04008854418129161 KLD: 78.9807130564814
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: 0.038510156862384126 Reconstruction: 0.038510141720017085 KLD: 75.67913000532191
+DEBUG:root:    Validation Losses - ELBO: 0.03786345225745353 Reconstruction: 0.03786343778821005 KLD: 70.10923523833786
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: 0.03742916228102266 Reconstruction: 0.03742914858589069 KLD: 68.44508641743832
+DEBUG:root:    Validation Losses - ELBO: 0.03762107037439726 Reconstruction: 0.03762105819971665 KLD: 62.20483536651169
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: 0.03713441417693234 Reconstruction: 0.037134401580627016 KLD: 64.72103601908512
+DEBUG:root:    Validation Losses - ELBO: 0.03692787901862808 Reconstruction: 0.03692786611508632 KLD: 64.728670977164
+DEBUG:root:  Epoch: 8
+DEBUG:root:    Training Losses - ELBO: 0.037249536608620515 Reconstruction: 0.03724952398551454 KLD: 63.7403128095668
+DEBUG:root:    Validation Losses - ELBO: 0.03730423640513766 Reconstruction: 0.037304224797349045 KLD: 60.06888740650122
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) on hpbandster.run_example1.worker.vae.1139836043253568 finished
+DEBUG:hpbandster:job_id: (0, 0, 1)
+kwargs: {'config': {'C_max': 29.10277303865698, 'C_stop_iteration_ratio': 0.39847386822958003, 'hidden_layer_count': 1, 'latent_dimension_count': 134, 'lr': 0.00024775489878781337, 'lr_scheduler_gamma': 0.890430644788831, 'vae_loss_gamma': 2.9676744257042603e-08, 'weight_decay': 0.10676256575493626}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': 0.03692786611508632, 'info': {'test accuracy': 0.03692786611508632, 'train accuracy': 0.03692786611508632, 'validation accuracy': 0.03692786611508632, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
+DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (1, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 0) on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1139836043253568
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (1, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 37.817431624866344, 'C_stop_iteration_ratio': 0.685159556657721, 'hidden_layer_count': 1, 'latent_dimension_count': 61, 'lr': 5.808270150967385e-06, 'lr_scheduler_gamma': 0.9327943402146296, 'vae_loss_gamma': 4.7807991537375336e-05, 'weight_decay': 0.03835822608969394}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.0943187902406823 Reconstruction: 0.0939807970639613 KLD: 1086.9867552956232
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Validation Losses - ELBO: 0.09243500637619392 Reconstruction: 0.08638614227158437 KLD: 17460.451067496037
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.15863872941234985 Reconstruction: 0.0854807479454459 KLD: 214638.97333422324
+DEBUG:root:    Validation Losses - ELBO: 0.29022339072780334 Reconstruction: 0.08468184841499812 KLD: 593175.0963117074
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: 0.4561270203092973 Reconstruction: 0.08496316602761797 KLD: 1084039.9698178957
+DEBUG:root:    Validation Losses - ELBO: 0.8145360416476277 Reconstruction: 0.08414028282614722 KLD: 2107829.0811537593
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: 0.7575383434514348 Reconstruction: 0.08466285788755623 KLD: 1962646.609206385
+DEBUG:root:    Validation Losses - ELBO: 1.061486386626527 Reconstruction: 0.0840494915087154 KLD: 2820746.996999547
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: 0.9917842819750737 Reconstruction: 0.08445167139494161 KLD: 2640595.36763714
+DEBUG:root:    Validation Losses - ELBO: 1.204405143317105 Reconstruction: 0.08387131378918454 KLD: 3233699.308197464
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: 1.0319919149331052 Reconstruction: 0.08431033382741668 KLD: 2758601.459419964
+DEBUG:root:    Validation Losses - ELBO: 1.2268732592355513 Reconstruction: 0.08371256572612817 KLD: 3298993.142606431
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: 1.0404641416540248 Reconstruction: 0.0841832023194368 KLD: 2783155.990782374
+DEBUG:root:    Validation Losses - ELBO: 1.247759027811496 Reconstruction: 0.08358667483148367 KLD: 3359626.8860394023
+DEBUG:root:  Epoch: 8
+INFO:root:Script started at 2021-08-24 07:06:38.120095
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 07:07:05.213098
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7fe17d84f430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:40815
+DEBUG:hpbandster:HBMASTER: only 0 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629788825.2351422
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 19.779387957581392, 'C_stop_iteration_ratio': 0.191892964822853, 'hidden_layer_count': 5, 'latent_dimension_count': 466, 'lr': 0.0019905613806742582, 'lr_scheduler_gamma': 0.9103290635173684, 'vae_loss_gamma': 115.1514296034055, 'weight_decay': 0.19303123836862046}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) finished
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140609861375808 finished
+DEBUG:hpbandster:job_id: (0, 0, 0)
+kwargs: {'config': {'C_max': 19.779387957581392, 'C_stop_iteration_ratio': 0.191892964822853, 'hidden_layer_count': 5, 'latent_dimension_count': 466, 'lr': 0.0019905613806742582, 'lr_scheduler_gamma': 0.9103290635173684, 'vae_loss_gamma': 115.1514296034055, 'weight_decay': 0.19303123836862046}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': nan, 'info': {'test accuracy': nan, 'train accuracy': nan, 'validation accuracy': nan, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 0) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 48.477707711701115, 'C_stop_iteration_ratio': 0.8278603743234894, 'hidden_layer_count': 3, 'latent_dimension_count': 160, 'lr': 3.264545713464659e-05, 'lr_scheduler_gamma': 0.8928176187287216, 'vae_loss_gamma': 959.3342171597105, 'weight_decay': 0.1362975272707437}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 6810085650.306574 Reconstruction: 0.08539347098671275 KLD: 1026559556.3281748
+DEBUG:root:    Validation Losses - ELBO: 160437779470.84058 Reconstruction: 0.08493894451986188 KLD: 23081227916.985508
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 4.3014019532288957e+18 Reconstruction: 0.08204479451230962 KLD: 6.414490315791698e+17
+DEBUG:root:    Validation Losses - ELBO: 1.3444171157727042e+20 Reconstruction: 0.08554089328517085 KLD: 1.934033260859514e+19
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140609861375808 finished
+DEBUG:hpbandster:job_id: (0, 0, 1)
+kwargs: {'config': {'C_max': 48.477707711701115, 'C_stop_iteration_ratio': 0.8278603743234894, 'hidden_layer_count': 3, 'latent_dimension_count': 160, 'lr': 3.264545713464659e-05, 'lr_scheduler_gamma': 0.8928176187287216, 'vae_loss_gamma': 959.3342171597105, 'weight_decay': 0.1362975272707437}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.08493894451986188, 'info': {'test accuracy': 0.08493894451986188, 'train accuracy': 0.08493894451986188, 'validation accuracy': 0.08493894451986188, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 2 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 2)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 21.717185665927346, 'C_stop_iteration_ratio': 0.09187417291844907, 'hidden_layer_count': 4, 'latent_dimension_count': 312, 'lr': 0.00034956233855384196, 'lr_scheduler_gamma': 0.9297825019712588, 'vae_loss_gamma': 10.387878791297586, 'weight_decay': 0.20009416222336374}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: inf Reconstruction: 0.0791179270838662 KLD: inf
+DEBUG:root:    Validation Losses - ELBO: inf Reconstruction: 0.0769765941777091 KLD: inf
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 2), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 2) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140609861375808 finished
+DEBUG:hpbandster:job_id: (0, 0, 2)
+kwargs: {'config': {'C_max': 21.717185665927346, 'C_stop_iteration_ratio': 0.09187417291844907, 'hidden_layer_count': 4, 'latent_dimension_count': 312, 'lr': 0.00034956233855384196, 'lr_scheduler_gamma': 0.9297825019712588, 'vae_loss_gamma': 10.387878791297586, 'weight_decay': 0.20009416222336374}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.0769765941777091, 'info': {'test accuracy': 0.0769765941777091, 'train accuracy': 0.0769765941777091, 'validation accuracy': 0.0769765941777091, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 2) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 2) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 3 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 2) finished
+DEBUG:hpbandster:ITERATION: Advancing config (0, 0, 2) to next budget 8.000000
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 2)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 21.717185665927346, 'C_stop_iteration_ratio': 0.09187417291844907, 'hidden_layer_count': 4, 'latent_dimension_count': 312, 'lr': 0.00034956233855384196, 'lr_scheduler_gamma': 0.9297825019712588, 'vae_loss_gamma': 10.387878791297586, 'weight_decay': 0.20009416222336374}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: inf Reconstruction: 0.07839271544123726 KLD: inf
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Validation Losses - ELBO: inf Reconstruction: 0.07697327996509662 KLD: inf
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 8
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 2), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 2) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140609861375808 finished
+DEBUG:hpbandster:job_id: (0, 0, 2)
+kwargs: {'config': {'C_max': 21.717185665927346, 'C_stop_iteration_ratio': 0.09187417291844907, 'hidden_layer_count': 4, 'latent_dimension_count': 312, 'lr': 0.00034956233855384196, 'lr_scheduler_gamma': 0.9297825019712588, 'vae_loss_gamma': 10.387878791297586, 'weight_decay': 0.20009416222336374}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': 0.07697327996509662, 'info': {'test accuracy': 0.07697327996509662, 'train accuracy': 0.07697327996509662, 'validation accuracy': 0.07697327996509662, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 2) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 2) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 2) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
+DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (1, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 0) on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140609861375808
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 29.838808835830918, 'C_stop_iteration_ratio': 0.17821934296380826, 'hidden_layer_count': 1, 'latent_dimension_count': 205, 'lr': 0.0005346433046321781, 'lr_scheduler_gamma': 0.9727879379857735, 'vae_loss_gamma': 499.96533751218186, 'weight_decay': 0.16461223890676013}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 8
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (1, 0, 0), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (1, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) on hpbandster.run_example1.worker.vae.1140609861375808 finished
+DEBUG:hpbandster:job_id: (1, 0, 0)
+kwargs: {'config': {'C_max': 29.838808835830918, 'C_stop_iteration_ratio': 0.17821934296380826, 'hidden_layer_count': 1, 'latent_dimension_count': 205, 'lr': 0.0005346433046321781, 'lr_scheduler_gamma': 0.9727879379857735, 'vae_loss_gamma': 499.96533751218186, 'weight_decay': 0.16461223890676013}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': nan, 'info': {'test accuracy': nan, 'train accuracy': nan, 'validation accuracy': nan, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (1, 0, 0) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (1, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 2 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (1, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
+DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (1, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 1) on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140609861375808
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (1, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 5.9463805350131524, 'C_stop_iteration_ratio': 0.44431325456558884, 'hidden_layer_count': 3, 'latent_dimension_count': 79, 'lr': 0.004245369019018082, 'lr_scheduler_gamma': 0.9208114195629004, 'vae_loss_gamma': 573.406738097804, 'weight_decay': 0.19395962500151384}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 7
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+INFO:root:Script started at 2021-08-24 07:13:08.201366
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 07:13:35.231079
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7fd8eff11430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:43241
+DEBUG:hpbandster:HBMASTER: only 0 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629789215.2592218
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 14.773934520359823, 'C_stop_iteration_ratio': 0.192010527265234, 'hidden_layer_count': 3, 'latent_dimension_count': 161, 'lr': 2.3366286087679645e-05, 'lr_scheduler_gamma': 0.9859883543288146, 'vae_loss_gamma': 284.9294226753601, 'weight_decay': 0.03104113648850973}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 9009225.879417501 Reconstruction: 0.08565730199539404 KLD: 4544899.1292106295
+DEBUG:root:    Validation Losses - ELBO: 228168729.79710144 Reconstruction: 0.0865038205748019 KLD: 110529892.95652173
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 416444912866440.4 Reconstruction: 0.08154559666089875 KLD: 206220286326794.75
+DEBUG:root:    Validation Losses - ELBO: 1.9521630301144704e+16 Reconstruction: 0.08429918222237325 KLD: 9454425791213628.0
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140573395195712 finished
+DEBUG:hpbandster:job_id: (0, 0, 0)
+kwargs: {'config': {'C_max': 14.773934520359823, 'C_stop_iteration_ratio': 0.192010527265234, 'hidden_layer_count': 3, 'latent_dimension_count': 161, 'lr': 2.3366286087679645e-05, 'lr_scheduler_gamma': 0.9859883543288146, 'vae_loss_gamma': 284.9294226753601, 'weight_decay': 0.03104113648850973}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.08429918222237325, 'info': {'test accuracy': 0.08429918222237325, 'train accuracy': 0.08429918222237325, 'validation accuracy': 0.08429918222237325, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 0) started
+DEBUG:hpbandster:job_callback for (0, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 36.879316760221904, 'C_stop_iteration_ratio': 0.25887934937688917, 'hidden_layer_count': 4, 'latent_dimension_count': 417, 'lr': 0.00032706828399881206, 'lr_scheduler_gamma': 0.9053577744536554, 'vae_loss_gamma': 12.514716256133893, 'weight_decay': 0.22821545712292368}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: inf Reconstruction: 0.07982035259977519 KLD: inf
+DEBUG:root:    Validation Losses - ELBO: inf Reconstruction: 0.07703136496137881 KLD: inf
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140573395195712 finished
+DEBUG:hpbandster:job_id: (0, 0, 1)
+kwargs: {'config': {'C_max': 36.879316760221904, 'C_stop_iteration_ratio': 0.25887934937688917, 'hidden_layer_count': 4, 'latent_dimension_count': 417, 'lr': 0.00032706828399881206, 'lr_scheduler_gamma': 0.9053577744536554, 'vae_loss_gamma': 12.514716256133893, 'weight_decay': 0.22821545712292368}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.07703136496137881, 'info': {'test accuracy': 0.07703136496137881, 'train accuracy': 0.07703136496137881, 'validation accuracy': 0.07703136496137881, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 2 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 2)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 38.28696783127887, 'C_stop_iteration_ratio': 0.4590006540449626, 'hidden_layer_count': 1, 'latent_dimension_count': 276, 'lr': 1.0224930979750809e-05, 'lr_scheduler_gamma': 0.9959784773776783, 'vae_loss_gamma': 1.7518091209001858, 'weight_decay': 0.1640643692333945}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 6962412931.909505 Reconstruction: 0.08866344478061731 KLD: 558243431398.9501
+DEBUG:root:    Validation Losses - ELBO: 377866734209.8551 Reconstruction: 0.08615104384396387 KLD: 29760290385504.465
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 5.406891194165581e+22 Reconstruction: 0.08514307375005681 KLD: 4.279777796926734e+24
+DEBUG:root:    Validation Losses - ELBO: 2.7635068382423357e+25 Reconstruction: 0.0835276783808418 KLD: 2.1764254640076983e+27
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 2), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 2) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140573395195712 finished
+DEBUG:hpbandster:job_id: (0, 0, 2)
+kwargs: {'config': {'C_max': 38.28696783127887, 'C_stop_iteration_ratio': 0.4590006540449626, 'hidden_layer_count': 1, 'latent_dimension_count': 276, 'lr': 1.0224930979750809e-05, 'lr_scheduler_gamma': 0.9959784773776783, 'vae_loss_gamma': 1.7518091209001858, 'weight_decay': 0.1640643692333945}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.0835276783808418, 'info': {'test accuracy': 0.0835276783808418, 'train accuracy': 0.0835276783808418, 'validation accuracy': 0.0835276783808418, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 2) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 2) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 3 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 2) finished
+DEBUG:hpbandster:ITERATION: Advancing config (0, 0, 1) to next budget 8.000000
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 36.879316760221904, 'C_stop_iteration_ratio': 0.25887934937688917, 'hidden_layer_count': 4, 'latent_dimension_count': 417, 'lr': 0.00032706828399881206, 'lr_scheduler_gamma': 0.9053577744536554, 'vae_loss_gamma': 12.514716256133893, 'weight_decay': 0.22821545712292368}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: inf Reconstruction: 0.08029194910534852 KLD: inf
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Validation Losses - ELBO: inf Reconstruction: 0.07620421413710152 KLD: inf
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:root:  Epoch: 8
+DEBUG:root:    Training Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Validation Losses - ELBO: nan Reconstruction: nan KLD: nan
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140573395195712 finished
+DEBUG:hpbandster:job_id: (0, 0, 1)
+kwargs: {'config': {'C_max': 36.879316760221904, 'C_stop_iteration_ratio': 0.25887934937688917, 'hidden_layer_count': 4, 'latent_dimension_count': 417, 'lr': 0.00032706828399881206, 'lr_scheduler_gamma': 0.9053577744536554, 'vae_loss_gamma': 12.514716256133893, 'weight_decay': 0.22821545712292368}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': 0.07620421413710152, 'info': {'test accuracy': 0.07620421413710152, 'train accuracy': 0.07620421413710152, 'validation accuracy': 0.07620421413710152, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
+DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (1, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 0) on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140573395195712
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (1, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 9.562677579150762, 'C_stop_iteration_ratio': 0.6055847610885311, 'hidden_layer_count': 4, 'latent_dimension_count': 133, 'lr': 2.7243902735934114e-05, 'lr_scheduler_gamma': 0.883856659501631, 'vae_loss_gamma': 13.311563871475059, 'weight_decay': 0.15283866262312765}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 3915.6463243438184 Reconstruction: 0.08765779323071884 KLD: 41823.705872274986
+DEBUG:root:    Validation Losses - ELBO: 52676.05225317029 Reconstruction: 0.08817130078872044 KLD: 546083.5656702898
+DEBUG:root:  Epoch: 2
+INFO:root:Script started at 2021-08-24 07:16:21.626623
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+INFO:root:UTKFace dataset was loaded from directory /srv/nfs/data/mengze/vae, 
+INFO:root:Script started at 2021-08-24 07:16:48.686793
+INFO:root:Memory allocation was selected to be performed on 4 CUDA devices
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 144
+INFO:root:Generative models will be trained for 100 epochs
+INFO:root:Hyperparameter optimisation with SMAC will be run for 72000s and with seed 42
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x7fd51ae0f430; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:34287
+DEBUG:hpbandster:HBMASTER: only 0 worker(s) available, waiting for at least 1.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Enough workers to start this run!
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+INFO:hpbandster:HBMASTER: starting run at 1629789408.7120748
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 45.14442748677814, 'C_stop_iteration_ratio': 0.2289024205971968, 'hidden_layer_count': 3, 'latent_dimension_count': 203, 'lr': 9.593456150191918e-06, 'lr_scheduler_gamma': 0.9750021811805619, 'vae_loss_gamma': 9.041183393965282, 'weight_decay': 0.07152870656785199}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.27713266979876183 Reconstruction: 0.09053311057442384 KLD: 35.72116520421968
+DEBUG:root:    Validation Losses - ELBO: 0.7958082930873269 Reconstruction: 0.0882047649634921 KLD: 45.51895683399145
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.521201488836635 Reconstruction: 0.08673501609683894 KLD: 37.13353745714366
+DEBUG:root:    Validation Losses - ELBO: 0.775599519195764 Reconstruction: 0.08521474806078966 KLD: 44.53011581863182
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 0), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (0, 0, 0)
+kwargs: {'config': {'C_max': 45.14442748677814, 'C_stop_iteration_ratio': 0.2289024205971968, 'hidden_layer_count': 3, 'latent_dimension_count': 203, 'lr': 9.593456150191918e-06, 'lr_scheduler_gamma': 0.9750021811805619, 'vae_loss_gamma': 9.041183393965282, 'weight_decay': 0.07152870656785199}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.08521474806078966, 'info': {'test accuracy': 0.08521474806078966, 'train accuracy': 0.08521474806078966, 'validation accuracy': 0.08521474806078966, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 0) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 46.24727921774754, 'C_stop_iteration_ratio': 0.21059833882697915, 'hidden_layer_count': 2, 'latent_dimension_count': 231, 'lr': 2.5550987052112548e-05, 'lr_scheduler_gamma': 0.9646337160354839, 'vae_loss_gamma': 656.4561561466934, 'weight_decay': 0.17526270649088205}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 12.947730002857798 Reconstruction: 0.0891210865095365 KLD: 37.6886011576481
+DEBUG:root:    Validation Losses - ELBO: 49.73079069109931 Reconstruction: 0.0856284514285516 KLD: 42.70534811158111
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 16.60608147331279 Reconstruction: 0.08430886161413124 KLD: 38.22264464124501
+DEBUG:root:    Validation Losses - ELBO: 63.84659201856972 Reconstruction: 0.08288399302873059 KLD: 50.098581811656125
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 1) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (0, 0, 1)
+kwargs: {'config': {'C_max': 46.24727921774754, 'C_stop_iteration_ratio': 0.21059833882697915, 'hidden_layer_count': 2, 'latent_dimension_count': 231, 'lr': 2.5550987052112548e-05, 'lr_scheduler_gamma': 0.9646337160354839, 'vae_loss_gamma': 656.4561561466934, 'weight_decay': 0.17526270649088205}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.08288399302873059, 'info': {'test accuracy': 0.08288399302873059, 'train accuracy': 0.08288399302873059, 'validation accuracy': 0.08288399302873059, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 2 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 14.472635076792123, 'C_stop_iteration_ratio': 0.9335411861020084, 'hidden_layer_count': 1, 'latent_dimension_count': 434, 'lr': 0.0005018751947101674, 'lr_scheduler_gamma': 0.9616298546054017, 'vae_loss_gamma': 1.713281218727446, 'weight_decay': 0.014317953159259295}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 50.82927153607924 Reconstruction: 0.07706705856023074 KLD: 4113.979814790136
+DEBUG:root:    Validation Losses - ELBO: 26306.99282796141 Reconstruction: 0.07860598880527676 KLD: 2118419.3803737476
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 24239.94505550364 Reconstruction: 0.06352011862097026 KLD: 1961302.24219233
+DEBUG:root:    Validation Losses - ELBO: 7.961940323097118 Reconstruction: 0.06495716959993908 KLD: 639.898362311764
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 2), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 2) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (0, 0, 2)
+kwargs: {'config': {'C_max': 14.472635076792123, 'C_stop_iteration_ratio': 0.9335411861020084, 'hidden_layer_count': 1, 'latent_dimension_count': 434, 'lr': 0.0005018751947101674, 'lr_scheduler_gamma': 0.9616298546054017, 'vae_loss_gamma': 1.713281218727446, 'weight_decay': 0.014317953159259295}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.06495716959993908, 'info': {'test accuracy': 0.06495716959993908, 'train accuracy': 0.06495716959993908, 'validation accuracy': 0.06495716959993908, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 2) started
+DEBUG:hpbandster:job_callback for (0, 0, 2) got condition
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 3 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 2) finished
+DEBUG:hpbandster:ITERATION: Advancing config (0, 0, 2) to next budget 8.000000
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (0, 0, 2)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 14.472635076792123, 'C_stop_iteration_ratio': 0.9335411861020084, 'hidden_layer_count': 1, 'latent_dimension_count': 434, 'lr': 0.0005018751947101674, 'lr_scheduler_gamma': 0.9616298546054017, 'vae_loss_gamma': 1.713281218727446, 'weight_decay': 0.014317953159259295}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: 30.898576287914523 Reconstruction: 0.07677323939345723 KLD: 2498.207687926807
+DEBUG:root:    Validation Losses - ELBO: 15.68671279022659 Reconstruction: 0.07400333908373032 KLD: 1258.5344556725543
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 9.05671123720759 Reconstruction: 0.06208059132742367 KLD: 729.3780698707635
+DEBUG:root:    Validation Losses - ELBO: 3.1727743356124214 Reconstruction: 0.053025907013511314 KLD: 252.25640946540278
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: 0.7164661022398969 Reconstruction: 0.05851640822968895 KLD: 54.23954215152658
+DEBUG:root:    Validation Losses - ELBO: 0.22669223965941995 Reconstruction: 0.05988671784491643 KLD: 14.404612907464953
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: 0.4138628220815453 Reconstruction: 0.06113912186605467 KLD: 29.630055599075426
+DEBUG:root:    Validation Losses - ELBO: 0.6347890453062196 Reconstruction: 0.060420141433892044 KLD: 47.232742503069446
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: 0.5711107631381467 Reconstruction: 0.057417781152527964 KLD: 42.642976994137115
+DEBUG:root:    Validation Losses - ELBO: 0.5322303460991901 Reconstruction: 0.052427973085339516 KLD: 39.6146492888962
+DEBUG:root:  Epoch: 6
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: 2.12043517635023 Reconstruction: 0.05274945334028855 KLD: 168.47689505103682
+DEBUG:root:    Validation Losses - ELBO: 1.4214607347612795 Reconstruction: 0.050704289902595505 KLD: 111.37116633981898
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: 17.614816533575812 Reconstruction: 0.05073359319203192 KLD: 1422.511877540204
+DEBUG:root:    Validation Losses - ELBO: 2.0168688124504643 Reconstruction: 0.04744359516147254 KLD: 159.59657674595928
+DEBUG:root:  Epoch: 8
+DEBUG:root:    Training Losses - ELBO: 59.275054233537304 Reconstruction: 0.04931171790515776 KLD: 4793.691214142944
+DEBUG:root:    Validation Losses - ELBO: 5.836299982623777 Reconstruction: 0.07344638156718102 KLD: 465.1243418817935
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (0, 0, 2), trying to register it.
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) finished
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (0, 0, 2) with dispatcher
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 2) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (0, 0, 2)
+kwargs: {'config': {'C_max': 14.472635076792123, 'C_stop_iteration_ratio': 0.9335411861020084, 'hidden_layer_count': 1, 'latent_dimension_count': 434, 'lr': 0.0005018751947101674, 'lr_scheduler_gamma': 0.9616298546054017, 'vae_loss_gamma': 1.713281218727446, 'weight_decay': 0.014317953159259295}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': 0.04744359516147254, 'info': {'test accuracy': 0.04744359516147254, 'train accuracy': 0.04744359516147254, 'validation accuracy': 0.04744359516147254, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (0, 0, 2) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (0, 0, 2) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 1 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (0, 0, 2) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
+DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (1, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 0) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 30.807791568845982, 'C_stop_iteration_ratio': 0.5349143154026419, 'hidden_layer_count': 1, 'latent_dimension_count': 335, 'lr': 0.00048401357078367753, 'lr_scheduler_gamma': 0.8639916119854031, 'vae_loss_gamma': 1.1013748283466946, 'weight_decay': 0.18934967348560316}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 2.1271942211248036 Reconstruction: 0.07725381084697709 KLD: 261.6947406521804
+DEBUG:root:    Validation Losses - ELBO: 0.24428798193516937 Reconstruction: 0.07739896775371786 KLD: 24.514332619266234
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.17740049958229065 Reconstruction: 0.08090194888252149 KLD: 15.750566112051764
+DEBUG:root:    Validation Losses - ELBO: 0.1143220052447008 Reconstruction: 0.08126236007049464 KLD: 7.74592780030292
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: 0.1317559653799311 Reconstruction: 0.08093763855721453 KLD: 10.010803826421284
+DEBUG:root:    Validation Losses - ELBO: 0.12065172918896744 Reconstruction: 0.08069080913412398 KLD: 8.610610930815987
+DEBUG:root:  Epoch: 4
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: 0.1649412557268314 Reconstruction: 0.08062041797440686 KLD: 14.200478525470487
+DEBUG:root:    Validation Losses - ELBO: 0.4564363542890203 Reconstruction: 0.08054893749995508 KLD: 50.70216007509093
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: 0.13309123350990762 Reconstruction: 0.08054454721135201 KLD: 10.208341001606673
+DEBUG:root:    Validation Losses - ELBO: 0.13324267255223315 Reconstruction: 0.08051617600131726 KLD: 10.210264040076215
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: 0.10181591177372623 Reconstruction: 0.08052723066841098 KLD: 6.11670194941459
+DEBUG:root:    Validation Losses - ELBO: 0.15670691516952237 Reconstruction: 0.0805088133159755 KLD: 13.151226734769518
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: 0.10883371483722179 Reconstruction: 0.08052327864461666 KLD: 7.028974777502979
+DEBUG:root:    Validation Losses - ELBO: 0.11621807175485985 Reconstruction: 0.08050723730222038 KLD: 8.078350080960039
+DEBUG:root:  Epoch: 8
+DEBUG:root:    Training Losses - ELBO: 0.1052834760906885 Reconstruction: 0.08052233638737699 KLD: 6.279135716047218
+DEBUG:root:    Validation Losses - ELBO: 0.10590081019462019 Reconstruction: 0.08050703079156253 KLD: 6.747063889019731
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (1, 0, 0), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (1, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (1, 0, 0)
+kwargs: {'config': {'C_max': 30.807791568845982, 'C_stop_iteration_ratio': 0.5349143154026419, 'hidden_layer_count': 1, 'latent_dimension_count': 335, 'lr': 0.00048401357078367753, 'lr_scheduler_gamma': 0.8639916119854031, 'vae_loss_gamma': 1.1013748283466946, 'weight_decay': 0.18934967348560316}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': 0.07739896775371786, 'info': {'test accuracy': 0.07739896775371786, 'train accuracy': 0.07739896775371786, 'validation accuracy': 0.07739896775371786, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (1, 0, 0) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (1, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 2 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (1, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
+DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (1, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 1) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (1, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 16.747054398716436, 'C_stop_iteration_ratio': 0.9263156490024753, 'hidden_layer_count': 5, 'latent_dimension_count': 410, 'lr': 0.0011819977086932928, 'lr_scheduler_gamma': 0.977652849882573, 'vae_loss_gamma': 7.170519295434819, 'weight_decay': 0.19266602921301376}, 'budget': 8.0, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 0.226772724188489 Reconstruction: 0.0719128370070629 KLD: 3.746377107050779
+DEBUG:root:    Validation Losses - ELBO: 0.6022779002137806 Reconstruction: 0.06748124846405741 KLD: 11.421744388082754
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.1164492523069862 Reconstruction: 0.06836833531479183 KLD: 1.5290581269337118
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Validation Losses - ELBO: 0.11235149069756702 Reconstruction: 0.06837031407200772 KLD: 1.8795318931773088
+DEBUG:root:  Epoch: 3
+DEBUG:root:    Training Losses - ELBO: 0.10944319623622963 Reconstruction: 0.06848121798938984 KLD: 1.4525488129944253
+DEBUG:root:    Validation Losses - ELBO: 0.11238231688089993 Reconstruction: 0.0718167351855748 KLD: 0.4271045584177625
+DEBUG:root:  Epoch: 4
+DEBUG:root:    Training Losses - ELBO: 0.09884468535725162 Reconstruction: 0.06872077774015262 KLD: 1.109597991053149
+DEBUG:root:    Validation Losses - ELBO: 0.09908424361028532 Reconstruction: 0.06956188645267831 KLD: 0.9979929751244144
+DEBUG:root:  Epoch: 5
+DEBUG:root:    Training Losses - ELBO: 0.09408671028322453 Reconstruction: 0.06942263068698293 KLD: 1.1111846531091405
+DEBUG:root:    Validation Losses - ELBO: 0.4774214377005895 Reconstruction: 0.07529543890901234 KLD: 8.868637485780578
+DEBUG:root:  Epoch: 6
+DEBUG:root:    Training Losses - ELBO: 0.08641053184116487 Reconstruction: 0.07024895876860447 KLD: 1.0871201080384014
+DEBUG:root:    Validation Losses - ELBO: 0.1198750388795051 Reconstruction: 0.07800731160070586 KLD: 0.38841788470745087
+DEBUG:root:  Epoch: 7
+DEBUG:root:    Training Losses - ELBO: 0.08464182832901426 Reconstruction: 0.0728888137520646 KLD: 1.080520276918257
+DEBUG:root:    Validation Losses - ELBO: 0.10410624521150105 Reconstruction: 0.07478686805436577 KLD: 1.1418155967325405
+DEBUG:root:  Epoch: 8
+DEBUG:root:    Training Losses - ELBO: 0.08702701480268575 Reconstruction: 0.07654410879388987 KLD: 1.105509325620725
+DEBUG:root:    Validation Losses - ELBO: 0.1371364166447218 Reconstruction: 0.07882893009894136 KLD: 0.007584509166443478
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (1, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (1, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (1, 0, 1) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (1, 0, 1)
+kwargs: {'config': {'C_max': 16.747054398716436, 'C_stop_iteration_ratio': 0.9263156490024753, 'hidden_layer_count': 5, 'latent_dimension_count': 410, 'lr': 0.0011819977086932928, 'lr_scheduler_gamma': 0.977652849882573, 'vae_loss_gamma': 7.170519295434819, 'weight_decay': 0.19266602921301376}, 'budget': 8.0, 'working_directory': '.'}
+result: {'loss': 0.06748124846405741, 'info': {'test accuracy': 0.06748124846405741, 'train accuracy': 0.06748124846405741, 'validation accuracy': 0.06748124846405741, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (1, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (1, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 3 run(s) for budget 8.000000 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (1, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 2
+DEBUG:hpbandster:HBMASTER: trying submitting job (2, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (2, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (2, 0, 0)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (2, 0, 0) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (2, 0, 0) on hpbandster.run_example1.worker.vae.1140556666853184
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (2, 0, 0)
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 0) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 39.022307336275, 'C_stop_iteration_ratio': 0.9647506981329474, 'hidden_layer_count': 3, 'latent_dimension_count': 296, 'lr': 0.0001543597655437989, 'lr_scheduler_gamma': 0.851919544284405, 'vae_loss_gamma': 117.43886313007565, 'weight_decay': 0.07349079851284757}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:root:    Training Losses - ELBO: 3.6052379117166398 Reconstruction: 0.07875586333249113 KLD: 12.616311014985008
+DEBUG:root:    Validation Losses - ELBO: 6.424588459989299 Reconstruction: 0.07620958033679189 KLD: 17.0417276258054
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 1.7767418351748008 Reconstruction: 0.07570676768212009 KLD: 11.097122948804348
+DEBUG:root:    Validation Losses - ELBO: 7.914275637139445 Reconstruction: 0.07523248868360036 KLD: 19.286182914955027
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (2, 0, 0), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (2, 0, 0) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 0) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 0) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (2, 0, 0)
+kwargs: {'config': {'C_max': 39.022307336275, 'C_stop_iteration_ratio': 0.9647506981329474, 'hidden_layer_count': 3, 'latent_dimension_count': 296, 'lr': 0.0001543597655437989, 'lr_scheduler_gamma': 0.851919544284405, 'vae_loss_gamma': 117.43886313007565, 'weight_decay': 0.07349079851284757}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.07523248868360036, 'info': {'test accuracy': 0.07523248868360036, 'train accuracy': 0.07523248868360036, 'validation accuracy': 0.07523248868360036, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (2, 0, 0) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (2, 0, 0) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 4 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (2, 0, 0) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 2
+DEBUG:hpbandster:HBMASTER: trying submitting job (2, 0, 1) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (2, 0, 1) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (2, 0, 1)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (2, 0, 1) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (2, 0, 1) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 1) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (2, 0, 1)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 13.091628392815212, 'C_stop_iteration_ratio': 0.6305930523317518, 'hidden_layer_count': 4, 'latent_dimension_count': 310, 'lr': 0.0038534902720543285, 'lr_scheduler_gamma': 0.9278065582090799, 'vae_loss_gamma': 2.260512055520168, 'weight_decay': 0.0373353816941866}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 2.610339612572742 Reconstruction: 0.07317968557099644 KLD: 160.70424465138277
+DEBUG:root:    Validation Losses - ELBO: 0.37220507255498914 Reconstruction: 0.07342580101196317 KLD: 23.43796065233756
+DEBUG:root:  Epoch: 2
+DEBUG:root:    Training Losses - ELBO: 0.15015069561467753 Reconstruction: 0.07338508459732687 KLD: 9.210123473791768
+DEBUG:root:    Validation Losses - ELBO: 0.12465341691521631 Reconstruction: 0.07298131994363191 KLD: 7.667312407839125
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: done with job (2, 0, 1), trying to register it.
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: registered result for job (2, 0, 1) with dispatcher
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 1) finished
+DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 1) on hpbandster.run_example1.worker.vae.1140556666853184 finished
+DEBUG:hpbandster:job_id: (2, 0, 1)
+kwargs: {'config': {'C_max': 13.091628392815212, 'C_stop_iteration_ratio': 0.6305930523317518, 'hidden_layer_count': 4, 'latent_dimension_count': 310, 'lr': 0.0038534902720543285, 'lr_scheduler_gamma': 0.9278065582090799, 'vae_loss_gamma': 2.260512055520168, 'weight_decay': 0.0373353816941866}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+result: {'loss': 0.07298131994363191, 'info': {'test accuracy': 0.07298131994363191, 'train accuracy': 0.07298131994363191, 'validation accuracy': 0.07298131994363191, 'number of parameters': 10}}
+exception: None
+
+DEBUG:hpbandster:job_callback for (2, 0, 1) started
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:job_callback for (2, 0, 1) got condition
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+DEBUG:hpbandster:Only 5 run(s) for budget 2.666667 available, need more than 10 -> can't build model!
+DEBUG:hpbandster:HBMASTER: Trying to run another job!
+DEBUG:hpbandster:job_callback for (2, 0, 1) finished
+DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:done sampling a new configuration.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 2
+DEBUG:hpbandster:HBMASTER: trying submitting job (2, 0, 2) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (2, 0, 2) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (2, 0, 2)
+DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
+DEBUG:hpbandster:HBMASTER: job (2, 0, 2) submitted to dispatcher
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
+DEBUG:hpbandster:DISPATCHER: starting job (2, 0, 2) on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: job (2, 0, 2) dispatched on hpbandster.run_example1.worker.vae.1140556666853184
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
+INFO:hpbandster.run_example1.worker.vae.1:WORKER: start processing job (2, 0, 2)
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.vae.1:WORKER: kwargs: {'config': {'C_max': 16.40501392793989, 'C_stop_iteration_ratio': 0.17652719613734413, 'hidden_layer_count': 5, 'latent_dimension_count': 298, 'lr': 0.0002734413520290021, 'lr_scheduler_gamma': 0.9465569884868551, 'vae_loss_gamma': 84.5060620989032, 'weight_decay': 0.11135969848386026}, 'budget': 2.6666666666666665, 'working_directory': '.'}
+DEBUG:root:  Epoch: 1
+DEBUG:root:    Training Losses - ELBO: 1.72619630803736 Reconstruction: 0.07368863502637946 KLD: 14.310667219779475
