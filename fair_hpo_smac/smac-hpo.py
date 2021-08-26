@@ -118,6 +118,8 @@ from piq import vif_p
 from data.UTKFace import load_utkface, UTKFaceDataset
 from models.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
+import torch.random
+import numpy.random
 
 logging.info(f"Script started at {start_date}")
 
@@ -134,7 +136,8 @@ else:
     logging.info("Memory allocation was selected to be performed on the CPU device")
 
 if cudnn.is_available():
-    cudnn.benchmark = True
+    cudnn.deterministic = True
+    cudnn.benchmark = False
 logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
@@ -298,11 +301,15 @@ def fair_vif_p_cost(_model, _dataloader):
 cost_functions = {"VIFp": vif_p_cost, "FairVIFp": fair_vif_p_cost}
 
 
-def hyperparameter_cost(_hyperparameter_config):
+def hyperparameter_cost(_hyperparameter_config, seed):
     hyperparameter_cost.run += 1
 
+    hyperparameter_cost.seed = seed
+    torch.random.manual_seed(seed)
+    numpy.random.seed(seed)
+
     _hyperparameter_config = dict(**_hyperparameter_config)
-    hyperparameter_cost.current_config = deepcopy(_hyperparameter_config)
+    hyperparameter_cost.config = deepcopy(_hyperparameter_config)
     hyperparameters = Hyperparameters(**_hyperparameter_config)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
@@ -369,8 +376,9 @@ def hyperparameter_cost(_hyperparameter_config):
 
 
 hyperparameter_cost.run = 0
+hyperparameter_cost.seed = None
 hyperparameter_cost.function = cost_functions[cost_function_name]
-hyperparameter_cost.current_config = {}
+hyperparameter_cost.config = {}
 
 
 def save_model_state(
@@ -381,8 +389,9 @@ def save_model_state(
 
     model_state = {
         "run": hyperparameter_cost.run,
+        "seed": hyperparameter_cost.seed,
         "epoch": epoch,
-        "hyperparameter_config": hyperparameter_cost.current_config,
+        "hyperparameter_config": hyperparameter_cost.config,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "lr_scheduler_state_dict": lr_scheduler.state_dict(),
@@ -454,7 +463,10 @@ scenario_dict = {
 }
 scenario = Scenario(scenario_dict)
 smac = SMAC4HPO(
-    scenario=scenario, rng=RandomState(smac_seed), tae_runner=hyperparameter_cost
+    scenario=scenario,
+    rng=RandomState(smac_seed),
+    tae_runner=hyperparameter_cost,
+    initial_design_kwargs={"init_budget": 20},
 )
 incumbent_hyperparameter_config = smac.optimize()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
