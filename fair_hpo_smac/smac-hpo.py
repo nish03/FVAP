@@ -24,8 +24,26 @@ arg_parser.add_argument(
     "--output-dir",
     default=".",
     required=False,
-    help="Directory for log files, save states and SMAC output",
+    help="Directory for log files, save states and HPO output",
 )
+arg_parser.add_argument(
+    "-c",
+    "--cost",
+    default="VIFp",
+    choices=["VIFp", "FairVIFp"],
+    required=False,
+    help="Cost function used for HPO",
+)
+
+arg_parser.add_argument(
+    "-s",
+    "--sensitive-attribute",
+    type=int,
+    default=0,
+    required=False,
+    help="Index of the sensitive attribute",
+)
+
 arg_parser.add_argument(
     "--image_size",
     default=64,
@@ -88,15 +106,16 @@ from numpy.random import RandomState
 from smac.configspace import ConfigurationSpace
 from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.scenario.scenario import Scenario
-from torch import cuda, float32, save
+from torch import cuda, float32, save, no_grad, zeros, tensor
 from torch.backends import cudnn
 from torch.nn import DataParallel
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Resize
+from torchvision.transforms import Compose, ConvertImageDtype, Resize, Lambda
+from piq import vif_p
 
-from data.UTKFace import load_utkface
+from data.UTKFace import load_utkface, UTKFaceDataset
 from models.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
 
@@ -120,6 +139,9 @@ logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
 
+
+cost_function_name = args.cost
+sensitive_attribute_index = args.sensitive_attribute
 image_size = args.image_size
 batch_size = args.batch_size
 epoch_count = args.epochs
@@ -127,32 +149,46 @@ datasplit_seed = args.datasplit_seed
 smac_runtime = args.smac_runtime
 smac_seed = args.smac_seed
 
+
 logging.info(
-    f"Data will be loaded with image size {image_size} and batch size {batch_size}"
+    f"Data will be loaded with sensitive attribute {sensitive_attribute_index}, "
+    f"image size {image_size}, batch size {batch_size} and "
+    f"datasplit seed {datasplit_seed}"
 )
 logging.info(f"Generative models will be trained for {epoch_count} epochs")
 logging.info(
     f"Hyperparameter optimisation with SMAC will be run for {smac_runtime}s and "
-    f"with seed {smac_seed}"
+    f"with seed {smac_seed} and cost function {cost_function_name}"
 )
 
 num_workers = device_count * 4
 
 data_state = {
+    "sensitive_attribute_index": sensitive_attribute_index,
     "image_size": image_size,
     "batch_size": batch_size,
     "datasplit_seed": datasplit_seed,
 }
 
+
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
-    transform = Compose([ConvertImageDtype(float32), Resize(image_size)])
+
+    assert 0 <= sensitive_attribute_index < len(UTKFaceDataset.target_attributes)
+    sensitive_attribute = UTKFaceDataset.target_attributes[sensitive_attribute_index]
+
+    transform = Compose(
+        [ConvertImageDtype(float32), Resize(image_size), Lambda(lambda x: 2 * x - 1)]
+    )
+    target_transform = Lambda(lambda x: x[sensitive_attribute_index])
     data_state["dataset_directory"] = dataset_directory
     data_state["dataset"] = "UTKFace"
+    data_state["sensitive_attribute"] = sensitive_attribute
     train_dataset, validation_dataset, test_dataset = load_utkface(
         random_split_seed=datasplit_seed,
         image_directory_path=dataset_directory,
         transform=transform,
+        target_transform=target_transform,
         in_memory=True,
     )
 
@@ -178,7 +214,10 @@ if args.utkface_dir is not None:
         pin_memory=True,
     )
 
-    logging.info(f"UTKFace dataset was loaded from directory {dataset_directory}, ")
+    logging.info(
+        f"UTKFace dataset was loaded from directory {dataset_directory} with "
+        f"target sensitive attribute {sensitive_attribute.__name__}"
+    )
 else:
     raise RuntimeError("No dataset was specified")
 
@@ -203,18 +242,74 @@ Hyperparameters = namedtuple(
 )
 
 
-def hyperparameter_cost(hyperparameter_config):
+def vif_p_cost(_model, _dataloader):
+    if isinstance(_model, DataParallel):
+        _model = _model.module
+    _model.eval()
+
+    similarity = zeros(1, dtype=float32)
+    processed_data_samples = 0
+    with no_grad():
+        for data, _ in _dataloader:
+            data = data.to(device)
+            output = _model.reconstruct(data)
+            data = (data + 1.0) / 2.0
+            output = (output + 1.0) / 2.0
+            similarity += vif_p(output, data, reduction="sum").item()
+            processed_data_samples += len(data)
+    similarity = (similarity / processed_data_samples).item()
+    logging.debug(f"  VIFp: {similarity}")
+    return -similarity
+
+
+def fair_vif_p_cost(_model, _dataloader):
+    if isinstance(_model, DataParallel):
+        _model = _model.module
+    _model.eval()
+
+    similarities = zeros(len(sensitive_attribute), dtype=float32)
+    processed_data_samples = 0
+    with no_grad():
+        for data, target in _dataloader:
+            data, target = data.to(device), target.to(device)
+            output = _model.reconstruct(data)
+            data = (data + 1.0) / 2.0
+            output = (output + 1.0) / 2.0
+            similarities += tensor(
+                [
+                    vif_p(
+                        output[target == member.value],
+                        data[target == member.value],
+                        reduction="sum",
+                    )
+                    for member in sensitive_attribute
+                ]
+            )
+            processed_data_samples += len(data)
+
+    similarities /= processed_data_samples
+    min_similarity = similarities.min().item()
+    for member in sensitive_attribute:
+        logging.debug(f"  VIFp[{str(member)}]: {similarities[member.value].item()}")
+    logging.debug(f"  FairVIFp: {min_similarity}")
+    return -min_similarity
+
+
+cost_functions = {"VIFp": vif_p_cost, "FairVIFp": fair_vif_p_cost}
+
+
+def hyperparameter_cost(_hyperparameter_config):
     hyperparameter_cost.run += 1
 
-    hyperparameter_config = dict(**hyperparameter_config)
-    hyperparameter_cost.current_config = deepcopy(hyperparameter_config)
-    hyperparameters = Hyperparameters(**hyperparameter_config)
+    _hyperparameter_config = dict(**_hyperparameter_config)
+    hyperparameter_cost.current_config = deepcopy(_hyperparameter_config)
+    hyperparameters = Hyperparameters(**_hyperparameter_config)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
         if isinstance(_model, DataParallel):
             _model = _model.module
         train_criterion.iteration += 1
-        return model.criterion(
+        return _model.criterion(
             _data,
             _output,
             _mu,
@@ -228,7 +323,7 @@ def hyperparameter_cost(hyperparameter_config):
     def validation_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
         if isinstance(_model, DataParallel):
             _model = _model.module
-        return model.criterion(
+        return _model.criterion(
             _data,
             _output,
             _mu,
@@ -256,7 +351,7 @@ def hyperparameter_cost(hyperparameter_config):
     )
     lr_scheduler = ExponentialLR(optimizer, gamma=hyperparameters.lr_scheduler_gamma)
 
-    model, train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
+    model, _, _ = train_variational_autoencoder(
         model,
         optimizer,
         lr_scheduler,
@@ -269,29 +364,18 @@ def hyperparameter_cost(hyperparameter_config):
         schedule_lr_after_epoch=True,
         display_progress=False,
     )
-    final_cost = min(validation_epoch_losses[hyperparameter_cost.loss])
-    return final_cost
+    cost_value = hyperparameter_cost.function(model, validation_dataloader)
+    return cost_value
 
 
-hyperparameter_cost.best = float("inf")
 hyperparameter_cost.run = 0
-hyperparameter_cost.loss = "Reconstruction"
+hyperparameter_cost.function = cost_functions[cost_function_name]
 hyperparameter_cost.current_config = {}
 
 
 def save_model_state(
     epoch, model, optimizer, lr_scheduler, train_epoch_losses, validation_epoch_losses
 ):
-    cost = validation_epoch_losses[hyperparameter_cost.loss][-1]
-    is_best = hyperparameter_cost.best > cost
-    if is_best:
-        hyperparameter_cost.best = cost
-
-    is_final_epoch = epoch == epoch_count
-
-    if not is_best and not is_final_epoch:
-        return
-
     if isinstance(model, DataParallel):
         model = model.module
 
@@ -306,15 +390,9 @@ def save_model_state(
         "validation_epoch_losses": validation_epoch_losses,
     }
 
-    if is_best:
-        model_save_file_name = "model-best.pt"
-        model_save_file_path = path.join(save_file_directory, model_save_file_name)
-        save(model_state, model_save_file_path)
-
-    if is_final_epoch:
-        model_save_file_name = f"model-run-{hyperparameter_cost.run:04}.pt"
-        model_save_file_path = path.join(save_file_directory, model_save_file_name)
-        save(model_state, model_save_file_path)
+    model_save_file_name = f"model-run-{hyperparameter_cost.run:04}.pt"
+    model_save_file_path = path.join(save_file_directory, model_save_file_name)
+    save(model_state, model_save_file_path)
 
 
 max_hidden_layer_count = int(log(image_size, 2)) - 1
@@ -385,6 +463,7 @@ smac_state = {
     "scenario": scenario,
     "seed": smac_seed,
     "incumbent_hyperparameter_config": incumbent_hyperparameter_config,
+    "cost_function": cost_function_name,
 }
 smac_save_file_path = path.join(save_file_directory, "smac.pt")
 save(smac_state, smac_save_file_path)
