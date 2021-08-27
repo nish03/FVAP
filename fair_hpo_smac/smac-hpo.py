@@ -5,7 +5,6 @@ from argparse import ArgumentParser
 from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime
-from math import log
 from os import makedirs, path
 from sys import argv
 
@@ -14,20 +13,17 @@ arg_parser = ArgumentParser(
 )
 dataset_directory_group = arg_parser.add_mutually_exclusive_group(required=True)
 dataset_directory_group.add_argument(
-    "-u",
     "--utkface-dir",
     help="UTKFace dataset directory",
     required=False,
 ),
 arg_parser.add_argument(
-    "-o",
     "--output-dir",
     default=".",
     required=False,
     help="Directory for log files, save states and HPO output",
 )
 arg_parser.add_argument(
-    "-c",
     "--cost",
     default="VIFp",
     choices=["VIFp", "FairVIFp"],
@@ -36,7 +32,6 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
-    "-s",
     "--sensitive-attribute",
     type=int,
     default=0,
@@ -73,6 +68,11 @@ arg_parser.add_argument(
     help="Seed used for creating random train, validation and tast dataset splits",
 )
 arg_parser.add_argument(
+    "--smac-pcs-file",
+    required=True,
+    help="Parameter configuration file used for hyperparameter optimization with SMAC",
+)
+arg_parser.add_argument(
     "--smac-seed",
     default=42,
     type=int,
@@ -98,12 +98,7 @@ log_file_path = path.join(output_directory, "log.txt")
 logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
 print(f"Logging started with Output Directory {output_directory}")
 
-from ConfigSpace.hyperparameters import (
-    UniformFloatHyperparameter,
-    UniformIntegerHyperparameter,
-)
 from numpy.random import RandomState
-from smac.configspace import ConfigurationSpace
 from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.scenario.scenario import Scenario
 from torch import cuda, float32, save, no_grad, zeros, tensor
@@ -149,7 +144,8 @@ image_size = args.image_size
 batch_size = args.batch_size
 epoch_count = args.epochs
 datasplit_seed = args.datasplit_seed
-smac_runtime = args.smac_runtime
+pcs_file = args.smac_pcs_file
+runtime = args.smac_runtime
 smac_seed = args.smac_seed
 
 
@@ -160,8 +156,9 @@ logging.info(
 )
 logging.info(f"Generative models will be trained for {epoch_count} epochs")
 logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for {smac_runtime}s and "
-    f"with seed {smac_seed} and cost function {cost_function_name}"
+    f"Hyperparameter optimisation with SMAC will be run for {runtime}s with "
+    f"parameter configuration file '{pcs_file}', seed {smac_seed} and "
+    f"cost function {cost_function_name}"
 )
 
 num_workers = device_count * 4
@@ -218,7 +215,7 @@ if args.utkface_dir is not None:
     )
 
     logging.info(
-        f"UTKFace dataset was loaded from directory {dataset_directory} with "
+        f"UTKFace dataset was loaded from directory '{dataset_directory}' with "
         f"target sensitive attribute {sensitive_attribute.__name__}"
     )
 else:
@@ -310,6 +307,10 @@ def hyperparameter_cost(_hyperparameter_config, seed):
 
     _hyperparameter_config = dict(**_hyperparameter_config)
     hyperparameter_cost.config = deepcopy(_hyperparameter_config)
+    _hyperparameter_config["C_stop_iteration"] = (
+        _hyperparameter_config["C_stop_fraction"] * epoch_count * len(train_dataloader)
+    )
+    del _hyperparameter_config["C_stop_fraction"]
     hyperparameters = Hyperparameters(**_hyperparameter_config)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
@@ -404,59 +405,11 @@ def save_model_state(
     save(model_state, model_save_file_path)
 
 
-max_hidden_layer_count = int(log(image_size, 2)) - 1
-max_iteration = epoch_count * len(train_dataloader)
-
-hyperparameter_config_space = ConfigurationSpace()
-
-hidden_layer_count_hyperparameter = UniformIntegerHyperparameter(
-    "hidden_layer_count",
-    1,
-    max_hidden_layer_count,
-    default_value=1,
-)
-latent_dimension_count_hyperparameter = UniformIntegerHyperparameter(
-    "latent_dimension_count", 16, 512, default_value=128
-)
-vae_loss_gamma_hyperparameter = UniformFloatHyperparameter(
-    "vae_loss_gamma", 1.0, 2000.0, default_value=10.0, log=True
-)
-C_max_hyperparameter = UniformFloatHyperparameter(
-    "C_max", 5.0, 50.0, default_value=25.0
-)
-C_stop_iteration_hyperparameter = UniformIntegerHyperparameter(
-    "C_stop_iteration",
-    int(0.05 * max_iteration),
-    max_iteration,
-    default_value=int(0.2 * max_iteration),
-)
-learning_rate_hyperparameter = UniformFloatHyperparameter(
-    "learning_rate", 5e-6, 5e-3, default_value=5e-4, log=True
-)
-weight_decay_hyperparameter = UniformFloatHyperparameter(
-    "weight_decay", 0.0, 0.25, default_value=0.0
-)
-lr_scheduler_gamma_hyperparameter = UniformFloatHyperparameter(
-    "lr_scheduler_gamma", 0.85, 1.0, default_value=0.95
-)
-hyperparameter_config_space.add_hyperparameters(
-    [
-        hidden_layer_count_hyperparameter,
-        latent_dimension_count_hyperparameter,
-        vae_loss_gamma_hyperparameter,
-        C_max_hyperparameter,
-        C_stop_iteration_hyperparameter,
-        learning_rate_hyperparameter,
-        weight_decay_hyperparameter,
-        lr_scheduler_gamma_hyperparameter,
-    ]
-)
-
 smac_output_directory = path.join(output_directory, "smac")
 scenario_dict = {
+    "pcs_fn": pcs_file,
     "run_obj": "quality",
-    "wallclock-limit": smac_runtime,
-    "cs": hyperparameter_config_space,
+    "wallclock-limit": runtime,
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_output_directory,
