@@ -73,6 +73,13 @@ arg_parser.add_argument(
     help="Parameter configuration file used for hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
+    "--smac-initial-design",
+    default="Sobol",
+    choices=["DefaultConfiguration", "Sobol"],
+    required=False,
+    help="Initial design for hyperparameter optimization with SMAC",
+)
+arg_parser.add_argument(
     "--smac-seed",
     default=42,
     type=int,
@@ -100,6 +107,8 @@ print(f"Logging started with Output Directory {output_directory}")
 
 from numpy.random import RandomState
 from smac.facade.smac_hpo_facade import SMAC4HPO
+from smac.initial_design.default_configuration_design import DefaultConfiguration
+from smac.initial_design.sobol_design import SobolDesign
 from smac.scenario.scenario import Scenario
 from torch import cuda, float32, save, no_grad, zeros, tensor
 from torch.backends import cudnn
@@ -147,6 +156,7 @@ datasplit_seed = args.datasplit_seed
 pcs_file = args.smac_pcs_file
 runtime = args.smac_runtime
 smac_seed = args.smac_seed
+initial_design_name = args.smac_initial_design
 
 
 logging.info(
@@ -415,11 +425,17 @@ scenario_dict = {
     "output_dir": smac_output_directory,
 }
 scenario = Scenario(scenario_dict)
+initial_design = (
+    DefaultConfiguration
+    if initial_design_name == "DefaultConfiguration"
+    else SobolDesign
+)
 smac = SMAC4HPO(
     scenario=scenario,
     rng=RandomState(smac_seed),
     tae_runner=hyperparameter_cost,
-    initial_design_kwargs={"init_budget": 20},
+    initial_design=initial_design,
+    initial_design_kwargs={"n_configs_x_params": 4},
 )
 incumbent_hyperparameter_config = smac.optimize()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
