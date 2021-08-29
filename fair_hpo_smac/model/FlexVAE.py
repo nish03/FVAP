@@ -1,15 +1,15 @@
 from numpy import clip, prod
-from torch import flatten, exp, randn_like, mean, sum, randn, zeros
+from torch import exp, flatten, mean, randn, randn_like, sum, zeros
 from torch.nn import (
-    Module,
-    Sequential,
-    Conv2d,
     BatchNorm2d,
-    LeakyReLU,
+    Conv2d,
     ConvTranspose2d,
+    LeakyReLU,
     Linear,
+    Module,
+    MSELoss,
+    Sequential,
     Tanh,
-    MSELoss
 )
 
 
@@ -17,11 +17,13 @@ class FlexVAE(Module):
     def __init__(
         self,
         image_size,
-        latent_dimension_count,
-        hidden_layer_count,
-        gamma,
-        c_max,
-        c_stop_iteration,
+        latent_dimension_count=128,
+        hidden_layer_count=5,
+        gamma=10.0,
+        c_max=25.0,
+        c_stop_iteration=10000,
+        reconstruction_loss=MSELoss,
+        reconstruction_loss_args=None,
     ):
         super(FlexVAE, self).__init__()
 
@@ -106,7 +108,10 @@ class FlexVAE(Module):
         decoder_layers.append(final_hidden_decoder_layer)
         self.decoder = Sequential(*decoder_layers)
 
-        self.reconstruction_criterion = MSELoss()
+        reconstruction_loss_args = (
+            {} if reconstruction_loss_args is None else reconstruction_loss_args
+        )
+        self.reconstruction_criterion = reconstruction_loss(**reconstruction_loss_args)
 
     def encode(self, x):
         y = self.encoder(x)

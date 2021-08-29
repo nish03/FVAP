@@ -58,7 +58,7 @@ arg_parser.add_argument(
     default=100,
     type=int,
     required=False,
-    help="Epochs used for training the generative models",
+    help="Epochs used for training the generative model",
 )
 arg_parser.add_argument(
     "--datasplit-seed",
@@ -112,7 +112,7 @@ from smac.initial_design.sobol_design import SobolDesign
 from smac.scenario.scenario import Scenario
 from torch import cuda, float32, save, no_grad, zeros, tensor
 from torch.backends import cudnn
-from torch.nn import DataParallel
+from torch.nn import DataParallel, MSELoss, L1Loss
 from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
@@ -120,7 +120,9 @@ from torchvision.transforms import Compose, ConvertImageDtype, Resize, Lambda
 from piq import vif_p
 
 from data.UTKFace import load_utkface, UTKFaceDataset
-from models.FlexVAE import FlexVAE
+from model.FlexVAE import FlexVAE
+from model.util.LogCoshLoss import LogCoshLoss
+from model.util.MSSIMLoss import MSSIMLoss
 from training.Training import train_variational_autoencoder
 import torch.random
 import numpy.random
@@ -164,7 +166,7 @@ logging.info(
     f"image size {image_size}, batch size {batch_size} and "
     f"datasplit seed {datasplit_seed}"
 )
-logging.info(f"Generative models will be trained for {epoch_count} epochs")
+logging.info(f"Generative model will be trained for {epoch_count} epochs")
 logging.info(
     f"Hyperparameter optimisation with SMAC will be run for {runtime}s with "
     f"parameter configuration file '{pcs_file}', seed {smac_seed} and "
@@ -248,6 +250,8 @@ Hyperparameters = namedtuple(
         "learning_rate",
         "weight_decay",
         "lr_scheduler_gamma",
+        "reconstruction_loss",
+        "reconstruction_loss_args",
     ],
 )
 
@@ -306,22 +310,37 @@ def fair_vif_p_cost(_model, _dataloader):
 
 
 cost_functions = {"VIFp": vif_p_cost, "FairVIFp": fair_vif_p_cost}
+reconstruction_losses = {"MAE": L1Loss, "MSE": MSELoss, "MSSIM": MSSIMLoss, "LogCosh": LogCoshLoss}
 
 
-def hyperparameter_cost(_hyperparameter_config, seed):
+def hyperparameter_cost(hyperparameter_dict, seed):
     hyperparameter_cost.run += 1
 
     hyperparameter_cost.seed = seed
     torch.random.manual_seed(seed)
     numpy.random.seed(seed)
 
-    _hyperparameter_config = dict(**_hyperparameter_config)
-    hyperparameter_cost.config = deepcopy(_hyperparameter_config)
-    _hyperparameter_config["C_stop_iteration"] = (
-        _hyperparameter_config["C_stop_fraction"] * epoch_count * len(train_dataloader)
+    hyperparameter_dict = dict(**hyperparameter_dict)
+    hyperparameter_dict["C_stop_iteration"] = (
+        hyperparameter_dict["C_stop_fraction"] * epoch_count * len(train_dataloader)
     )
-    del _hyperparameter_config["C_stop_fraction"]
-    hyperparameters = Hyperparameters(**_hyperparameter_config)
+    del hyperparameter_dict["C_stop_fraction"]
+    hyperparameter_dict["reconstruction_loss_args"] = {}
+    if hyperparameter_dict["reconstruction_loss"] == "MSSIM":
+        hyperparameter_dict["reconstruction_loss_args"]["window_size"] = (
+            2 * hyperparameter_dict["mssim_window_radius"] + 1
+        )
+        del hyperparameter_dict["mssim_window_radius"]
+    elif hyperparameter_dict["reconstruction_loss"] == "LogCosh":
+        hyperparameter_dict["reconstruction_loss_args"]["a"] = hyperparameter_dict[
+            "logcosh_a"
+        ]
+        del hyperparameter_dict["logcosh_a"]
+    hyperparameter_dict["reconstruction_loss"] = reconstruction_losses[
+        hyperparameter_dict["reconstruction_loss"]
+    ]
+    hyperparameters = Hyperparameters(**hyperparameter_dict)
+    hyperparameter_cost.config = deepcopy(hyperparameters)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
         if isinstance(_model, DataParallel):
@@ -357,6 +376,8 @@ def hyperparameter_cost(_hyperparameter_config, seed):
         hyperparameters.vae_loss_gamma,
         hyperparameters.C_max,
         hyperparameters.C_stop_iteration,
+        hyperparameters.reconstruction_loss,
+        hyperparameters.reconstruction_loss_args,
     )
     if device_count > 1:
         model = DataParallel(model)
@@ -388,8 +409,8 @@ def hyperparameter_cost(_hyperparameter_config, seed):
 
 hyperparameter_cost.run = 0
 hyperparameter_cost.seed = None
+hyperparameter_cost.config = None
 hyperparameter_cost.function = cost_functions[cost_function_name]
-hyperparameter_cost.config = {}
 
 
 def save_model_state(
@@ -401,8 +422,8 @@ def save_model_state(
     model_state = {
         "run": hyperparameter_cost.run,
         "seed": hyperparameter_cost.seed,
+        "hyperparameters": hyperparameter_cost.config,
         "epoch": epoch,
-        "hyperparameter_config": hyperparameter_cost.config,
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "lr_scheduler_state_dict": lr_scheduler.state_dict(),
@@ -425,16 +446,12 @@ scenario_dict = {
     "output_dir": smac_output_directory,
 }
 scenario = Scenario(scenario_dict)
-initial_design = (
-    DefaultConfiguration
-    if initial_design_name == "DefaultConfiguration"
-    else SobolDesign
-)
+initial_designs = {"DefaultConfiguration": DefaultConfiguration, "Sobol": SobolDesign}
 smac = SMAC4HPO(
     scenario=scenario,
     rng=RandomState(smac_seed),
     tae_runner=hyperparameter_cost,
-    initial_design=initial_design,
+    initial_design=initial_designs[initial_design_name],
     initial_design_kwargs={"n_configs_x_params": 4},
 )
 incumbent_hyperparameter_config = smac.optimize()
