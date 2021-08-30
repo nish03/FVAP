@@ -3,7 +3,7 @@ latent_dimension_count integer [16, 512] [128]
 vae_loss_gamma real [1.0, 500.0] [10.0] log
 C_max real [5.0, 50.0] [25.0]
 C_stop_fraction real [0.05, 1.0] [0.2]
-reconstruction_loss categorical {MAE, MSE, MSSIM, LogCosh} [LogCosh]
+reconstruction_loss categorical {MAE, MSE, MSSIM, LogCosh} [MSSIM]
 mssim_window_radius integer [1, 10] [5]
 logcosh_a real [1.0, 100.0] [10.0] log
 learning_rate real [5e-6, 5e-3] [5e-4] log
