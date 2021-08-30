@@ -145,7 +145,9 @@ class FlexVAE(Module):
         return y, mu, log_var
 
     def criterion(self, x, y, mu, log_var, iteration, kld_weight):
-        reconstruction_loss = self.reconstruction_criterion(y, x)
+        reconstruction_loss = self.reconstruction_criterion(
+            (y + 1.0) / 2.0, (x + 1.0 / 2.0)
+        )
         kld_loss = mean(-0.5 * sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
         C = clip(self.c_max / self.c_stop_iteration * iteration, 0, self.c_max)
         elbo_loss = reconstruction_loss + self.gamma * kld_weight * (kld_loss - C).abs()
