@@ -25,8 +25,8 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--cost",
-    default="VIFp",
-    choices=["VIFp", "FairVIFp"],
+    default="MS-SSIM",
+    choices=["MS-SSIM", "FairMS-SSIM"],
     required=False,
     help="Cost function used for HPO",
 )
@@ -124,7 +124,6 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, ConvertImageDtype, Resize, Lambda
-from piq import vif_p
 
 from data.UTKFace import load_utkface, UTKFaceDataset
 from model.FlexVAE import FlexVAE
@@ -265,60 +264,61 @@ Hyperparameters = namedtuple(
 )
 
 
-def vif_p_cost(_model, _dataloader):
+def ms_ssim_cost(_model, _dataloader):
     if isinstance(_model, DataParallel):
         _model = _model.module
     _model.eval()
 
-    similarity = zeros(1, dtype=float32)
+    cost = zeros(1, dtype=float32)
     processed_data_samples = 0
+    ms_ssim_loss = MultiScaleSSIMLoss(window_size=5, reduction="sum")
     with no_grad():
         for data, _ in _dataloader:
             data = data.to(device)
             output = _model.reconstruct(data)
             data = (data + 1.0) / 2.0
             output = (output + 1.0) / 2.0
-            similarity += vif_p(output, data, reduction="sum").item()
+            cost += ms_ssim_loss(output, data).item()
             processed_data_samples += len(data)
-    similarity = (similarity / processed_data_samples).item()
-    logging.debug(f"  VIFp: {similarity}")
-    return -similarity
+    cost = (cost / processed_data_samples).item()
+    logging.debug(f"  MS-SSIM Cost: {cost}")
+    return cost
 
 
-def fair_vif_p_cost(_model, _dataloader):
+def fair_ms_ssim_cost(_model, _dataloader):
     if isinstance(_model, DataParallel):
         _model = _model.module
     _model.eval()
 
-    similarities = zeros(len(sensitive_attribute), dtype=float32)
+    costs = zeros(len(sensitive_attribute), dtype=float32)
     processed_data_samples = 0
+    ms_ssim_loss = MultiScaleSSIMLoss(window_size=5, reduction="sum")
     with no_grad():
         for data, target in _dataloader:
             data, target = data.to(device), target.to(device)
             output = _model.reconstruct(data)
             data = (data + 1.0) / 2.0
             output = (output + 1.0) / 2.0
-            similarities += tensor(
+            costs += tensor(
                 [
-                    vif_p(
+                    ms_ssim_loss(
                         output[target == member.value],
                         data[target == member.value],
-                        reduction="sum",
                     )
                     for member in sensitive_attribute
                 ]
             )
             processed_data_samples += len(data)
 
-    similarities /= processed_data_samples
-    min_similarity = similarities.min().item()
+    costs /= processed_data_samples
+    max_cost = costs.max().item()
     for member in sensitive_attribute:
-        logging.debug(f"  VIFp[{str(member)}]: {similarities[member.value].item()}")
-    logging.debug(f"  FairVIFp: {min_similarity}")
-    return -min_similarity
+        logging.debug(f"  MS-SSIM Cost[{str(member)}]: {costs[member.value].item()}")
+    logging.debug(f"  Fair MS-SSIM Cost: {max_cost}")
+    return max_cost
 
 
-cost_functions = {"VIFp": vif_p_cost, "FairVIFp": fair_vif_p_cost}
+cost_functions = {"MS-SSIM": ms_ssim_cost, "FairMS-SSIM": fair_ms_ssim_cost}
 reconstruction_losses = {
     "MAE": L1Loss,
     "MSE": MSELoss,
