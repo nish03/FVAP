@@ -129,7 +129,7 @@ from piq import vif_p
 from data.UTKFace import load_utkface, UTKFaceDataset
 from model.FlexVAE import FlexVAE
 from model.util.LogCoshLoss import LogCoshLoss
-from model.util.MSSIMLoss import MSSIMLoss
+from model.util.MultiScaleSSIMLoss import MultiScaleSSIMLoss
 from training.Training import train_variational_autoencoder
 import torch.random
 import numpy.random
@@ -177,6 +177,7 @@ logging.info(
 logging.info(f"Generative model will be trained for {epoch_count} epochs")
 logging.info(
     f"Hyperparameter optimisation with SMAC will be run for {max_runtime}s with "
+    f"{'' if max_runcount is None else str(max_runcount) + ' evaluations, '}"
     f"parameter configuration file '{pcs_file}', seed {smac_seed} and "
     f"cost function {cost_function_name}"
 )
@@ -318,7 +319,12 @@ def fair_vif_p_cost(_model, _dataloader):
 
 
 cost_functions = {"VIFp": vif_p_cost, "FairVIFp": fair_vif_p_cost}
-reconstruction_losses = {"MAE": L1Loss, "MSE": MSELoss, "MSSIM": MSSIMLoss, "LogCosh": LogCoshLoss}
+reconstruction_losses = {
+    "MAE": L1Loss,
+    "MSE": MSELoss,
+    "MS-SSIM": MultiScaleSSIMLoss,
+    "LogCosh": LogCoshLoss,
+}
 
 
 def hyperparameter_cost(hyperparameter_dict, seed):
@@ -334,11 +340,11 @@ def hyperparameter_cost(hyperparameter_dict, seed):
     )
     del hyperparameter_dict["C_stop_fraction"]
     hyperparameter_dict["reconstruction_loss_args"] = {}
-    if hyperparameter_dict["reconstruction_loss"] == "MSSIM":
+    if hyperparameter_dict["reconstruction_loss"] == "MS-SSIM":
         hyperparameter_dict["reconstruction_loss_args"]["window_size"] = (
-            2 * hyperparameter_dict["mssim_window_radius"] + 1
+            2 * hyperparameter_dict["ms_ssim_window_radius"] + 1
         )
-        del hyperparameter_dict["mssim_window_radius"]
+        del hyperparameter_dict["ms_ssim_window_radius"]
     elif hyperparameter_dict["reconstruction_loss"] == "LogCosh":
         hyperparameter_dict["reconstruction_loss_args"]["a"] = hyperparameter_dict[
             "logcosh_a"

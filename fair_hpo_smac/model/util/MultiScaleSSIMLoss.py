@@ -4,7 +4,7 @@ from torch.nn import Module
 from torch.nn.functional import avg_pool2d, conv2d
 
 
-class MSSIMLoss(Module):
+class MultiScaleSSIMLoss(Module):
     def __init__(self, window_size=11):
         """
         Computes the differentiable MS-SSIM loss
@@ -13,7 +13,7 @@ class MSSIMLoss(Module):
             (Apache-2.0 License)
         :param window_size: (Int)
         """
-        super(MSSIMLoss, self).__init__()
+        super(MultiScaleSSIMLoss, self).__init__()
         self.window_size = window_size
 
     @staticmethod
