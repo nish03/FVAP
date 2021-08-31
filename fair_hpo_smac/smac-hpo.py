@@ -88,10 +88,17 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--smac-runtime",
-    default=72000,
+    default=604800,
     type=int,
     required=False,
-    help="Runtime used for hyperparameter optimization with SMAC",
+    help="Maximum amount runtime used for hyperparameter optimization with SMAC",
+)
+arg_parser.add_argument(
+    "--smac-runcount",
+    default=None,
+    type=int,
+    required=False,
+    help="Maximum number of runs during hyperparameter optimization with SMAC",
 )
 args = arg_parser.parse_args(argv[1:])
 
@@ -156,7 +163,8 @@ batch_size = args.batch_size
 epoch_count = args.epochs
 datasplit_seed = args.datasplit_seed
 pcs_file = args.smac_pcs_file
-runtime = args.smac_runtime
+max_runtime = args.smac_runtime
+max_runcount = args.smac_runcount
 smac_seed = args.smac_seed
 initial_design_name = args.smac_initial_design
 
@@ -168,7 +176,7 @@ logging.info(
 )
 logging.info(f"Generative model will be trained for {epoch_count} epochs")
 logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for {runtime}s with "
+    f"Hyperparameter optimisation with SMAC will be run for {max_runtime}s with "
     f"parameter configuration file '{pcs_file}', seed {smac_seed} and "
     f"cost function {cost_function_name}"
 )
@@ -440,11 +448,13 @@ smac_output_directory = path.join(output_directory, "smac")
 scenario_dict = {
     "pcs_fn": pcs_file,
     "run_obj": "quality",
-    "wallclock-limit": runtime,
+    "wallclock-limit": max_runtime,
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_output_directory,
 }
+if max_runcount is not None:
+    scenario_dict["ta_run_limit"] = max_runcount
 scenario = Scenario(scenario_dict)
 initial_designs = {"DefaultConfiguration": DefaultConfiguration, "Sobol": SobolDesign}
 smac = SMAC4HPO(
