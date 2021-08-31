@@ -170,7 +170,7 @@ if args.celeba_dir is not None:
             CenterCrop(148),
             Resize(image_size),
             ToTensor(),
-            #Lambda(lambda x: 2.0 * x - 1.0),
+            Lambda(lambda x: 2.0 * x - 1.0),
         ]
     )
     dataset_directory = args.celeba_dir
@@ -178,7 +178,7 @@ if args.celeba_dir is not None:
     data_state["dataset"] = "celeba"
     train_dataset, validation_dataset, test_dataset = [
         CelebA(root=dataset_directory, split=split, transform=transform, download=False)
-        for split in ["test", "valid", "test"]
+        for split in ["train", "valid", "test"]
     ]
     train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(10000))
     validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(10000))
@@ -315,9 +315,12 @@ class PyTorchWorker(Worker):
 
         return ({
                 'loss': min(validation_epoch_losses['ELBO']), # remember: HpBandSter always minimizes!
-                'info': {       'test accuracy': min(validation_epoch_losses['Reconstruction']),
-                                        'train accuracy': min(validation_epoch_losses['Reconstruction']),
-                                        'validation accuracy': min(validation_epoch_losses['Reconstruction']),
+                'info': {       'validation_mseloss': min(validation_epoch_losses['Reconstruction']),
+                                        'train_mseloss': min(train_epoch_losses['Reconstruction']),
+                                        'train_elboloss': min(train_epoch_losses['ELBO']),
+                                        'validation_elboloss' : min(validation_epoch_losses['ELBO']),
+                                        'train_kldloss' : min(train_epoch_losses['KLD']),
+                                        'validation_kldloss' : min(validation_epoch_losses['KLD']),
                                         'number of parameters': 10,
                                 }
 

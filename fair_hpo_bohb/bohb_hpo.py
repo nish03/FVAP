@@ -72,18 +72,12 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--epochs",
-    default=100,
+    default=128,
     type=int,
     required=False,
     help="Epochs used for training the generative models",
 )
-arg_parser.add_argument(
-    "--datasplit-seed",
-    default=42,
-    type=int,
-    required=False,
-    help="Seed used for creating random train, validation and tast dataset splits",
-)
+
 arg_parser.add_argument(
     "--smac-seed",
     default=42,
@@ -112,7 +106,7 @@ log_file_path = path.join(output_directory, "log.txt")
 logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
 print(f"Logging started with Output Directory {output_directory}")
 
-logging.info(f"Script started at {start_date}")
+logging.info(f"Script started")
 
 if cuda.is_available():
     device = "cuda"
@@ -135,22 +129,18 @@ logging.info(
 image_size = args.image_size
 batch_size = args.batch_size
 epoch_count = args.epochs
-datasplit_seed = args.datasplit_seed
 smac_runtime = args.smac_runtime
 smac_seed = args.smac_seed
 logging.info(
     f"Data will be loaded with image size {image_size} and batch size {batch_size}"
 )
-logging.info(f"Generative models will be trained for {epoch_count} epochs")
-logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for {smac_runtime}s and "
-    f"with seed {smac_seed}"
-)
+logging.info(f"Generative models will be trained for maximum {epoch_count} epochs")
 
 num_workers = device_count * 4
 
 if __name__ == "__main__":
     host = '127.0.0.1'
+    
     if args.worker:
         import time
         time.sleep(5)  # short artificial delay to make sure the nameserver is already running
@@ -158,7 +148,7 @@ if __name__ == "__main__":
         w.load_nameserver_credentials(working_directory=output_directory)
         w.run(background=False)
         exit(0)
-
+    
     result_logger = hpres.json_result_logger(directory=args.output_dir, overwrite=True)
     '''
     NS = hpns.NameServer(run_id='example1', host='127.0.0.1',  port=0, working_directory=args.output_dir)
@@ -193,9 +183,9 @@ if __name__ == "__main__":
     bohb = BOHB(configspace=w.get_configspace(),
                 run_id='example1', nameserver='127.0.0.1',
                 result_logger=result_logger,
-                min_budget=8, max_budget=32
+                min_budget=6, max_budget=54
                 )
-    res = bohb.run(n_iterations=30)
+    res = bohb.run(n_iterations=100, min_n_workers=1)
 
     # Step 4: Shutdown
     # After the optimizer run, we must shutdown the master and the nameserver.
