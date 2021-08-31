@@ -1,20 +1,22 @@
 from torch import stack, tensor
 from math import exp
 from torch.nn import Module
-from torch.nn.functional import avg_pool2d, conv2d
+from torch.nn.functional import avg_pool2d, conv2d, relu
 
 
 class MultiScaleSSIMLoss(Module):
-    def __init__(self, window_size=11):
+    def __init__(self, window_size=11, reduction="mean"):
         """
         Computes the differentiable MS-SSIM loss
         Reference:
         https://github.com/AntixK/PyTorch-VAE/blob/master/models/mssim_vae.py
             (Apache-2.0 License)
         :param window_size: (Int)
+        :param reduction: (bool)
         """
         super(MultiScaleSSIMLoss, self).__init__()
         self.window_size = window_size
+        self.reduction = reduction
 
     @staticmethod
     def gaussian_window(window_size, sigma):
@@ -34,62 +36,61 @@ class MultiScaleSSIMLoss(Module):
         ).contiguous()
         return window
 
-    def ssim(self, img1, img2, window_size, in_channel):
+    def ssim(self, img1, img2, window_size):
         device = img1.device
-        window = self.create_window(window_size, in_channel).to(device)
-        mu1 = conv2d(img1, window, padding=window_size // 2, groups=in_channel)
-        mu2 = conv2d(img2, window, padding=window_size // 2, groups=in_channel)
+        window = self.create_window(window_size, 3).to(device)
+        mu1 = conv2d(img1, window, padding=window_size // 2, groups=3)
+        mu2 = conv2d(img2, window, padding=window_size // 2, groups=3)
 
         mu1_sq = mu1.pow(2)
         mu2_sq = mu2.pow(2)
         mu1_mu2 = mu1 * mu2
 
         sigma1_sq = (
-            conv2d(img1 * img1, window, padding=window_size // 2, groups=in_channel)
-            - mu1_sq
+            conv2d(img1 * img1, window, padding=window_size // 2, groups=3) - mu1_sq
         )
         sigma2_sq = (
-            conv2d(img2 * img2, window, padding=window_size // 2, groups=in_channel)
-            - mu2_sq
+            conv2d(img2 * img2, window, padding=window_size // 2, groups=3) - mu2_sq
         )
         sigma12 = (
-            conv2d(img1 * img2, window, padding=window_size // 2, groups=in_channel)
-            - mu1_mu2
+            conv2d(img1 * img2, window, padding=window_size // 2, groups=3) - mu1_mu2
         )
 
         img_range = img1.max() - img1.min()
         C1 = (0.01 * img_range) ** 2
         C2 = (0.03 * img_range) ** 2
 
-        v1 = 2.0 * sigma12 + C2
-        v2 = sigma1_sq + sigma2_sq + C2
-        cs = (v1 / v2).mean()
+        cs_map = (2.0 * sigma12 + C2) / (sigma1_sq + sigma2_sq + C2)
+        ssim_map = (2 * mu1_mu2 + C1) / (mu1_sq + mu2_sq + C1) * cs_map
 
-        ssim_map = ((2 * mu1_mu2 + C1) * v1) / ((mu1_sq + mu2_sq + C1) * v2)
+        ssim = ssim_map.flatten(2).mean(-1)
+        cs = cs_map.flatten(2).mean(-1)
 
-        ret = ssim_map.mean()
-        return ret, cs
+        return ssim, cs
 
     def forward(self, img1, img2):
         device = img1.device
         weights = tensor([0.0448, 0.2856, 0.3001, 0.2363, 0.1333]).to(device)
         levels = weights.size()[0]
-        mssim = []
         mcs = []
 
-        for _ in range(levels):
-            sim, cs = self.ssim(img1, img2, self.window_size, 3)
-            mssim.append(sim)
-            mcs.append(cs)
+        ssim = None
+        for level in range(levels):
+            ssim, cs = self.ssim(img1, img2, self.window_size)
 
-            img1 = avg_pool2d(img1, (2, 2))
-            img2 = avg_pool2d(img2, (2, 2))
+            if level < levels - 1:
+                mcs.append(relu(cs))
+                img1 = avg_pool2d(img1, (2, 2))
+                img2 = avg_pool2d(img2, (2, 2))
 
-        mssim = stack(mssim)
-        mcs = stack(mcs)
+        ssim = relu(ssim)
+        mcs_and_ssim = stack(mcs + [ssim])
 
-        pow1 = mcs ** weights
-        pow2 = mssim ** weights
+        ms_ssim = (mcs_and_ssim ** weights.view(-1, 1, 1)).prod(0).mean(-1)
 
-        output = (pow1[:-1] * pow2[-1]).prod()
-        return 1 - output
+        if self.reduction == "mean":
+            ms_ssim = ms_ssim.mean()
+        elif self.reduction == "sum":
+            ms_ssim = ms_ssim.sum()
+
+        return 1.0 - ms_ssim
