@@ -1,21 +1,22 @@
 from torch import stack, tensor
-from math import exp
+from math import exp, ceil
 from torch.nn import Module
 from torch.nn.functional import avg_pool2d, conv2d, relu
 
 
 class MultiScaleSSIMLoss(Module):
-    def __init__(self, window_size=11, reduction="mean"):
+    def __init__(self, window_sigma=1.5, reduction="mean"):
         """
         Computes the differentiable MS-SSIM loss
         Reference:
         https://github.com/AntixK/PyTorch-VAE/blob/master/models/mssim_vae.py
             (Apache-2.0 License)
-        :param window_size: (Int)
+        :param window_sigma: (float)
         :param reduction: (bool)
         """
         super(MultiScaleSSIMLoss, self).__init__()
-        self.window_size = window_size
+        self.window_sigma = window_sigma
+        self.window_size = 2 * ceil(3.0 * window_sigma) + 1
         self.reduction = reduction
 
     @staticmethod
@@ -29,7 +30,7 @@ class MultiScaleSSIMLoss(Module):
         return kernel / kernel.sum()
 
     def create_window(self, window_size, in_channels):
-        _1D_window = self.gaussian_window(window_size, 1.5).unsqueeze(1)
+        _1D_window = self.gaussian_window(window_size, self.window_sigma).unsqueeze(1)
         _2D_window = _1D_window.mm(_1D_window.t()).float().unsqueeze(0).unsqueeze(0)
         window = _2D_window.expand(
             in_channels, 1, window_size, window_size
@@ -87,10 +88,10 @@ class MultiScaleSSIMLoss(Module):
         mcs_and_ssim = stack(mcs + [ssim])
 
         ms_ssim = (mcs_and_ssim ** weights.view(-1, 1, 1)).prod(0).mean(-1)
+        ms_ssim_loss = 1.0 - ms_ssim
 
         if self.reduction == "mean":
-            ms_ssim = ms_ssim.mean()
+            return ms_ssim_loss.mean()
         elif self.reduction == "sum":
-            ms_ssim = ms_ssim.sum()
-
-        return 1.0 - ms_ssim
+            return ms_ssim_loss.sum()
+        return ms_ssim_loss

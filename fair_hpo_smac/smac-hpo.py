@@ -271,7 +271,7 @@ def ms_ssim_cost(_model, _dataloader):
 
     cost = zeros(1, dtype=float32)
     processed_data_samples = 0
-    ms_ssim_loss = MultiScaleSSIMLoss(window_size=5, reduction="sum")
+    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=0.5, reduction="sum")
     with no_grad():
         for data, _ in _dataloader:
             data = data.to(device)
@@ -292,7 +292,7 @@ def fair_ms_ssim_cost(_model, _dataloader):
 
     costs = zeros(len(sensitive_attribute), dtype=float32)
     processed_data_samples = 0
-    ms_ssim_loss = MultiScaleSSIMLoss(window_size=5, reduction="sum")
+    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=0.5, reduction="sum")
     with no_grad():
         for data, target in _dataloader:
             data, target = data.to(device), target.to(device)
@@ -341,10 +341,10 @@ def hyperparameter_cost(hyperparameter_dict, seed):
     del hyperparameter_dict["C_stop_fraction"]
     hyperparameter_dict["reconstruction_loss_args"] = {}
     if hyperparameter_dict["reconstruction_loss"] == "MS-SSIM":
-        hyperparameter_dict["reconstruction_loss_args"]["window_size"] = (
-            2 * hyperparameter_dict["ms_ssim_window_radius"] + 1
-        )
-        del hyperparameter_dict["ms_ssim_window_radius"]
+        hyperparameter_dict["reconstruction_loss_args"][
+            "window_sigma"
+        ] = hyperparameter_dict["ms_ssim_window_sigma"]
+        del hyperparameter_dict["ms_ssim_window_sigma"]
     elif hyperparameter_dict["reconstruction_loss"] == "LogCosh":
         hyperparameter_dict["reconstruction_loss_args"]["a"] = hyperparameter_dict[
             "logcosh_a"
