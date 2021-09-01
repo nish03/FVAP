@@ -117,7 +117,7 @@ from smac.facade.smac_hpo_facade import SMAC4HPO
 from smac.initial_design.default_configuration_design import DefaultConfiguration
 from smac.initial_design.sobol_design import SobolDesign
 from smac.scenario.scenario import Scenario
-from torch import cuda, float32, save, no_grad, zeros, tensor
+from torch import cuda, float32, int64, save, no_grad, zeros, tensor, arange
 from torch.backends import cudnn
 from torch.nn import DataParallel, MSELoss, L1Loss
 from torch.optim import Adam
@@ -291,7 +291,7 @@ def fair_ms_ssim_cost(_model, _dataloader):
     _model.eval()
 
     costs = zeros(len(sensitive_attribute), dtype=float32)
-    processed_data_samples = 0
+    processed_data_samples = zeros(len(sensitive_attribute), dtype=int64)
     ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=0.5, reduction="sum")
     with no_grad():
         for data, target in _dataloader:
@@ -308,7 +308,14 @@ def fair_ms_ssim_cost(_model, _dataloader):
                     for member in sensitive_attribute
                 ]
             )
-            processed_data_samples += len(data)
+            processed_data_samples += (
+                (
+                    target
+                    == arange(len(sensitive_attribute), device=device).view(-1, 1)
+                )
+                .count_nonzero(dim=1)
+                .cpu()
+            )
 
     costs /= processed_data_samples
     max_cost = costs.max().item()
