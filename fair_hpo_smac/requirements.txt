@@ -1,0 +1,6 @@
+jupyterlab>=3.1.10
+numpy>=1.21.2
+smac>=1.0.1
+torch>=1.9.0+cu111
+torchvision>=0.10.0+cu111
+tqdm>=4.62.2
