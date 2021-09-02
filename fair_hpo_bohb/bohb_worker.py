@@ -268,9 +268,9 @@ class PyTorchWorker(Worker):
             config['C_max'],
             config['C_stop_iteration']
         )
-        #if device_count > 1:
-        #    model = DataParallel(model)
-        model = model.to(device)
+        if device_count > 1:
+            model = DataParallel(model)
+        model.to(device)
         optimizer = Adam(
             model.parameters(),
             lr=config['lr'],
@@ -283,8 +283,8 @@ class PyTorchWorker(Worker):
             optimizer,
             lr_scheduler,
             int(budget),
-            model.criterion,
-            model.criterion,
+            model.module.criterion,
+            model.module.criterion,
             train_dataloader,
             validation_dataloader,
             self.save_model_state,

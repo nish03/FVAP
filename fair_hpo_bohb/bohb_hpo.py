@@ -94,8 +94,7 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument('--worker', help='Flag to turn this into a worker process', action='store_true')
 
-args = arg_parser.parse_args(argv[1:])
-
+args = arg_parser.parse_args()
 start_date = datetime.now()
 output_directory = path.join(
     args.output_dir, start_date.strftime("%Y-%m-%d_%H_%M_%S_%f")
@@ -142,10 +141,8 @@ if __name__ == "__main__":
     host = '127.0.0.1'
     
     if args.worker:
-        import time
-        time.sleep(5)  # short artificial delay to make sure the nameserver is already running
-        w = worker(run_id="", host=host, timeout=120)
-        w.load_nameserver_credentials(working_directory=output_directory)
+        w = worker(run_id="example1", nameserver=host)
+        #w.load_nameserver_credentials(working_directory=output_directory)
         w.run(background=False)
         exit(0)
     
@@ -173,19 +170,18 @@ if __name__ == "__main__":
     # Besides the sleep_interval, we need to define the nameserver information and
     # the same run_id as above. After that, we can start the worker in the background,
     # where it will wait for incoming configurations to evaluate.
-    w = worker( nameserver='127.0.0.1', run_id='example1')
-    w.run(background=True)
+    #w = worker( nameserver='127.0.0.1', run_id='example1')
+    #w.run(background=True)
 
     # Step 3: Run an optimizer
     # Now we can create an optimizer object and start the run.
     # Here, we run BOHB, but that is not essential.
     # The run method will return the `Result` that contains all runs performed.
-    bohb = BOHB(configspace=w.get_configspace(),
-                run_id='example1', nameserver='127.0.0.1',
-                result_logger=result_logger,
+    bohb = BOHB(configspace=worker.get_configspace(),
+                run_id='example1',
                 min_budget=6, max_budget=54
                 )
-    res = bohb.run(n_iterations=100, min_n_workers=1)
+    res = bohb.run(n_iterations=100, min_n_workers=2)
 
     # Step 4: Shutdown
     # After the optimizer run, we must shutdown the master and the nameserver.
