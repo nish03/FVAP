@@ -7,10 +7,12 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --partition=alpha
 #SBATCH --mem=50G
-#SBATCH -J "jupyter-lab"
+#SBATCH --chdir=/home/s9911486/prog/discoret/fair_hpo_smac/jobs
+#SBATCH --job-name="jupyter-lab"
+#SBATCH --output=slurm-%x.out
 #SBATCH --mail-user=tobias.haenel@tu-dresden.de
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH -A p_discoret
+#SBATCH --account=p_discoret
 
 module load \
   modenv/hiera \
@@ -24,6 +26,9 @@ export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 source ~/workspaces/ssd/s9911486-virtualenvs/discoret/bin/activate
 
 cd ~/prog/discoret/fair_hpo_smac
-srun jupyter lab
 
-exit 0
+unset XDG_RUNTIME_DIR
+
+hostname -I
+
+srun jupyter lab

@@ -8,10 +8,12 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --partition=alpha
 #SBATCH --mem=100G
-#SBATCH -J "smac-hpo-utkface-fair"
+#SBATCH --chdir=/home/s9911486/prog/discoret/fair_hpo_smac/jobs
+#SBATCH --job-name="slurm-smac-hpo-utkface-fair"
+#SBATCH --output=%x-%j.out
 #SBATCH --mail-user=tobias.haenel@tu-dresden.de
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH -A p_discoret
+#SBATCH --account=p_discoret
 
 module load \
   modenv/hiera \
