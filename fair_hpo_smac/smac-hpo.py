@@ -466,13 +466,17 @@ smac = SMAC4HPO(
     initial_design_kwargs={"n_configs_x_params": 4},
 )
 incumbent_hyperparameter_config = smac.optimize()
+run_history = smac.get_runhistory()
+trajectory = smac.get_trajectory()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
 
 smac_state = {
     "scenario": scenario,
     "seed": smac_seed,
-    "incumbent_hyperparameter_config": incumbent_hyperparameter_config,
     "cost_function": cost_function_name,
+    "incumbent_hyperparameter_config": incumbent_hyperparameter_config,
+    "run_history": run_history,
+    "trajectory": trajectory,
 }
 smac_save_file_path = path.join(save_file_directory, "smac.pt")
 save(smac_state, smac_save_file_path)
