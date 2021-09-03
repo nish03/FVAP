@@ -464,6 +464,7 @@ smac = SMAC4HPO(
     tae_runner=hyperparameter_cost,
     initial_design=initial_designs[initial_design_name],
     initial_design_kwargs={"n_configs_x_params": 4},
+    intensifier_kwargs={"maxR": 5}
 )
 incumbent_hyperparameter_config = smac.optimize()
 run_history = smac.get_runhistory()
