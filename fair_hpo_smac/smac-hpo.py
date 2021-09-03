@@ -2,7 +2,7 @@
 
 import logging
 from argparse import ArgumentParser
-from collections import namedtuple
+from hpo.Hyperparameters import Hyperparameters
 from copy import deepcopy
 from datetime import datetime
 from os import makedirs, path
@@ -247,23 +247,6 @@ data_save_file_path = path.join(save_file_directory, "data.pt")
 save(data_state, data_save_file_path)
 
 
-Hyperparameters = namedtuple(
-    "Hyperparameters",
-    [
-        "latent_dimension_count",
-        "hidden_layer_count",
-        "vae_loss_gamma",
-        "C_max",
-        "C_stop_iteration",
-        "learning_rate",
-        "weight_decay",
-        "lr_scheduler_gamma",
-        "reconstruction_loss",
-        "reconstruction_loss_args",
-    ],
-)
-
-
 def ms_ssim_cost(_model, _dataloader):
     if isinstance(_model, DataParallel):
         _model = _model.module
@@ -271,7 +254,8 @@ def ms_ssim_cost(_model, _dataloader):
 
     cost = zeros(1, dtype=float32)
     processed_data_samples = 0
-    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=0.5, reduction="sum")
+    window_sigma = 0.5
+    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=window_sigma, reduction="sum")
     with no_grad():
         for data, _ in _dataloader:
             data = data.to(device)
@@ -281,8 +265,9 @@ def ms_ssim_cost(_model, _dataloader):
             cost += ms_ssim_loss(output, data).item()
             processed_data_samples += len(data)
     cost = (cost / processed_data_samples).item()
+    additional_info = {"Window Sigma": window_sigma}
     logging.debug(f"  MS-SSIM Cost: {cost}")
-    return cost
+    return cost, additional_info
 
 
 def fair_ms_ssim_cost(_model, _dataloader):
@@ -292,7 +277,8 @@ def fair_ms_ssim_cost(_model, _dataloader):
 
     costs = zeros(len(sensitive_attribute), dtype=float32)
     processed_data_samples = zeros(len(sensitive_attribute), dtype=int64)
-    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=0.5, reduction="sum")
+    window_sigma = 0.5
+    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=window_sigma, reduction="sum")
     with no_grad():
         for data, target in _dataloader:
             data, target = data.to(device), target.to(device)
@@ -309,20 +295,24 @@ def fair_ms_ssim_cost(_model, _dataloader):
                 ]
             )
             processed_data_samples += (
-                (
-                    target
-                    == arange(len(sensitive_attribute), device=device).view(-1, 1)
-                )
+                (target == arange(len(sensitive_attribute), device=device).view(-1, 1))
                 .count_nonzero(dim=1)
                 .cpu()
             )
 
     costs /= processed_data_samples
-    max_cost = costs.max().item()
+    cost = costs.max().item()
+    sensitive_attribute_costs = {
+        str(member): costs[member.value].item() for member in sensitive_attribute
+    }
+    additional_info = {
+        "Sensitive Attribute Costs": sensitive_attribute_costs,
+        "Window Sigma": window_sigma,
+    }
     for member in sensitive_attribute:
         logging.debug(f"  MS-SSIM Cost[{str(member)}]: {costs[member.value].item()}")
-    logging.debug(f"  Fair MS-SSIM Cost: {max_cost}")
-    return max_cost
+    logging.debug(f"  Fair MS-SSIM Cost: {cost}")
+    return cost, additional_info
 
 
 cost_functions = {"MS-SSIM": ms_ssim_cost, "FairMS-SSIM": fair_ms_ssim_cost}
@@ -411,7 +401,7 @@ def hyperparameter_cost(hyperparameter_dict, seed):
     )
     lr_scheduler = ExponentialLR(optimizer, gamma=hyperparameters.lr_scheduler_gamma)
 
-    model, _, _ = train_variational_autoencoder(
+    train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
         model,
         optimizer,
         lr_scheduler,
@@ -420,32 +410,23 @@ def hyperparameter_cost(hyperparameter_dict, seed):
         validation_criterion,
         train_dataloader,
         validation_dataloader,
-        save_model_state,
         schedule_lr_after_epoch=True,
         display_progress=False,
     )
-    cost_value = hyperparameter_cost.function(model, validation_dataloader)
-    return cost_value
+    cost, additional_info = hyperparameter_cost.function(model, validation_dataloader)
 
-
-hyperparameter_cost.run = 0
-hyperparameter_cost.seed = None
-hyperparameter_cost.config = None
-hyperparameter_cost.function = cost_functions[cost_function_name]
-
-
-def save_model_state(
-    epoch, model, optimizer, lr_scheduler, train_epoch_losses, validation_epoch_losses
-):
-    if isinstance(model, DataParallel):
-        model = model.module
+    model_state_dict = (
+        model.state_dict() if device_count == 1 else model.module.state_dict()
+    )
 
     model_state = {
         "run": hyperparameter_cost.run,
         "seed": hyperparameter_cost.seed,
         "hyperparameters": hyperparameter_cost.config,
-        "epoch": epoch,
-        "model_state_dict": model.state_dict(),
+        "cost": cost,
+        "additional_info": additional_info,
+        "epoch_count": epoch_count,
+        "model_state_dict": model_state_dict,
         "optimizer_state_dict": optimizer.state_dict(),
         "lr_scheduler_state_dict": lr_scheduler.state_dict(),
         "train_epoch_losses": train_epoch_losses,
@@ -455,6 +436,13 @@ def save_model_state(
     model_save_file_name = f"model-run-{hyperparameter_cost.run:04}.pt"
     model_save_file_path = path.join(save_file_directory, model_save_file_name)
     save(model_state, model_save_file_path)
+    return cost, additional_info
+
+
+hyperparameter_cost.run = 0
+hyperparameter_cost.seed = None
+hyperparameter_cost.config = None
+hyperparameter_cost.function = cost_functions[cost_function_name]
 
 
 smac_output_directory = path.join(output_directory, "smac")

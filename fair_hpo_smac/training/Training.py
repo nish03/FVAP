@@ -14,7 +14,6 @@ def train_variational_autoencoder(
     validation_criterion,
     train_dataloader,
     validation_dataloader,
-    save_model_state_fn,
     schedule_lr_after_epoch=True,
     display_progress=True,
 ):
@@ -53,15 +52,7 @@ def train_variational_autoencoder(
         for name, value in validation_losses.items():
             validation_epoch_losses[name].append(value)
 
-    save_model_state_fn(
-        epoch_count,
-        model,
-        optimizer,
-        lr_scheduler,
-        train_epoch_losses,
-        validation_epoch_losses,
-    )
-    return model, train_epoch_losses, validation_epoch_losses
+    return train_epoch_losses, validation_epoch_losses
 
 
 def train_variational_autoencoder_epoch(
