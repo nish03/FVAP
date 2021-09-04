@@ -1,7 +1,17 @@
-from torch import stack, tensor
-from math import exp, ceil
-from torch.nn import Module
+from math import ceil, exp
+
+from torch import cosh, log, stack, tensor
+from torch.nn import Module, L1Loss, MSELoss
 from torch.nn.functional import avg_pool2d, conv2d, relu
+
+
+class LogCoshLoss(Module):
+    def __init__(self, a=10.0):
+        super(LogCoshLoss, self).__init__()
+        self.a = a
+
+    def forward(self, reconstruction, data):
+        return log(cosh(self.a * (reconstruction - data))).mean() / self.a
 
 
 class MultiScaleSSIMLoss(Module):
@@ -95,3 +105,11 @@ class MultiScaleSSIMLoss(Module):
         elif self.reduction == "sum":
             return ms_ssim_loss.sum()
         return ms_ssim_loss
+
+
+reconstruction_losses = {
+    "MAE": L1Loss,
+    "MSE": MSELoss,
+    "MS-SSIM": MultiScaleSSIMLoss,
+    "LogCosh": LogCoshLoss,
+}

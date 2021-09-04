@@ -2,11 +2,33 @@
 
 import logging
 from argparse import ArgumentParser
-from hpo.Hyperparameters import Hyperparameters
 from copy import deepcopy
 from datetime import datetime
 from os import makedirs, path
 from sys import argv
+
+import numpy.random
+import torch.random
+from numpy.random import RandomState
+from smac.facade.smac_hpo_facade import SMAC4HPO
+from smac.initial_design.default_configuration_design import DefaultConfiguration
+from smac.initial_design.sobol_design import SobolDesign
+from smac.scenario.scenario import Scenario
+from torch import cuda, float32, save
+from torch.backends import cudnn
+from torch.nn import DataParallel
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ExponentialLR
+from torch.utils.data import DataLoader
+from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
+
+from data.UTKFace import UTKFaceDataset, load_utkface
+from hpo.Hyperparameters import hyperparameters_from_config
+from hpo.Cost import cost_functions
+from model.FlexVAE import FlexVAE
+from training.Training import train_variational_autoencoder
+
+start_date = datetime.now()
 
 arg_parser = ArgumentParser(
     description="Perform HPO with SMAC to train a generative model"
@@ -101,38 +123,25 @@ arg_parser.add_argument(
     help="Maximum number of runs during hyperparameter optimization with SMAC",
 )
 args = arg_parser.parse_args(argv[1:])
-
-start_date = datetime.now()
 output_directory = path.join(
     args.output_dir, start_date.strftime("%Y-%m-%d_%H:%M:%S_%f")
 )
+cost_function_name = args.cost
+sensitive_attribute_index = args.sensitive_attribute
+image_size = args.image_size
+batch_size = args.batch_size
+epoch_count = args.epochs
+datasplit_seed = args.datasplit_seed
+pcs_file = args.smac_pcs_file
+max_runtime = args.smac_runtime
+max_runcount = args.smac_runcount
+smac_seed = args.smac_seed
+initial_design_name = args.smac_initial_design
+
 makedirs(output_directory, exist_ok=True)
 log_file_path = path.join(output_directory, "log.txt")
-# noinspection PyArgumentList
-logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
-print(f"Logging started with Output Directory {output_directory}")
-
-from numpy.random import RandomState
-from smac.facade.smac_hpo_facade import SMAC4HPO
-from smac.initial_design.default_configuration_design import DefaultConfiguration
-from smac.initial_design.sobol_design import SobolDesign
-from smac.scenario.scenario import Scenario
-from torch import cuda, float32, int64, save, no_grad, zeros, tensor, arange
-from torch.backends import cudnn
-from torch.nn import DataParallel, MSELoss, L1Loss
-from torch.optim import Adam
-from torch.optim.lr_scheduler import ExponentialLR
-from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Resize, Lambda
-
-from data.UTKFace import load_utkface, UTKFaceDataset
-from model.FlexVAE import FlexVAE
-from model.util.LogCoshLoss import LogCoshLoss
-from model.util.MultiScaleSSIMLoss import MultiScaleSSIMLoss
-from training.Training import train_variational_autoencoder
-import torch.random
-import numpy.random
-
+logging.basicConfig(filename=log_file_path, level=logging.DEBUG, force=True)
+print(f"Logging started in output directory {output_directory}")
 logging.info(f"Script started at {start_date}")
 
 if cuda.is_available():
@@ -154,20 +163,6 @@ logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
 
-
-cost_function_name = args.cost
-sensitive_attribute_index = args.sensitive_attribute
-image_size = args.image_size
-batch_size = args.batch_size
-epoch_count = args.epochs
-datasplit_seed = args.datasplit_seed
-pcs_file = args.smac_pcs_file
-max_runtime = args.smac_runtime
-max_runcount = args.smac_runcount
-smac_seed = args.smac_seed
-initial_design_name = args.smac_initial_design
-
-
 logging.info(
     f"Data will be loaded with sensitive attribute {sensitive_attribute_index}, "
     f"image size {image_size}, batch size {batch_size} and "
@@ -182,14 +177,12 @@ logging.info(
 )
 
 num_workers = device_count * 4
-
 data_state = {
     "sensitive_attribute_index": sensitive_attribute_index,
     "image_size": image_size,
     "batch_size": batch_size,
     "datasplit_seed": datasplit_seed,
 }
-
 
 if args.utkface_dir is not None:
     dataset_directory = args.utkface_dir
@@ -247,111 +240,17 @@ data_save_file_path = path.join(save_file_directory, "data.pt")
 save(data_state, data_save_file_path)
 
 
-def ms_ssim_cost(_model, _dataloader):
-    if isinstance(_model, DataParallel):
-        _model = _model.module
-    _model.eval()
-
-    cost = zeros(1, dtype=float32)
-    processed_data_samples = 0
-    window_sigma = 0.5
-    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=window_sigma, reduction="sum")
-    with no_grad():
-        for data, _ in _dataloader:
-            data = data.to(device)
-            output = _model.reconstruct(data)
-            data = (data + 1.0) / 2.0
-            output = (output + 1.0) / 2.0
-            cost += ms_ssim_loss(output, data).item()
-            processed_data_samples += len(data)
-    cost = (cost / processed_data_samples).item()
-    additional_info = {"Window Sigma": window_sigma}
-    logging.debug(f"  MS-SSIM Cost: {cost}")
-    return cost, additional_info
-
-
-def fair_ms_ssim_cost(_model, _dataloader):
-    if isinstance(_model, DataParallel):
-        _model = _model.module
-    _model.eval()
-
-    costs = zeros(len(sensitive_attribute), dtype=float32)
-    processed_data_samples = zeros(len(sensitive_attribute), dtype=int64)
-    window_sigma = 0.5
-    ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=window_sigma, reduction="sum")
-    with no_grad():
-        for data, target in _dataloader:
-            data, target = data.to(device), target.to(device)
-            output = _model.reconstruct(data)
-            data = (data + 1.0) / 2.0
-            output = (output + 1.0) / 2.0
-            costs += tensor(
-                [
-                    ms_ssim_loss(
-                        output[target == member.value],
-                        data[target == member.value],
-                    )
-                    for member in sensitive_attribute
-                ]
-            )
-            processed_data_samples += (
-                (target == arange(len(sensitive_attribute), device=device).view(-1, 1))
-                .count_nonzero(dim=1)
-                .cpu()
-            )
-
-    costs /= processed_data_samples
-    cost = costs.max().item()
-    sensitive_attribute_costs = {
-        str(member): costs[member.value].item() for member in sensitive_attribute
-    }
-    additional_info = {
-        "Sensitive Attribute Costs": sensitive_attribute_costs,
-        "Window Sigma": window_sigma,
-    }
-    for member in sensitive_attribute:
-        logging.debug(f"  MS-SSIM Cost[{str(member)}]: {costs[member.value].item()}")
-    logging.debug(f"  Fair MS-SSIM Cost: {cost}")
-    return cost, additional_info
-
-
-cost_functions = {"MS-SSIM": ms_ssim_cost, "FairMS-SSIM": fair_ms_ssim_cost}
-reconstruction_losses = {
-    "MAE": L1Loss,
-    "MSE": MSELoss,
-    "MS-SSIM": MultiScaleSSIMLoss,
-    "LogCosh": LogCoshLoss,
-}
-
-
-def hyperparameter_cost(hyperparameter_dict, seed):
+def hyperparameter_cost(hyperparameter_config, seed):
     hyperparameter_cost.run += 1
 
     hyperparameter_cost.seed = seed
     torch.random.manual_seed(seed)
     numpy.random.seed(seed)
 
-    hyperparameter_dict = dict(**hyperparameter_dict)
-    hyperparameter_dict["C_stop_iteration"] = (
-        hyperparameter_dict["C_stop_fraction"] * epoch_count * len(train_dataloader)
+    hyperparameters = hyperparameters_from_config(
+        hyperparameter_config, max_iteration=epoch_count * len(train_dataloader)
     )
-    del hyperparameter_dict["C_stop_fraction"]
-    hyperparameter_dict["reconstruction_loss_args"] = {}
-    if hyperparameter_dict["reconstruction_loss"] == "MS-SSIM":
-        hyperparameter_dict["reconstruction_loss_args"][
-            "window_sigma"
-        ] = hyperparameter_dict["ms_ssim_window_sigma"]
-        del hyperparameter_dict["ms_ssim_window_sigma"]
-    elif hyperparameter_dict["reconstruction_loss"] == "LogCosh":
-        hyperparameter_dict["reconstruction_loss_args"]["a"] = hyperparameter_dict[
-            "logcosh_a"
-        ]
-        del hyperparameter_dict["logcosh_a"]
-    hyperparameter_dict["reconstruction_loss"] = reconstruction_losses[
-        hyperparameter_dict["reconstruction_loss"]
-    ]
-    hyperparameters = Hyperparameters(**hyperparameter_dict)
-    hyperparameter_cost.config = deepcopy(hyperparameters)
+    hyperparameter_cost.hyperparameters = deepcopy(hyperparameters)
 
     def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
         if isinstance(_model, DataParallel):
@@ -413,20 +312,21 @@ def hyperparameter_cost(hyperparameter_dict, seed):
         schedule_lr_after_epoch=True,
         display_progress=False,
     )
-    cost, additional_info = hyperparameter_cost.function(model, validation_dataloader)
 
-    model_state_dict = (
-        model.state_dict() if device_count == 1 else model.module.state_dict()
+    if isinstance(model, DataParallel):
+        model = model.module
+    cost, additional_info = hyperparameter_cost.function(
+        model, validation_dataloader, sensitive_attribute
     )
 
     model_state = {
         "run": hyperparameter_cost.run,
         "seed": hyperparameter_cost.seed,
-        "hyperparameters": hyperparameter_cost.config,
+        "hyperparameters": hyperparameter_cost.hyperparameters,
         "cost": cost,
         "additional_info": additional_info,
         "epoch_count": epoch_count,
-        "model_state_dict": model_state_dict,
+        "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
         "lr_scheduler_state_dict": lr_scheduler.state_dict(),
         "train_epoch_losses": train_epoch_losses,
@@ -441,7 +341,7 @@ def hyperparameter_cost(hyperparameter_dict, seed):
 
 hyperparameter_cost.run = 0
 hyperparameter_cost.seed = None
-hyperparameter_cost.config = None
+hyperparameter_cost.hyperparameters = None
 hyperparameter_cost.function = cost_functions[cost_function_name]
 
 
@@ -464,7 +364,7 @@ smac = SMAC4HPO(
     tae_runner=hyperparameter_cost,
     initial_design=initial_designs[initial_design_name],
     initial_design_kwargs={"n_configs_x_params": 4},
-    intensifier_kwargs={"maxR": 5}
+    intensifier_kwargs={"maxR": 5},
 )
 incumbent_hyperparameter_config = smac.optimize()
 run_history = smac.get_runhistory()
