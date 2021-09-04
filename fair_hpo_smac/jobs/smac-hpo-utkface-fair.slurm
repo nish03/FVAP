@@ -24,13 +24,13 @@ module load \
 
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 
-source ~/workspaces/ssd/s9911486-virtualenvs/discoret/bin/activate
+cd ~/prog/discoret/fair_hpo_smac
+source env/bin/activate
 
-cd ~/workspaces/ssd/s9911486-discoret
-~/prog/discoret/fair_hpo_smac/smac-hpo.py \
+./smac-hpo.py \
   --utkface-dir datasets/UTKFace \
   --output-dir experiments/${SLURM_JOB_NAME} \
-  --smac-pcs-file ~/prog/discoret/fair_hpo_smac/config/${SLURM_JOB_NAME}.pcs \
+  --smac-pcs-file config/${SLURM_JOB_NAME}.pcs \
   --cost FairMS-SSIM \
   --sensitive-attribute 0 \
   --epochs 100 \

@@ -22,13 +22,10 @@ module load \
   Python/3.8.6
 
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
-
-source ~/workspaces/ssd/s9911486-virtualenvs/discoret/bin/activate
+unset XDG_RUNTIME_DIR
 
 cd ~/prog/discoret/fair_hpo_smac
 
-unset XDG_RUNTIME_DIR
-
-hostname -I
+source env/discoret/bin/activate
 
 srun jupyter lab
