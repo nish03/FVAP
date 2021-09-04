@@ -104,11 +104,11 @@ celerybeat.pid
 # Environments
 .env
 .venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+env
+venv
+ENV
+env.bak
+venv.bak
 
 # Spyder project settings
 .spyderproject
@@ -133,3 +133,7 @@ dmypy.json
 
 # SLURM output files
 slurm-*.out
+
+# directory links
+datasets
+experiments
