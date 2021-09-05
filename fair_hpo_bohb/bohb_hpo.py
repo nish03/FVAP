@@ -1,61 +1,34 @@
-from bohb_worker import PyTorchWorker as worker
-import hpbandster.core.nameserver as hpns
-import hpbandster.core.result as hpres
-from hpbandster.optimizers import BOHB
-import logging
 from argparse import ArgumentParser
-from copy import deepcopy
-from datetime import datetime
-from math import log
-from os import makedirs, path
 from sys import argv
-from ConfigSpace.hyperparameters import (
-    UniformFloatHyperparameter,
-    UniformIntegerHyperparameter,
-)
-from hpbandster.core.worker import Worker
-import hpbandster.core.nameserver as hpns
-import hpbandster.core.result as hpres
-from hpbandster.optimizers import BOHB
-from hpbandster.core.worker import Worker
-from hpbandster.examples.commons import MyWorker
-import ConfigSpace as CS
-import ConfigSpace.hyperparameters as CSH
-from numpy.random import RandomState
-from torch import cuda, float32, save
-from torch.backends import cudnn
-from torch.nn import DataParallel
-from torch.optim import Adam
-from torch.optim.lr_scheduler import ExponentialLR
-from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
-
-from data.UTKFace import load_utkface
-from models.FlexVAE import FlexVAE
-from training.Training import train_variational_autoencoder
-import os
-import pickle
-import argparse
-
-import hpbandster.core.nameserver as hpns
-import hpbandster.core.result as hpres
-
-from hpbandster.optimizers import BOHB
-
+from datetime import datetime
+from os import makedirs, path
 import logging
+from torch import cuda
+from torch.backends import cudnn
+import hpbandster.core.nameserver as hpns
+import hpbandster.core.result as hpres
+from hpbandster.optimizers import BOHB
+from bohb_worker import PyTorchWorker as worker
 
 arg_parser = ArgumentParser(
-    description="Perform HPO with SMAC to train a generative model"
+    description="Perform HPO with BOHB to train a generative model"
 )
-
-
-arg_parser.add_argument(
-    "-o",
-    "--output-dir",
-    default="/srv/nfs/data/mengze/vae/bohb/",
-    required=False,
-    help="Directory for log files, save states and SMAC output",
-)
+if cuda.device_count() > 1:
+    arg_parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="/srv/nfs/data/mengze/vae/bohb/",
+        required=False,
+        help="Directory for log files, save states and BOHB output",
+    )
+else:
+    arg_parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="C:/Users/OGMENGLI/Projects/HyperFair/fair_hpo_bohb",
+        required=False,
+        help="Directory for log files, save states and BOHB output",
+    )
 arg_parser.add_argument(
     "--image_size",
     default=64,
@@ -71,39 +44,32 @@ arg_parser.add_argument(
     help="Batch size used for loading the dataset",
 )
 arg_parser.add_argument(
-    "--epochs",
-    default=128,
+    "--max_epochs",
+    default=3,
     type=int,
     required=False,
-    help="Epochs used for training the generative models",
+    help="maximum epochs used for training the model",
+)
+arg_parser.add_argument(
+    "--min_epochs",
+    default=1,
+    type=int,
+    required=False,
+    help="minimum epochs used for training the model",
 )
 
 arg_parser.add_argument(
-    "--smac-seed",
-    default=42,
-    type=int,
-    required=False,
-    help="Seed used for hyperparameter optimization with SMAC",
+    '--worker',
+    help='Flag to turn this into a worker process',
+    action='store_true'
 )
-arg_parser.add_argument(
-    "--smac-runtime",
-    default=72000,
-    type=int,
-    required=False,
-    help="Runtime used for hyperparameter optimization with SMAC",
-)
-arg_parser.add_argument('--worker', help='Flag to turn this into a worker process', action='store_true')
+args = arg_parser.parse_args(argv[1:])
+log_file_path = path.join(args.output_dir, "log.txt")
+logging.basicConfig(filename=log_file_path, level=logging.DEBUG, force=True)
+print(f"Logging started with Output Directory { args.output_dir}")
 
-args = arg_parser.parse_args()
-start_date = datetime.now()
-output_directory = path.join(
-    args.output_dir, start_date.strftime("%Y-%m-%d_%H_%M_%S_%f")
-)
-makedirs(output_directory, exist_ok=True)
-log_file_path = path.join(output_directory, "log.txt")
-# noinspection PyArgumentList
-logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
-print(f"Logging started with Output Directory {output_directory}")
+
+
 
 logging.info(f"Script started")
 
@@ -124,28 +90,20 @@ if cudnn.is_available():
 logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
-
-image_size = args.image_size
-batch_size = args.batch_size
-epoch_count = args.epochs
-smac_runtime = args.smac_runtime
-smac_seed = args.smac_seed
 logging.info(
-    f"Data will be loaded with image size {image_size} and batch size {batch_size}"
+    f"Data will be loaded with image size {args.image_size} and batch size {args.batch_size}"
 )
-logging.info(f"Generative models will be trained for maximum {epoch_count} epochs")
-
-num_workers = device_count * 4
+logging.info(f"Generative models will be trained for maximum {args.max_epochs} epochs and miminum {args.min_epochs} epochs")
 
 if __name__ == "__main__":
     host = '127.0.0.1'
-    
+
     if args.worker:
         w = worker(run_id="example1", nameserver=host)
         #w.load_nameserver_credentials(working_directory=output_directory)
         w.run(background=False)
         exit(0)
-    
+
     result_logger = hpres.json_result_logger(directory=args.output_dir, overwrite=True)
     '''
     NS = hpns.NameServer(run_id='example1', host='127.0.0.1',  port=0, working_directory=args.output_dir)
@@ -170,18 +128,19 @@ if __name__ == "__main__":
     # Besides the sleep_interval, we need to define the nameserver information and
     # the same run_id as above. After that, we can start the worker in the background,
     # where it will wait for incoming configurations to evaluate.
-    #w = worker( nameserver='127.0.0.1', run_id='example1')
-    #w.run(background=True)
+    w = worker(nameserver='127.0.0.1', run_id='example1')
+    w.run(background=True)
 
     # Step 3: Run an optimizer
     # Now we can create an optimizer object and start the run.
     # Here, we run BOHB, but that is not essential.
     # The run method will return the `Result` that contains all runs performed.
-    bohb = BOHB(configspace=worker.get_configspace(),
-                run_id='example1',
-                min_budget=6, max_budget=54
+    bohb = BOHB(configspace=w.get_configspace(),
+                run_id='example1', nameserver='127.0.0.1',
+                result_logger=result_logger,
+                min_budget=1, max_budget=3
                 )
-    res = bohb.run(n_iterations=100, min_n_workers=2)
+    res = bohb.run(n_iterations=2)
 
     # Step 4: Shutdown
     # After the optimizer run, we must shutdown the master and the nameserver.

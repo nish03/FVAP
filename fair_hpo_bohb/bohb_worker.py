@@ -1,16 +1,16 @@
-
-#!/usr/bin/env python
+import pickle
+with open('results.pkl', 'rb') as f:
+    data = pickle.load(f)
 
 import logging
 from argparse import ArgumentParser
-from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime
 from math import log
 from os import makedirs, path
+import pickle
 from sys import argv
 import torch
-from torch.nn.functional import mse_loss
 from torchvision.transforms import (
     Compose,
     RandomHorizontalFlip,
@@ -28,10 +28,8 @@ from hpbandster.core.worker import Worker
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
-from hpbandster.examples.commons import MyWorker
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-from numpy.random import RandomState
 from torch import cuda, float32, save
 from torch.backends import cudnn
 from torch.nn import DataParallel
@@ -40,30 +38,45 @@ from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 
-from data.UTKFace import load_utkface
-from models.FlexVAE import FlexVAE
+from model.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
+from hpo.Cost import cost_functions
 
 
 
 arg_parser = ArgumentParser(
-    description="Perform HPO with SMAC to train a generative model"
+    description="Perform HPO with BOHB to train a model"
 )
-
-arg_parser.add_argument(
-    "-u",
-    "--celeba-dir",
-    default="/srv/nfs/data/mengze/vae",
-    help="UTKFace dataset directory",
-    required=False,
-),
-arg_parser.add_argument(
-    "-o",
-    "--output-dir",
-    default="/srv/nfs/data/mengze/vae/bohb/",
-    required=False,
-    help="Directory for log files, save states and SMAC output",
-)
+if cuda.device_count() > 1:
+    arg_parser.add_argument(
+        "-u",
+        "--celeba-dir",
+        default="/srv/nfs/data/mengze/vae",
+        help="UTKFace dataset directory",
+        required=False,
+    ),
+    arg_parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="/srv/nfs/data/mengze/vae/bohb/",
+        required=False,
+        help="Directory for log files, save states and BOHB output",
+    )
+else:
+    arg_parser.add_argument(
+        "-u",
+        "--celeba-dir",
+        default="C:/Users/OGMENGLI/Projects",
+        help="UTKFace dataset directory",
+        required=False,
+    ),
+    arg_parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="C:/Users/OGMENGLI/Projects/HyperFair/fair_hpo_bohb",
+        required=False,
+        help="Directory for log files, save states and BOHB output",
+    )
 arg_parser.add_argument(
     "--image_size",
     default=64,
@@ -79,48 +92,40 @@ arg_parser.add_argument(
     help="Batch size used for loading the dataset",
 )
 arg_parser.add_argument(
-    "--epochs",
-    default=100,
+    "--max_epochs",
+    default=3,
     type=int,
     required=False,
-    help="Epochs used for training the generative models",
+    help="maximum epochs used for training the model",
 )
 arg_parser.add_argument(
-    "--datasplit-seed",
-    default=42,
+    "--min_epochs",
+    default=1,
     type=int,
     required=False,
-    help="Seed used for creating random train, validation and tast dataset splits",
+    help="minimum epochs used for training the model",
 )
 arg_parser.add_argument(
-    "--smac-seed",
-    default=42,
-    type=int,
-    required=False,
-    help="Seed used for hyperparameter optimization with SMAC",
+    '--worker',
+    help='Flag to turn this into a worker process',
+    action='store_true'
 )
 arg_parser.add_argument(
-    "--smac-runtime",
-    default=72000,
-    type=int,
+    "--cost",
+    default="MS-SSIM",
+    choices=["MS-SSIM", "FairMS-SSIM"],
     required=False,
-    help="Runtime used for hyperparameter optimization with SMAC",
+    help="Cost function used for HPO",
 )
-
 args = arg_parser.parse_args(argv[1:])
 
-start_date = datetime.now()
-#output_directory = path.join(
-#    args.output_dir, start_date.strftime("%Y-%m-%d_%H_%M_%S_%f")
-#)
-makedirs(args.output_dir, exist_ok=True)
+args = arg_parser.parse_args(argv[1:])
 log_file_path = path.join(args.output_dir, "log.txt")
-# noinspection PyArgumentList
-logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
-print(f"Logging started with Output Directory {args.output_dir}")
+logging.basicConfig(filename=log_file_path, level=logging.DEBUG, force=True)
+#print(f"Logging started with Output Directory { args.output_dir}")
 
 
-logging.info(f"Script started at {start_date}")
+logging.info(f"Script started")
 
 if cuda.is_available():
     device = "cuda"
@@ -139,31 +144,33 @@ if cudnn.is_available():
 logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
+logging.info(
+    f"Data will be loaded with image size {args.image_size} and batch size {args.batch_size}"
+)
+logging.info(f"Generative models will be trained for maximum {args.max_epochs} epochs and miminum {args.min_epochs} epochs")
+
+if cuda.is_available():
+    device = "cuda"
+    device_count = cuda.device_count()
+else:
+    device = "cpu"
+    device_count = 1
+
+if cudnn.is_available():
+    cudnn.benchmark = True
+logging.info(
+    f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
+)
 
 image_size = args.image_size
 batch_size = args.batch_size
-epoch_count = args.epochs
-datasplit_seed = args.datasplit_seed
-smac_runtime = args.smac_runtime
-smac_seed = args.smac_seed
-logging.info(
-    f"Data will be loaded with image size {image_size} and batch size {batch_size}"
-)
-logging.info(f"Generative models will be trained for {epoch_count} epochs")
-logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for {smac_runtime}s and "
-    f"with seed {smac_seed}"
-)
-
 num_workers = device_count * 4
+cost_function_name = args.cost
+cost_function = cost_functions[cost_function_name]
 
-data_state = {
-    "image_size": image_size,
-    "batch_size": batch_size,
-    "datasplit_seed": datasplit_seed,
-}
 
-if args.celeba_dir is not None:
+## the cluster has multiple gpus while the laptop has one GPU only
+if device_count > 1:
     transform = Compose(
         [
             RandomHorizontalFlip(),
@@ -173,54 +180,64 @@ if args.celeba_dir is not None:
             Lambda(lambda x: 2.0 * x - 1.0),
         ]
     )
-    dataset_directory = args.celeba_dir
-    data_state["dataset_directory"] = dataset_directory
-    data_state["dataset"] = "celeba"
+else:
+    transform = Compose(
+        [
+            RandomHorizontalFlip(),
+            CenterCrop(148),
+            Resize(image_size),
+            ToTensor(),
+            #Lambda(lambda x: 2.0 * x - 1.0),
+        ]
+    )
+dataset_directory = args.celeba_dir
+try:
     train_dataset, validation_dataset, test_dataset = [
         CelebA(root=dataset_directory, split=split, transform=transform, download=False)
         for split in ["train", "valid", "test"]
     ]
-    train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(10000))
-    validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(10000))
-    test_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(10000))
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        shuffle=False,
-        pin_memory=True#,
-        #sampler=train_sampler
-    )
-    validation_dataloader = DataLoader(
-        validation_dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        shuffle=False,
-        pin_memory=True,
-        #sampler=validation_sampler
-    )
-    test_dataloader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        shuffle=False,
-        pin_memory=True,
-        #sampler=test_sampler
-    )
+except:
+    train_dataset, validation_dataset, test_dataset = [
+        CelebA(root="C:/Users/OGMENGLI/Projects", split=split, transform=transform, download=False)
+        for split in ["train", "valid", "test"]
+    ]
+train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+test_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+train_dataloader = DataLoader(
+    train_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    shuffle=False,
+    pin_memory=True,
+    #sampler=train_sampler
+)
+validation_dataloader = DataLoader(
+    validation_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    shuffle=False,
+    pin_memory=True,
+    #sampler=validation_sampler
+)
+test_dataloader = DataLoader(
+    test_dataset,
+    batch_size=batch_size,
+    num_workers=num_workers,
+    shuffle=False,
+    pin_memory=True,
+    #sampler=test_sampler
+)
 
-    logging.info(f"UTKFace dataset was loaded from directory {dataset_directory}, ")
-else:
-    raise RuntimeError("No dataset was specified")
+logging.info(f"UTKFace dataset was loaded from directory {dataset_directory}, ")
 
 save_file_directory = path.join(args.output_dir, "save_states")
-#makedirs(save_file_directory)
-data_save_file_path = path.join(save_file_directory, "data.pt")
-save(data_state, data_save_file_path)
+
 
 
 class PyTorchWorker(Worker):
     def __init__(self, **kwargs):
-        print("11111")
+        print("Worker started")
         super().__init__(**kwargs)
         # Load the MNIST Data here
         self.train_loader = train_dataloader
@@ -234,7 +251,6 @@ class PyTorchWorker(Worker):
 
     def train_criterion(self, _model, _data, _, _output, _mu, _log_var, _data_fraction):
         self.train_criterion_iteration += 1
-        print(self.train_criterion_iteration)
         return FlexVAE.criterion(
             _data,
             _output,
@@ -255,10 +271,10 @@ class PyTorchWorker(Worker):
         )
 
     def compute(self, config, budget, working_directory, *args, **kwargs):
-        print(self.runid)
         max_iteration = int(budget) * len(train_dataloader)
         config['C_stop_iteration'] = int(config['C_stop_iteration_ratio'] * max_iteration)
         self.runid += 1
+        self.budget = budget
         self.current_config = deepcopy(config)
         model = FlexVAE(
             image_size,
@@ -278,43 +294,30 @@ class PyTorchWorker(Worker):
         )
         lr_scheduler = ExponentialLR(optimizer, gamma=config['lr_scheduler_gamma'])
         self.train_criterion_iteration += 1
+        if isinstance(model, DataParallel):
+            _model = model.module
+        else:
+            _model = model
         model, train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
             model,
             optimizer,
             lr_scheduler,
             int(budget),
-            model.module.criterion,
-            model.module.criterion,
+            _model.criterion,
+            _model.criterion,
             train_dataloader,
             validation_dataloader,
-            self.save_model_state,
+            #self.save_model_state,
             self.train_criterion_iteration,
             schedule_lr_after_epoch=True,
             display_progress=False,
         )
-        '''
-        for epoch in range(int(budget)):
-            loss = 0
-            model.train()
-            device = next(model.parameters()).device
-            for i, x in enumerate(self.train_loader):
-                data_fraction = len(x) / len(train_dataloader.dataset)
-                output, mu, log_var = model(x)
-                loss = mse_loss(x, output)
-                loss.backward()
-                optimizer.step()
-            train_loss = self.evaluate(model, self.train_loader)
-            validation_loss = self.evaluate(model, self.validation_loader)
-            test_loss = self.evaluate(model, self.test_loader)
-        '''
 
-
-        '''
-        final_cost = min(validation_epoch_losses["Reconstruction"])
-        '''
+        cost, additional_info = cost_function(model, validation_dataloader, model)
 
         return ({
-                'loss': min(validation_epoch_losses['ELBO']), # remember: HpBandSter always minimizes!
+                'loss': cost,
+                #'loss': min(validation_epoch_losses['ELBO']), # remember: HpBandSter always minimizes!
                 'info': {       'validation_mseloss': min(validation_epoch_losses['Reconstruction']),
                                         'train_mseloss': min(train_epoch_losses['Reconstruction']),
                                         'train_elboloss': min(train_epoch_losses['ELBO']),
@@ -328,12 +331,6 @@ class PyTorchWorker(Worker):
 
     @staticmethod
     def get_configspace():
-            """
-            It builds the configuration space with the needed hyperparameters.
-            It is easily possible to implement different types of hyperparameters.
-            Beside float-hyperparameters on a log scale, it is also able to handle categorical input parameter.
-            :return: ConfigurationsSpace-Object
-            """
             cs = CS.ConfigurationSpace()
 
             lr = CSH.UniformFloatHyperparameter("lr", 5e-6, 5e-3, default_value=5e-4, log=True)
@@ -352,63 +349,27 @@ class PyTorchWorker(Worker):
             cs.add_hyperparameters([vae_loss_gamma, C_max, C_stop_iteration_ratio])
             return cs
 
-    def evaluate(self, model, data_loader):
-        model.eval()
-        total_loss = 0
-        with torch.no_grad():
-            for x in data_loader:
-                output = model(x)
-                loss = mse_loss(x,output)
-                total_loss += loss
-        average_loss = total_loss/len(data_loader.sampler)
-        return average_loss
-
-    def save_model_state(self, epoch, model, optimizer, lr_scheduler, train_epoch_losses, validation_epoch_losses):
-        cost = validation_epoch_losses["Reconstruction"][-1]
-        is_best = self.best_cost > cost
-        if is_best:
-            self.best_cost = cost
-
-        is_final_epoch = epoch == epoch_count
-
-        if not is_best and not is_final_epoch:
-            return
-
-        if isinstance(model, DataParallel):
-            model = model.module
-
-        model_state = {
-            "runid": self.runid,
-            "epoch": epoch,
-            "hyperparameter_config": self.current_config,
-            "model_state_dict": model.state_dict(),
-            "optimizer_state_dict": optimizer.state_dict(),
-            "lr_scheduler_state_dict": lr_scheduler.state_dict(),
-            "train_epoch_losses": train_epoch_losses,
-            "validation_epoch_losses": validation_epoch_losses,
-        }
-
-        if is_best:
-            model_save_file_name = "model-best.pt"
-            model_save_file_path = path.join(save_file_directory, model_save_file_name)
-            save(model_state, model_save_file_path)
-
-        if is_final_epoch:
-            model_save_file_name = (
-                f"model-runid-{self.runid:04}.pt"
-            )
-            model_save_file_path = path.join(save_file_directory, model_save_file_name)
-            save(model_state, model_save_file_path)
-
-
-# Every process has to lookup the hostname
-
-
 if __name__ == "__main__":
-    worker = PyTorchWorker(run_id='0')
-    cs = worker.get_configspace()
+    host = '127.0.0.1'
+    if args.worker:
+        w = PyTorchWorker(run_id="example1", nameserver=host)
+        # w.load_nameserver_credentials(working_directory=output_directory)
+        w.run(background=False)
+        exit(0)
 
-    config = cs.sample_configuration().get_dictionary()
-    print(config)
-    res = worker.compute(config=config, budget=2, working_directory='.')
-    print(res)
+    result_logger = hpres.json_result_logger(directory=args.output_dir, overwrite=True)
+    NS = hpns.NameServer(run_id='example1', host=host, port=None)
+    NS.start()
+    w = PyTorchWorker(nameserver=host, run_id='example1')
+    w.run(background=True)
+    bohb = BOHB(configspace=w.get_configspace(),
+                run_id='example1', nameserver=host,
+                result_logger=result_logger,
+                min_budget=1, max_budget=1
+                )
+    res = bohb.run(n_iterations=2)
+    with open(path.join(args.output_dir, 'results.pkl'), 'wb') as fh:
+        pickle.dump(res, fh)
+    bohb.shutdown(shutdown_workers=True)
+    NS.shutdown()
+
