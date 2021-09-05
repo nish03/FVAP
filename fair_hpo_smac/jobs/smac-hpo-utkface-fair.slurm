@@ -15,14 +15,9 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --account=p_discoret
 
-module load \
-  modenv/hiera \
-  GCC/10.2.0 \
-  CUDA/11.1.1 \
-  OpenMPI/4.0.5 \
-  Python/3.8.6
-
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
+
+source jobs/load_alpha_modules.sh
 
 cd ~/prog/discoret/fair_hpo_smac
 source env/bin/activate
