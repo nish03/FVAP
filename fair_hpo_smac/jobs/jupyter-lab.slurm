@@ -26,6 +26,6 @@ unset XDG_RUNTIME_DIR
 
 cd ~/prog/discoret/fair_hpo_smac
 
-source env/discoret/bin/activate
+source env/bin/activate
 
 srun jupyter lab
