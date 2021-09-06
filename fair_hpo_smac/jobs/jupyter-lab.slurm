@@ -11,7 +11,7 @@
 #SBATCH --job-name="jupyter-lab"
 #SBATCH --output=slurm-%x.out
 #SBATCH --mail-user=tobias.haenel@tu-dresden.de
-#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-type=FAIL
 #SBATCH --account=p_discoret
 
 cd ~/prog/discoret/fair_hpo_smac

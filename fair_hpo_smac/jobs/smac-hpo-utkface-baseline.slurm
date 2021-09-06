@@ -12,7 +12,7 @@
 #SBATCH --job-name="smac-hpo-utkface-baseline"
 #SBATCH --output=slurm-%x-%j.out
 #SBATCH --mail-user=tobias.haenel@tu-dresden.de
-#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-type=END,FAIL
 #SBATCH --account=p_discoret
 
 source jobs/load_alpha_modules.sh

@@ -12,12 +12,12 @@
 #SBATCH --job-name="slurm-smac-hpo-utkface-fair"
 #SBATCH --output=%x-%j.out
 #SBATCH --mail-user=tobias.haenel@tu-dresden.de
-#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-type=END,FAIL
 #SBATCH --account=p_discoret
 
-export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
-
 source jobs/load_alpha_modules.sh
+
+export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 
 cd ~/prog/discoret/fair_hpo_smac
 source env/bin/activate
