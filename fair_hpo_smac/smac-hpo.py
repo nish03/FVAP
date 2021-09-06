@@ -172,8 +172,8 @@ logging.info(f"Generative model will be trained for {epoch_count} epochs")
 logging.info(
     f"Hyperparameter optimisation with SMAC will be run for {max_runtime}s with "
     f"{'' if max_runcount is None else str(max_runcount) + ' evaluations, '}"
-    f"parameter configuration file '{pcs_file}', seed {smac_seed} and "
-    f"cost function {cost_function_name}"
+    f"parameter configuration file '{pcs_file}', {initial_design_name} initial design, "
+    f"seed {smac_seed} and cost function {cost_function_name}"
 )
 
 num_workers = device_count * 4

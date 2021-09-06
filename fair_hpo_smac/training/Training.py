@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from torch import no_grad
 from tqdm import tqdm
+from math import isnan
 
 
 def train_variational_autoencoder(
@@ -47,10 +48,21 @@ def train_variational_autoencoder(
             )
         )
 
+        nan_loss_encountered = False
         for name, value in train_losses.items():
+            if isnan(value):
+                nan_loss_encountered = True
             train_epoch_losses[name].append(value)
         for name, value in validation_losses.items():
+            if isnan(value):
+                nan_loss_encountered = True
             validation_epoch_losses[name].append(value)
+
+        logging.debug(
+            f"    Encountered NaN loss value, aborting training"
+        )
+        if nan_loss_encountered:
+            break
 
     return train_epoch_losses, validation_epoch_losses
 
