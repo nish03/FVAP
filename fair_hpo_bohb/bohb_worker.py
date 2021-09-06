@@ -1,7 +1,3 @@
-import pickle
-with open('results.pkl', 'rb') as f:
-    data = pickle.load(f)
-
 import logging
 from argparse import ArgumentParser
 from copy import deepcopy
@@ -86,21 +82,21 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--batch_size",
-    default=144,
+    default=256,
     type=int,
     required=False,
     help="Batch size used for loading the dataset",
 )
 arg_parser.add_argument(
     "--max_epochs",
-    default=3,
+    default=15,
     type=int,
     required=False,
     help="maximum epochs used for training the model",
 )
 arg_parser.add_argument(
     "--min_epochs",
-    default=1,
+    default=5,
     type=int,
     required=False,
     help="minimum epochs used for training the model",
@@ -313,7 +309,7 @@ class PyTorchWorker(Worker):
             display_progress=False,
         )
 
-        cost, additional_info = cost_function(model, validation_dataloader, model)
+        cost, additional_info = cost_function(_model, validation_dataloader, model)
 
         return ({
                 'loss': cost,
@@ -365,9 +361,9 @@ if __name__ == "__main__":
     bohb = BOHB(configspace=w.get_configspace(),
                 run_id='example1', nameserver=host,
                 result_logger=result_logger,
-                min_budget=1, max_budget=1
+                min_budget=args.min_epochs, max_budget=args.max_epochs
                 )
-    res = bohb.run(n_iterations=2)
+    res = bohb.run(n_iterations=100)
     with open(path.join(args.output_dir, 'results.pkl'), 'wb') as fh:
         pickle.dump(res, fh)
     bohb.shutdown(shutdown_workers=True)
