@@ -14,8 +14,6 @@ def train_variational_autoencoder(
     validation_criterion,
     train_dataloader,
     validation_dataloader,
-    #save_model_state_fn,
-    iteration,
     schedule_lr_after_epoch=True,
     display_progress=True,
 ):
@@ -32,7 +30,6 @@ def train_variational_autoencoder(
             schedule_lr_after_epoch,
             train_criterion,
             train_dataloader,
-            iteration,
             display_progress=display_progress,
         )
         logging.debug(
@@ -41,7 +38,7 @@ def train_variational_autoencoder(
         )
         print("validation")
         validation_losses = evaluate_variational_autoencoder_epoch(
-            model, validation_criterion, validation_dataloader, iteration
+            model, validation_criterion, validation_dataloader
         )
         logging.debug(
             "    Validation Losses - "
@@ -75,7 +72,6 @@ def train_variational_autoencoder_epoch(
     schedule_lr_after_epoch,
     criterion,
     dataloader,
-    iteration,
     display_progress=True,
 ):
     model.train()
@@ -118,7 +114,7 @@ def train_variational_autoencoder_epoch(
     return final_losses
 
 
-def evaluate_variational_autoencoder_epoch(model, criterion, dataloader, iteration):
+def evaluate_variational_autoencoder_epoch(model, criterion, dataloader):
     model.eval()
     device = next(model.parameters()).device
 

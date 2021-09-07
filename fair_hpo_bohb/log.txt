@@ -1,30 +1,28 @@
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
 DEBUG:hpbandster:wait_for_workers trying to get the condition
 INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
 INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x207604ae730; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: No dispatcher found. Waiting for one to initiate contact.
-INFO:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: start listening for jobs
-INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:53564
+DEBUG:hpbandster.run_example1.worker.OG05N00334.21068:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x21835ed1610; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.OG05N00334.21068:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.OG05N00334.21068:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:54263
 DEBUG:hpbandster:DISPATCHER: Starting worker discovery
 DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
-INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.OG05N00334.1803210796
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.OG05N00334.210687292
 DEBUG:hpbandster:HBMASTER: number of workers changed to 1
 DEBUG:hpbandster:Enough workers to start this run!
 DEBUG:hpbandster:adjust_queue_size: lock accquired
 DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
-INFO:hpbandster:HBMASTER: starting run at 1630870453.9496777
+INFO:hpbandster:HBMASTER: starting run at 1630948786.97039
 INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
 DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-DEBUG:hpbandster:start sampling a new configuration.
 DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
-DEBUG:hpbandster:done sampling a new configuration.
 DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
 DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
 DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
@@ -34,169 +32,354 @@ DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
 DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
 DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
 DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
-DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.OG05N00334.1803210796
-DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.OG05N00334.1803210796
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.OG05N00334.210687292
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.OG05N00334.210687292
 DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
-INFO:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: start processing job (0, 0, 0)
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: args: ()
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: kwargs: {'config': {'C_max': 6.350222006473846, 'C_stop_iteration_ratio': 0.9920502176924043, 'hidden_layer_count': 5, 'latent_dimension_count': 465, 'lr': 0.0002975812216676433, 'lr_scheduler_gamma': 0.9481533956273587, 'vae_loss_gamma': 4.624310342135318, 'weight_decay': 0.11270466006030905}, 'budget': 1.0, 'working_directory': '.'}
+INFO:hpbandster.run_example1.worker.OG05N00334.21068:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.OG05N00334.21068:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.OG05N00334.21068:WORKER: kwargs: {'config': {'C_max': 12.819035492294818, 'C_stop_iteration_ratio': 0.10024612040687488, 'hidden_layer_count': 4, 'latent_dimension_count': 310, 'lr': 0.0038823377170322144, 'lr_scheduler_gamma': 0.9649335580613075, 'vae_loss_gamma': 680.6655349081628, 'weight_decay': 0.1051519632935648}, 'budget': 15, 'working_directory': '.'}
 DEBUG:root:  Epoch: 1
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+DEBUG:hpbandster:wait_for_workers trying to get the condition
+DEBUG:hpbandster:HBMASTER: only 0 worker(s) available, waiting for at least 1.
+INFO:hpbandster:DISPATCHER: started the 'discover_worker' thread
+INFO:hpbandster:DISPATCHER: started the 'job_runner' thread
+DEBUG:hpbandster.run_example1.worker.OG05N00334.7976:WORKER: Connected to nameserver <Pyro4.core.Proxy at 0x22aa4d58790; connected IPv4; for PYRO:Pyro.NameServer@127.0.0.1:9090>
+DEBUG:hpbandster.run_example1.worker.OG05N00334.7976:WORKER: No dispatcher found. Waiting for one to initiate contact.
+INFO:hpbandster.run_example1.worker.OG05N00334.7976:WORKER: start listening for jobs
+INFO:hpbandster:DISPATCHER: Pyro daemon running on localhost:65033
 DEBUG:hpbandster:DISPATCHER: Starting worker discovery
-DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 0 currently in the pool.
+INFO:hpbandster:DISPATCHER: discovered new worker, hpbandster.run_example1.worker.OG05N00334.79763372
+DEBUG:hpbandster:HBMASTER: number of workers changed to 1
+DEBUG:hpbandster:adjust_queue_size: lock accquired
+INFO:hpbandster:HBMASTER: adjusted queue size to (0, 1)
+DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
+INFO:hpbandster:DISPATCHER: A new worker triggered discover_worker
 DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-DEBUG:root:    Training Losses - ELBO: 0.28040844202041626 Reconstruction: 0.12439867854118347 KLD: 61.26372528076172
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-DEBUG:hpbandster:DISPATCHER: Starting worker discovery
-DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
-DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-DEBUG:hpbandster:DISPATCHER: Starting worker discovery
-DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
-DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-DEBUG:root:    Validation Losses - ELBO: 0.25889623165130615 Reconstruction: 0.11274795979261398 KLD: 0.07138801366090775
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-DEBUG:hpbandster:DISPATCHER: Starting worker discovery
-DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
-DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-DEBUG:hpbandster:DISPATCHER: Starting worker discovery
-DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
-DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-INFO:root:Script started
-INFO:root:Memory allocation was selected to be performed on 1 CUDA device
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
-INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
-DEBUG:root:  MS-SSIM Cost: 0.5674273371696472
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: done with job (0, 0, 0), trying to register it.
-INFO:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: registered result for job (0, 0, 0) with dispatcher
-DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) finished
-DEBUG:hpbandster:DISPATCHER: register_result: lock acquired
-DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) on hpbandster.run_example1.worker.OG05N00334.1803210796 finished
-DEBUG:hpbandster:job_id: (0, 0, 0)
-kwargs: {'config': {'C_max': 6.350222006473846, 'C_stop_iteration_ratio': 0.9920502176924043, 'hidden_layer_count': 5, 'latent_dimension_count': 465, 'lr': 0.0002975812216676433, 'lr_scheduler_gamma': 0.9481533956273587, 'vae_loss_gamma': 4.624310342135318, 'weight_decay': 0.11270466006030905}, 'budget': 1.0, 'working_directory': '.'}
-result: {'loss': 0.5674273371696472, 'info': {'validation_mseloss': 0.11274795979261398, 'train_mseloss': 0.12439867854118347, 'train_elboloss': 0.28040844202041626, 'validation_elboloss': 0.25889623165130615, 'train_kldloss': 61.26372528076172, 'validation_kldloss': 0.07138801366090775, 'number of parameters': 10}}
-exception: None
-
-DEBUG:hpbandster:job_callback for (0, 0, 0) started
-DEBUG:hpbandster:job_callback for (0, 0, 0) got condition
+DEBUG:hpbandster:Enough workers to start this run!
+INFO:hpbandster:HBMASTER: starting run at 1630962459.284104
+DEBUG:hpbandster:start sampling a new configuration.
 DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
 DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 1 -> waiting!
-DEBUG:hpbandster:Only 1 run(s) for budget 1.000000 available, need more than 10 -> can't build model!
-DEBUG:hpbandster:HBMASTER: Trying to run another job!
-DEBUG:hpbandster:job_callback for (0, 0, 0) finished
-DEBUG:hpbandster:start sampling a new configuration.
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
 DEBUG:hpbandster:done sampling a new configuration.
-DEBUG:hpbandster:HBMASTER: schedule new run for iteration 1
-DEBUG:hpbandster:HBMASTER: trying submitting job (1, 0, 0) to dispatcher
-DEBUG:hpbandster:HBMASTER: submitting job (1, 0, 0) to dispatcher
-DEBUG:hpbandster:DISPATCHER: trying to submit job (1, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:HBMASTER: schedule new run for iteration 0
+DEBUG:hpbandster:HBMASTER: trying submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:HBMASTER: submitting job (0, 0, 0) to dispatcher
+DEBUG:hpbandster:DISPATCHER: trying to submit job (0, 0, 0)
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
 DEBUG:hpbandster:DISPATCHER: trying to notify the job_runner thread.
-DEBUG:hpbandster:HBMASTER: job (1, 0, 0) submitted to dispatcher
-DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:HBMASTER: job (0, 0, 0) submitted to dispatcher
 DEBUG:hpbandster:HBMASTER: running jobs: 1, queue sizes: (0, 1) -> wait
-DEBUG:hpbandster:DISPATCHER: starting job (1, 0, 0) on hpbandster.run_example1.worker.OG05N00334.1803210796
-DEBUG:hpbandster:DISPATCHER: job (1, 0, 0) dispatched on hpbandster.run_example1.worker.OG05N00334.1803210796
+DEBUG:hpbandster:DISPATCHER: Trying to submit another job.
+DEBUG:hpbandster:DISPATCHER: starting job (0, 0, 0) on hpbandster.run_example1.worker.OG05N00334.79763372
+DEBUG:hpbandster:DISPATCHER: job (0, 0, 0) dispatched on hpbandster.run_example1.worker.OG05N00334.79763372
 DEBUG:hpbandster:DISPATCHER: jobs to submit = 0, number of idle workers = 0 -> waiting!
-INFO:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: start processing job (1, 0, 0)
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: args: ()
-DEBUG:hpbandster.run_example1.worker.OG05N00334.18032:WORKER: kwargs: {'config': {'C_max': 33.24436867795791, 'C_stop_iteration_ratio': 0.21118902649985788, 'hidden_layer_count': 3, 'latent_dimension_count': 505, 'lr': 0.0014627328005787845, 'lr_scheduler_gamma': 0.8865214461299168, 'vae_loss_gamma': 257.23519260942766, 'weight_decay': 0.2063668249264345}, 'budget': 1.0, 'working_directory': '.'}
+INFO:hpbandster.run_example1.worker.OG05N00334.7976:WORKER: start processing job (0, 0, 0)
+DEBUG:hpbandster.run_example1.worker.OG05N00334.7976:WORKER: args: ()
+DEBUG:hpbandster.run_example1.worker.OG05N00334.7976:WORKER: kwargs: {'config': {'C_max': 16.686031737700866, 'C_stop_iteration_ratio': 0.9910640035380316, 'hidden_layer_count': 5, 'latent_dimension_count': 254, 'lr': 1.0872578282985617e-05, 'lr_scheduler_gamma': 0.945258862533267, 'vae_loss_gamma': 296.8976004240049, 'weight_decay': 0.14746902258795}, 'budget': 5.0, 'working_directory': '.'}
 DEBUG:root:  Epoch: 1
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
 DEBUG:hpbandster:DISPATCHER: Starting worker discovery
 DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
 DEBUG:hpbandster:DISPATCHER: Finished worker discovery
-INFO:root:UTKFace dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
 INFO:root:Script started
 INFO:root:Memory allocation was selected to be performed on 1 CUDA device
 INFO:root:CUDNN convolution benchmarking was enabled
-INFO:root:Data will be loaded with image size 64 and batch size 144
-INFO:root:Generative models will be trained for maximum 3 epochs and miminum 1 epochs
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
 INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+INFO:root:Script started
+INFO:root:Memory allocation was selected to be performed on 1 CUDA device
+INFO:root:CUDNN convolution benchmarking was enabled
+INFO:root:Data will be loaded with image size 64 and batch size 256
+INFO:root:Generative models will be trained for maximum 15 epochs and miminum 5 epochs
+INFO:root:CUDNN convolution benchmarking was enabled
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+INFO:root:Dataset was loaded from directory C:/Users/OGMENGLI/Projects, 
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery
+DEBUG:hpbandster:DISPATCHER: Starting worker discovery
+DEBUG:hpbandster:DISPATCHER: Found 1 potential workers, 1 currently in the pool.
+DEBUG:hpbandster:DISPATCHER: Finished worker discovery

@@ -17,7 +17,7 @@ from torchvision.datasets.celeba import CelebA
 from hpbandster.core.worker import Worker
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
-from hpbandster.optimizers import BOHB
+from hpbandster.optimizers import BOHB, RandomSearch
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
 from torch import cuda
@@ -312,14 +312,14 @@ if __name__ == "__main__":
     NS.start()
     w = PyTorchWorker(nameserver=host, run_id='example1')
     w.run(background=True)
-    bohb = BOHB(configspace=w.get_configspace(),
+    rs = RandomSearch(configspace=w.get_configspace(),
                 run_id='example1', nameserver=host,
                 result_logger=result_logger,
                 min_budget=args.min_epochs, max_budget=args.max_epochs
                 )
-    res = bohb.run(n_iterations=1)
+    res = rs.run(n_iterations=1)
     with open(path.join(args.output_dir, 'results.pkl'), 'wb') as fh:
         pickle.dump(res, fh)
-    bohb.shutdown(shutdown_workers=True)
+    rs.shutdown(shutdown_workers=True)
     NS.shutdown()
 
