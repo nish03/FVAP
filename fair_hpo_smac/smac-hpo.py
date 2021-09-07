@@ -353,6 +353,7 @@ scenario_dict = {
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_output_directory,
+    "abort_on_first_run_crash": False,
 }
 if max_runcount is not None:
     scenario_dict["ta_run_limit"] = max_runcount
