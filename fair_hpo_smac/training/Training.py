@@ -58,10 +58,10 @@ def train_variational_autoencoder(
                 nan_loss_encountered = True
             validation_epoch_losses[name].append(value)
 
-        logging.debug(
-            f"    Encountered NaN loss value, aborting training"
-        )
         if nan_loss_encountered:
+            logging.debug(
+                f"    Encountered NaN loss value, aborting training"
+            )
             break
 
     return train_epoch_losses, validation_epoch_losses
