@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 #SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:2
@@ -9,17 +8,18 @@
 #SBATCH --partition=alpha
 #SBATCH --mem=100G
 #SBATCH --chdir=/home/s9911486/prog/discoret/fair_hpo_smac/jobs
-#SBATCH --job-name="slurm-smac-hpo-utkface-fair"
-#SBATCH --output=%x-%j.out
+#SBATCH --job-name="smac-hpo-utkface-fair"
+#SBATCH --output=slurm-%x-%j.out
 #SBATCH --mail-user=tobias.haenel@tu-dresden.de
 #SBATCH --mail-type=END,FAIL
 #SBATCH --account=p_discoret
+
+cd ~/prog/discoret/fair_hpo_smac
 
 source jobs/load_alpha_modules.sh
 
 export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 
-cd ~/prog/discoret/fair_hpo_smac
 source env/bin/activate
 
 ./smac-hpo.py \
