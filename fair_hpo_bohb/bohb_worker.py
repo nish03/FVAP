@@ -15,7 +15,7 @@ from torchvision.transforms import (
     ToTensor,
     Lambda,
 )
-from torchvision.datasets.celeba import CelebA
+from data.CelebA import CelebA
 from ConfigSpace.hyperparameters import (
     UniformFloatHyperparameter,
     UniformIntegerHyperparameter,

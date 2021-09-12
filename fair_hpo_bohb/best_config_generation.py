@@ -21,7 +21,7 @@ from torchvision.transforms import (
     ToTensor,
     Lambda,
 )
-from torchvision.datasets.celeba import CelebA
+from data.CelebA import CelebA
 from hpo.Cost import ms_ssim_cost
 
 
