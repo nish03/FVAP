@@ -1,7 +1,7 @@
 import json
 import pickle
 from os import path
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from torch import cuda, save
 from torch.backends import cudnn
 from torch.nn import DataParallel
@@ -23,6 +23,7 @@ from torchvision.transforms import (
 )
 from torchvision.datasets.celeba import CelebA
 from hpo.Cost import ms_ssim_cost
+
 
 tweets = []
 config_id = []
@@ -56,8 +57,8 @@ for i in plot_x:
     if ms_ssim[i] < min_ssim:
         min_ssim = ms_ssim[i]
     ms_ssim_line.append(min_ssim)
-plt.plot(plot_x, ms_ssim, 'r^', label = 'run_result')
-plt.plot(plot_x, ms_ssim_line, label = 'optimal performance')
+#plt.plot(plot_x, ms_ssim, 'r^', label = 'run_result')
+#plt.plot(plot_x, ms_ssim_line, label = 'optimal performance')
 
 min_loss = min(ms_ssim)
 bestHype_index = ms_ssim.index(min_loss)
@@ -79,8 +80,8 @@ if cuda.is_available():
 else:
     device = "cpu"
     device_count = 1
-device = "cpu"
-num_workers = device_count * 4
+device="cpu"
+num_workers = 0 #device_count * 4
 image_size = 64
 batch_size = 144
 if device_count > 1:
@@ -107,7 +108,7 @@ if device_count > 1:
     dataset_directory = "/srv/nfs/data/mengze/vae"
     output_dir = "/srv/nfs/data/mengze/vae/bohb"
 else:
-    dataset_directory = "/srv/nfs/data/mengze/vae/bohb/"
+    dataset_directory = "C:/Users/OGMENGLI/Projects"
     output_dir = "C:/Users/OGMENGLI/Projects/HyperFair/fair_hpo_bohb"
 try:
     train_dataset, validation_dataset, test_dataset = [
@@ -119,8 +120,8 @@ except:
         CelebA(root="C:/Users/OGMENGLI/Projects", split=split, transform=transform, download=False)
         for split in ["train", "valid", "test"]
     ]
-train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
-validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(288))
+validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(288))
 train_dataloader = DataLoader(
     train_dataset,
     batch_size=batch_size,
@@ -144,35 +145,66 @@ C_stop_iteration = int(best_config[1]['C_stop_iteration_ratio'] * max_iteration)
 
 model = FlexVAE(
     64,
-    best_config[1]['latent_dimension_count'],
-    best_config[1]['hidden_layer_count'],
-    best_config[1]['vae_loss_gamma'],
-    best_config[1]['C_max'],
-    C_stop_iteration
+    128, #best_config[1]['latent_dimension_count'],
+    5, #best_config[1]['hidden_layer_count'],
+    10, #best_config[1]['vae_loss_gamma'],
+    25,#best_config[1]['C_max'],
+    10000, #C_stop_iteration
 )
-if device_count > 1:
-    model = DataParallel(model)
+#if device_count > 1:
+    #model = DataParallel(model)
 model.to(device)
 optimizer = Adam(
     model.parameters(),
-    lr=best_config[1]['lr'],
-    weight_decay=best_config[1]['weight_decay'],
+    lr=0.0005, #lr=best_config[1]['lr'],
+    weight_decay=0.0, #weight_decay=best_config[1]['weight_decay'],
 )
-lr_scheduler = ExponentialLR(optimizer, gamma=best_config[1]['lr_scheduler_gamma'])
+lr_scheduler = ExponentialLR(optimizer, gamma=0.95)#best_config[1]['lr_scheduler_gamma'])
 
 if isinstance(model, DataParallel):
     _model = model.module
 else:
     _model = model
+budget = 20
 
 if __name__ == '__main__':
-    model, train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
+    def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+        if isinstance(_model, DataParallel):
+            _model = _model.module
+        train_criterion.iteration += 1
+        return _model.criterion(
+            _data,
+            _output,
+            _mu,
+            _log_var,
+            train_criterion.iteration,
+            _data_fraction,
+        )
+
+
+    train_criterion.iteration = 0
+
+
+    def validation_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+        if isinstance(_model, DataParallel):
+            _model = _model.module
+        return _model.criterion(
+            _data,
+            _output,
+            _mu,
+            _log_var,
+            train_criterion.iteration,
+            _data_fraction,
+        )
+
+
+    train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
         model,
         optimizer,
         lr_scheduler,
         int(budget),
-        _model.criterion,
-        _model.criterion,
+        train_criterion,
+        validation_criterion,
         train_dataloader,
         validation_dataloader,
         schedule_lr_after_epoch=True,
@@ -191,6 +223,6 @@ if __name__ == '__main__':
         "validation_epoch_losses": validation_epoch_losses,
     }
 
-    model_save_file_name = f"model-run-{bestHype_index.run:04}.pt"
+    model_save_file_name = f"model-run-{bestHype_index:04}.pt"
     model_save_file_path = path.join(output_dir, model_save_file_name)
     save(model_state, model_save_file_path)

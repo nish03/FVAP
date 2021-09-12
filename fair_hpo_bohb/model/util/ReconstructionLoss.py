@@ -48,7 +48,7 @@ class MultiScaleSSIMLoss(Module):
         return window
 
     def ssim(self, img1, img2, window_size):
-        device = "cpu" #img1.device
+        device = img1.device
         window = self.create_window(window_size, 3).to(device)
         mu1 = conv2d(img1, window, padding=window_size // 2, groups=3)
         mu2 = conv2d(img2, window, padding=window_size // 2, groups=3)
@@ -80,7 +80,7 @@ class MultiScaleSSIMLoss(Module):
         return ssim, cs
 
     def forward(self, img1, img2):
-        device = "cpu" #img1.device
+        device = img1.device
         weights = tensor([0.0448, 0.2856, 0.3001, 0.2363, 0.1333]).to(device)
         levels = weights.size()[0]
         mcs = []

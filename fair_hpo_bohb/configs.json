@@ -1,1 +1,0 @@
-[[0, 0, 0], {"C_max": 16.686031737700866, "C_stop_iteration_ratio": 0.9910640035380316, "hidden_layer_count": 5, "latent_dimension_count": 254, "lr": 1.0872578282985617e-05, "lr_scheduler_gamma": 0.945258862533267, "vae_loss_gamma": 296.8976004240049, "weight_decay": 0.14746902258795}, {"model_based_pick": false}]

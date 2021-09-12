@@ -1,7 +1,9 @@
 import logging
 from argparse import ArgumentParser
+from copy import deepcopy
+from datetime import datetime
 from math import log
-from os import path
+from os import makedirs, path
 import pickle
 from sys import argv
 import torch
@@ -14,13 +16,17 @@ from torchvision.transforms import (
     Lambda,
 )
 from torchvision.datasets.celeba import CelebA
+from ConfigSpace.hyperparameters import (
+    UniformFloatHyperparameter,
+    UniformIntegerHyperparameter,
+)
 from hpbandster.core.worker import Worker
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import BOHB
 import ConfigSpace as CS
 import ConfigSpace.hyperparameters as CSH
-from torch import cuda
+from torch import cuda, float32, save
 from torch.backends import cudnn
 from torch.nn import DataParallel
 from torch.optim import Adam
@@ -31,19 +37,18 @@ from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 from model.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
 from hpo.Cost import cost_functions
-
+from model.util.ReconstructionLoss import reconstruction_losses
 
 
 arg_parser = ArgumentParser(
     description="Perform HPO with BOHB to train a model"
 )
-# cluster has more than one GPU while the laptop has one GPU
 if cuda.device_count() > 1:
     arg_parser.add_argument(
         "-u",
         "--celeba-dir",
         default="/srv/nfs/data/mengze/vae",
-        help="dataset directory",
+        help="UTKFace dataset directory",
         required=False,
     ),
     arg_parser.add_argument(
@@ -58,7 +63,7 @@ else:
         "-u",
         "--celeba-dir",
         default="C:/Users/OGMENGLI/Projects",
-        help="dataset directory",
+        help="UTKFace dataset directory",
         required=False,
     ),
     arg_parser.add_argument(
@@ -77,21 +82,21 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--batch_size",
-    default=256,
+    default=144,
     type=int,
     required=False,
     help="Batch size used for loading the dataset",
 )
 arg_parser.add_argument(
     "--max_epochs",
-    default=15,
+    default=1,
     type=int,
     required=False,
     help="maximum epochs used for training the model",
 )
 arg_parser.add_argument(
     "--min_epochs",
-    default=5,
+    default=1,
     type=int,
     required=False,
     help="minimum epochs used for training the model",
@@ -109,9 +114,15 @@ arg_parser.add_argument(
     help="Cost function used for HPO",
 )
 args = arg_parser.parse_args(argv[1:])
+
+args = arg_parser.parse_args(argv[1:])
 log_file_path = path.join(args.output_dir, "log.txt")
 logging.basicConfig(filename=log_file_path, level=logging.DEBUG, force=True)
+#print(f"Logging started with Output Directory { args.output_dir}")
+
+
 logging.info(f"Script started")
+
 if cuda.is_available():
     device = "cuda"
     device_count = cuda.device_count()
@@ -123,9 +134,9 @@ else:
     device = "cpu"
     device_count = 1
     logging.info("Memory allocation was selected to be performed on the CPU device")
-
-if cudnn.is_available():
-    cudnn.benchmark = True
+device = "cpu"
+#if cudnn.is_available():
+#    cudnn.benchmark = True
 logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
@@ -134,15 +145,6 @@ logging.info(
 )
 logging.info(f"Generative models will be trained for maximum {args.max_epochs} epochs and miminum {args.min_epochs} epochs")
 
-if cuda.is_available():
-    device = "cuda"
-    device_count = cuda.device_count()
-else:
-    device = "cpu"
-    device_count = 1
-
-if cudnn.is_available():
-    cudnn.benchmark = True
 logging.info(
     f"CUDNN convolution benchmarking was {'enabled' if cudnn.benchmark else 'disabled'}"
 )
@@ -154,7 +156,7 @@ cost_function_name = args.cost
 cost_function = cost_functions[cost_function_name]
 
 
-## windows environment does not support doing lambda in training
+## the cluster has multiple gpus while the laptop has one GPU only
 if device_count > 1:
     transform = Compose(
         [
@@ -214,7 +216,7 @@ test_dataloader = DataLoader(
     #sampler=test_sampler
 )
 
-logging.info(f"Dataset was loaded from directory {dataset_directory}, ")
+logging.info(f"UTKFace dataset was loaded from directory {dataset_directory}, ")
 
 save_file_directory = path.join(args.output_dir, "save_states")
 
@@ -224,18 +226,72 @@ class PyTorchWorker(Worker):
     def __init__(self, **kwargs):
         print("Worker started")
         super().__init__(**kwargs)
+        # Load the MNIST Data here
+        self.train_loader = train_dataloader
+        self.validation_loader = validation_dataloader
+        self.test_loader = test_dataloader
+        self.best_cost = float('inf')
+        self.runid = 0
+        self.loss = "Reconstruction"
+        self.current_config = {}
+        self.train_criterion_iteration = 0
+
+    num_iter = 0
+
+    def train_criterion(self, _model, _data, _, _output, _mu, _log_var, _data_fraction):
+        if isinstance(_model, DataParallel):
+            _model = _model.module
+        self.num_iter += 1
+        return _model.criterion(
+            _data,
+            _output,
+            _mu,
+            _log_var,
+            self.num_iter,
+            _data_fraction,
+        )
+
+
+
+
+
+    def validation_criterion(self, _model, _data, _, _output, _mu, _log_var, _data_fraction):
+        if isinstance(_model, DataParallel):
+            _model = _model.module
+        return _model.criterion(
+            _data,
+            _output,
+            _mu,
+            _log_var,
+            self.num_iter,
+            _data_fraction,
+        )
+
 
     def compute(self, config, budget, working_directory, *args, **kwargs):
         max_iteration = int(budget) * len(train_dataloader)
         config['C_stop_iteration'] = int(config['C_stop_iteration_ratio'] * max_iteration)
+        if config['C_stop_iteration'] == 0:
+            config['C_stop_iteration'] = 1
+        if config['reconstruction_loss'] == 'MS-SSIM':
+            config['reconstruction_loss_args']={'window_sigma' : config['ms_ssim_window_sigma']}
+        elif config['reconstruction_loss'] == 'LogCosh':
+            config['reconstruction_loss_args']={'a' : config['logcosh_a']}
+        else:
+            config['reconstruction_loss_args'] = {}
+        self.runid += 1
         self.budget = budget
+        self.current_config = deepcopy(config)
         model = FlexVAE(
             image_size,
             config['latent_dimension_count'],
             config['hidden_layer_count'],
             config['vae_loss_gamma'],
             config['C_max'],
-            config['C_stop_iteration']
+            config['C_stop_iteration'],
+            reconstruction_losses[config['reconstruction_loss']],
+            config['reconstruction_loss_args']
+
         )
         if device_count > 1:
             model = DataParallel(model)
@@ -246,19 +302,22 @@ class PyTorchWorker(Worker):
             weight_decay=config['weight_decay'],
         )
         lr_scheduler = ExponentialLR(optimizer, gamma=config['lr_scheduler_gamma'])
+        self.train_criterion_iteration += 1
         if isinstance(model, DataParallel):
             _model = model.module
         else:
             _model = model
-        model, train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
+        train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
             model,
             optimizer,
             lr_scheduler,
             int(budget),
-            _model.criterion,
-            _model.criterion,
+            self.train_criterion,
+            self.validation_criterion,
             train_dataloader,
             validation_dataloader,
+            #self.save_model_state,
+            #self.train_criterion_iteration,
             schedule_lr_after_epoch=True,
             display_progress=False,
         )
@@ -274,7 +333,7 @@ class PyTorchWorker(Worker):
                                         'validation_elboloss' : min(validation_epoch_losses['ELBO']),
                                         'train_kldloss' : min(train_epoch_losses['KLD']),
                                         'validation_kldloss' : min(validation_epoch_losses['KLD']),
-                                        'number of parameters': 10,
+                                        'number of parameters': 10 #model.number_of_parameters(),
                                 }
 
         })
@@ -297,7 +356,17 @@ class PyTorchWorker(Worker):
             #max_iteration = budget * len(train_dataloader)
             C_stop_iteration_ratio = CSH.UniformFloatHyperparameter("C_stop_iteration_ratio", 0.05, 1, default_value=0.2)
             cs.add_hyperparameters([vae_loss_gamma, C_max, C_stop_iteration_ratio])
+
+            reconstruction_loss = CSH.CategoricalHyperparameter('reconstruction_loss', ['MAE', 'MSE', 'LogCosh', 'MS-SSIM'])
+            ms_ssim_window_sigma = CSH.UniformFloatHyperparameter("ms_ssim_window_sigma", 0.25, 6, default_value=1.5, log=True)
+            logcosh_a = CSH.UniformFloatHyperparameter("logcosh_a", 1, 100, default_value=10, log=True)
+            cs.add_hyperparameters([reconstruction_loss, ms_ssim_window_sigma, logcosh_a])
+            cond1 = CS.EqualsCondition(ms_ssim_window_sigma, reconstruction_loss, 'MS-SSIM')
+            cs.add_condition(cond1)
+            cond2 = CS.EqualsCondition(logcosh_a, reconstruction_loss, 'LogCosh')
+            cs.add_condition(cond2)
             return cs
+
 
 if __name__ == "__main__":
     host = '127.0.0.1'
@@ -312,12 +381,12 @@ if __name__ == "__main__":
     NS.start()
     w = PyTorchWorker(nameserver=host, run_id='example1')
     w.run(background=True)
+    #previous_run = hpres.logged_results_to_HBS_result("/srv/nfs/data/mengze/vae/bohb/data")
     bohb = BOHB(configspace=w.get_configspace(),
                 run_id='example1', nameserver=host,
                 result_logger=result_logger,
-                min_budget=args.min_epochs, max_budget=args.max_epochs
-                )
-    res = bohb.run(n_iterations=1)
+                min_budget=args.min_epochs, max_budget=args.max_epochs)
+    res = bohb.run(n_iterations=30)
     with open(path.join(args.output_dir, 'results.pkl'), 'wb') as fh:
         pickle.dump(res, fh)
     bohb.shutdown(shutdown_workers=True)

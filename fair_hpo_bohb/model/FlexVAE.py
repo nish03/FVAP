@@ -1,38 +1,35 @@
 from numpy import clip, prod
-from torch import flatten, exp, randn_like, mean, sum, randn, zeros, tensor
+from torch import exp, flatten, mean, randn, randn_like, sum, zeros
 from torch.nn import (
-    Module,
-    Sequential,
-    Conv2d,
     BatchNorm2d,
-    LeakyReLU,
+    Conv2d,
     ConvTranspose2d,
+    LeakyReLU,
     Linear,
-    Sigmoid,
+    Module,
+    MSELoss,
+    Sequential,
+    Tanh,
 )
-from torch.nn.functional import mse_loss
 
 
 class FlexVAE(Module):
     def __init__(
         self,
         image_size,
-        latent_dimension_count,
-        hidden_layer_count,
-        gamma,
-        c_max,
-        c_stop_iteration,
+        latent_dimension_count=128,
+        hidden_layer_count=5,
+        gamma=10.0,
+        c_max=25.0,
+        c_stop_iteration=10000,
+        reconstruction_loss=MSELoss,
+        reconstruction_loss_args=None,
     ):
         super(FlexVAE, self).__init__()
-
-        if isinstance(image_size, int):
-            image_size = [image_size, image_size]
 
         self.gamma = gamma
         self.c_max = c_max
         self.c_stop_iteration = c_stop_iteration
-        if self.c_stop_iteration == 0:
-            self.c_stop_iteration += 1
         self.latent_dimension_count = latent_dimension_count
 
         # encoder
@@ -60,7 +57,7 @@ class FlexVAE(Module):
 
         self.encoder = Sequential(*encoder_layers)
 
-        test_input = zeros(1, 3, *image_size)
+        test_input = zeros(1, 3, image_size, image_size)
         test_encoder_output = self.encoder(test_input)
         self.encoder_output_image_size = test_encoder_output.shape[2:4]
         encoder_output_dims = self.max_hidden_channel_count * prod(
@@ -106,12 +103,15 @@ class FlexVAE(Module):
             Conv2d(
                 self.min_hidden_channel_count, 3, kernel_size=(3, 3), padding=(1, 1)
             ),
-            Sigmoid(),
+            Tanh(),
         )
         decoder_layers.append(final_hidden_decoder_layer)
         self.decoder = Sequential(*decoder_layers)
 
-        self.vif_loss = mse_loss
+        reconstruction_loss_args = (
+            {} if reconstruction_loss_args is None else reconstruction_loss_args
+        )
+        self.reconstruction_criterion = reconstruction_loss(**reconstruction_loss_args)
 
     def encode(self, x):
         y = self.encoder(x)
@@ -145,7 +145,9 @@ class FlexVAE(Module):
         return y, mu, log_var
 
     def criterion(self, x, y, mu, log_var, iteration, kld_weight):
-        reconstruction_loss = mse_loss( (y + 1.0) / 2.0, (x + 1.0 / 2.0))
+        reconstruction_loss = self.reconstruction_criterion(
+            (y + 1.0) / 2.0, (x + 1.0 / 2.0)
+        )
         kld_loss = mean(-0.5 * sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
         C = clip(self.c_max / self.c_stop_iteration * iteration, 0, self.c_max)
         elbo_loss = reconstruction_loss + self.gamma * kld_weight * (kld_loss - C).abs()
@@ -163,3 +165,6 @@ class FlexVAE(Module):
     def reconstruct(self, x):
         y = self.forward(x)[0]
         return y
+
+    def number_of_parameters(self):
+        return (sum(p.numel() for p in self.parameters() if p.requires_grad))
