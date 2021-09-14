@@ -1,3 +1,4 @@
+# hyperparameters
 C_max real [5.0, 50.0] [25.0]
 C_stop_fraction real [0.05, 1.0] [0.2]
 hidden_layer_count integer [1, 5] [2]
@@ -12,7 +13,14 @@ reconstruction_loss categorical {MAE, MSE, MS-SSIM, LogCosh} [MS-SSIM]
 vae_loss_gamma real [1.0, 200.0] [10.0] log
 weight_decay real [0.0, 0.30] [0.0]
 
-# epoch_count: 50
-# batch_size: 144
-# image_size: 64
-# cost: MS-SSIM
+# optimization parameters:
+# --batch-size 144
+# --celeba-dir datasets/CelebA
+# --cost MS-SSIM
+# --epochs 50
+# --image-size 64
+# --output-dir experiments/flexvae-celeba
+# --smac-initial-design SobolDesign
+# --smac-pcs-file config/flexvae-celeba.pcs
+# --smac-runtime 84600
+# --smac-seed 42

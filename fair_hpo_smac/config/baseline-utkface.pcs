@@ -1,0 +1,24 @@
+# hyperparameters
+# NOTE: only default values at the end of each line are used
+C_max real [1.0, 25.0] [25.0]
+C_stop_fraction real [0.175, 1.0] [0.175]
+hidden_layer_count integer [1, 5] [5]
+latent_dimension_count integer [1, 128] [128]
+learning_rate real [0.0005, 1.0] [0.0005]
+lr_scheduler_gamma real [0.95, 1.0] [0.95]
+reconstruction_loss categorical {MSE} [MSE]
+vae_loss_gamma real [1.0, 10.0] [10.0]
+weight_decay real [0.0, 1.0] [0.0]
+
+# optimization parameters:
+# --batch-size 144
+# --cost MS-SSIM
+# --datasplit-seed 42
+# --epochs 200
+# --image-size 64
+# --output-dir experiments/baseline-utkface
+# --smac-initial-design DefaultConfiguration
+# --smac-pcs-file config/baseline-utkface.pcs
+# --smac-runcount 1
+# --smac-seed 42
+# --utkface-dir datasets/utkface
