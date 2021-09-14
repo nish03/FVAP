@@ -1,0 +1,18 @@
+C_max real [5.0, 50.0] [25.0]
+C_stop_fraction real [0.05, 1.0] [0.2]
+hidden_layer_count integer [1, 5] [2]
+latent_dimension_count integer [16, 512] [128]
+learning_rate real [5e-5, 5e-3] [5e-4] log
+logcosh_a real [1.0, 100.0] [10.0] log
+logcosh_a | reconstruction_loss == LogCosh
+lr_scheduler_gamma real [0.85, 0.99] [0.95]
+ms_ssim_window_sigma real [0.25, 6.0] [0.5]
+ms_ssim_window_sigma | reconstruction_loss == MS-SSIM
+reconstruction_loss categorical {MAE, MSE, MS-SSIM, LogCosh} [MS-SSIM]
+vae_loss_gamma real [1.0, 200.0] [10.0] log
+weight_decay real [0.0, 0.30] [0.0]
+
+# epoch_count: 50
+# batch_size: 144
+# image_size: 64
+# cost: MS-SSIM

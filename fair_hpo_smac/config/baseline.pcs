@@ -1,0 +1,14 @@
+C_max real [25.0, 25.0] [25.0]
+C_stop_fraction real [0.175, 0.175] [0.175]
+hidden_layer_count integer [5, 5] [5]
+latent_dimension_count integer [128, 128] [128]
+learning_rate real [5e-4, 5e-4] [5e-4] log
+lr_scheduler_gamma real [0.95, 0.95] [0.95]
+reconstruction_loss categorical {MSE} [MSE]
+vae_loss_gamma real [10.0, 10.0] [10.0] log
+weight_decay real [0.0, 0.0] [0.0]
+
+# epoch_count: 200
+# batch_size: 144
+# image_size: 64
+# cost: MS-SSIM
