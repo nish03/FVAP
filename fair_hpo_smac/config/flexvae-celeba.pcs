@@ -20,7 +20,7 @@ weight_decay real [0.0, 0.30] [0.0]
 # --epochs 50
 # --image-size 64
 # --output-dir experiments/flexvae-celeba
-# --smac-initial-design SobolDesign
+# --smac-initial-design Sobol
 # --smac-pcs-file config/flexvae-celeba.pcs
 # --smac-runtime 84600
 # --smac-seed 42

@@ -21,4 +21,4 @@ weight_decay real [0.0, 1.0] [0.0]
 # --smac-pcs-file config/baseline-utkface.pcs
 # --smac-runcount 1
 # --smac-seed 42
-# --utkface-dir datasets/utkface
+# --utkface-dir datasets/UTKFace

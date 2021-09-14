@@ -26,7 +26,7 @@ weighted_average_type categorical {IndividualLosses, BatchLosses} [IndividualLos
 # --image-size 64
 # --output-dir experiments/hyperfair-utkface-gender
 # --sensitive-attribute 1
-# --smac-initial-design SobolDesign
+# --smac-initial-design Sobol
 # --smac-pcs-file config/hyperfair-utkface-gender.pcs
 # --smac-runtime 84600
 # --smac-seed 42

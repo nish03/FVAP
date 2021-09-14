@@ -26,7 +26,7 @@ weighted_average_type categorical {IndividualLosses, BatchLosses} [IndividualLos
 # --image-size 64
 # --output-dir experiments/hyperfair-celeba-age
 # --sensitive-attribute 0
-# --smac-initial-design SobolDesign
+# --smac-initial-design Sobol
 # --smac-pcs-file config/hyperfair-celeba-age.pcs
 # --smac-runtime 84600
 # --smac-seed 42

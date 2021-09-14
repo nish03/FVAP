@@ -32,7 +32,7 @@ weighted_average_type categorical {IndividualLosses, BatchLosses} [IndividualLos
 # --image-size 64
 # --output-dir experiments/hyperfair-utkface-race
 # --sensitive-attribute 2
-# --smac-initial-design SobolDesign
+# --smac-initial-design Sobol
 # --smac-pcs-file config/hyperfair-utkface-race.pcs
 # --smac-runtime 84600
 # --smac-seed 42
