@@ -1,7 +1,8 @@
 from numpy import clip, prod
-from torch import exp, flatten, mean, randn, randn_like, sum, zeros
+from torch import flatten, randn, randn_like, cat, zeros, tensor
 from torch.nn import (
     BatchNorm2d,
+    Parameter,
     Conv2d,
     ConvTranspose2d,
     LeakyReLU,
@@ -24,6 +25,9 @@ class FlexVAE(Module):
         c_stop_iteration=10000,
         reconstruction_loss=MSELoss,
         reconstruction_loss_args=None,
+        reconstruction_loss_label_weights=None,
+        kld_loss_label_weights=None,
+        weighted_average_type=None,
     ):
         super(FlexVAE, self).__init__()
 
@@ -111,7 +115,38 @@ class FlexVAE(Module):
         reconstruction_loss_args = (
             {} if reconstruction_loss_args is None else reconstruction_loss_args
         )
+        reconstruction_loss_args["reduction"] = "none"
         self.reconstruction_criterion = reconstruction_loss(**reconstruction_loss_args)
+
+        if weighted_average_type == "IndividualLosses":
+            self._reconstruction_loss_fn = self._reconstruction_individual_losses
+            self._kld_loss_fn = self._kld_individual_losses
+            self._weighted_average_loss_fn = self._weighted_average_individual_losses
+        else:
+            self._reconstruction_loss_fn = self._reconstruction_batch_loss
+            self._kld_loss_fn = self._kld_batch_loss
+            if weighted_average_type == "BatchLosses":
+                self._weighted_average_loss_fn = self._weighted_average_batch_losses
+            else:
+                self._weighted_average_loss_fn = self._batch_loss
+
+        if reconstruction_loss_label_weights is not None:
+            self.register_parameter(
+                "reconstruction_weights",
+                Parameter(
+                    tensor(reconstruction_loss_label_weights), requires_grad=False
+                ),
+            )
+        else:
+            self.reconstruction_weights = None
+
+        if kld_loss_label_weights is not None:
+            self.register_parameter(
+                "kld_weights",
+                Parameter(tensor(kld_loss_label_weights), requires_grad=False),
+            )
+        else:
+            self.kld_weights = None
 
     def encode(self, x):
         y = self.encoder(x)
@@ -133,7 +168,7 @@ class FlexVAE(Module):
 
     @staticmethod
     def reparameterize(mu, log_var):
-        std = exp(0.5 * log_var)
+        std = (0.5 * log_var).exp()
         eps = randn_like(std)
         z = eps * std + mu
         return z
@@ -144,11 +179,67 @@ class FlexVAE(Module):
         y = self.decode(z)
         return y, mu, log_var
 
-    def criterion(self, x, y, mu, log_var, iteration, kld_weight):
-        reconstruction_loss = self.reconstruction_criterion(
-            (y + 1.0) / 2.0, (x + 1.0 / 2.0)
+    def _reconstruction_batch_loss(self, x, y):
+        # reconstruction criterion performs mean reduction
+        return self.reconstruction_criterion((y + 1.0) / 2.0, (x + 1.0 / 2.0)).mean()
+
+    def _reconstruction_individual_losses(self, x, y):
+        losses = self.reconstruction_criterion((y + 1.0) / 2.0, (x + 1.0 / 2.0))
+        if losses.dim() > 1:
+            return losses.mean(dim=[i for i in range(1, losses.dim())])
+        return losses
+
+    @staticmethod
+    def _kld_batch_loss(mu, log_var):
+        return (-0.5 * (1 + log_var - mu ** 2 - log_var.exp()).sum(dim=1)).mean()
+
+    @staticmethod
+    def _kld_individual_losses(mu, log_var):
+        return -0.5 * (1 + log_var - mu ** 2 - log_var.exp()).sum(dim=1)
+
+    @staticmethod
+    def _batch_loss(batch_loss, args, *_):
+        return batch_loss(*args)
+
+    @staticmethod
+    def _weighted_average_individual_losses(individual_losses, args, labels, weights):
+        return (
+            cat(
+                [
+                    individual_losses(*[arg[mask] for arg in args]) * weights[label]
+                    for label in range(len(weights))
+                    if (mask := labels == label).sum() > 0
+                ]
+            ).sum()
+            / (
+                weights[(contained_labels := labels.unique(return_counts=True))[0]]
+                * contained_labels[1]
+            ).sum()
         )
-        kld_loss = mean(-0.5 * sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
+
+    @staticmethod
+    def _weighted_average_batch_losses(batch_loss, args, labels, weights):
+        return (
+            cat(
+                [
+                    batch_loss(*[arg[mask] for arg in args]).view(1) * weights[label]
+                    for label in range(len(weights))
+                    if (mask := labels == label).sum() > 0
+                ]
+            ).sum()
+            / weights[labels.unique()].sum()
+        )
+
+    def criterion(self, x, labels, y, mu, log_var, iteration, kld_weight):
+        reconstruction_loss = self._weighted_average_loss_fn(
+            self._reconstruction_loss_fn,
+            [x, y],
+            labels,
+            self.reconstruction_weights,
+        )
+        kld_loss = self._weighted_average_loss_fn(
+            self._kld_loss_fn, [mu, log_var], labels, self.kld_weights
+        )
         C = clip(self.c_max / self.c_stop_iteration * iteration, 0, self.c_max)
         elbo_loss = reconstruction_loss + self.gamma * kld_weight * (kld_loss - C).abs()
         return {

@@ -7,27 +7,6 @@ from datetime import datetime
 from os import makedirs, path
 from sys import argv
 
-import numpy.random
-import torch.random
-from numpy.random import RandomState
-from smac.facade.smac_hpo_facade import SMAC4HPO
-from smac.initial_design.default_configuration_design import DefaultConfiguration
-from smac.initial_design.sobol_design import SobolDesign
-from smac.scenario.scenario import Scenario
-from torch import cuda, float32, save
-from torch.backends import cudnn
-from torch.nn import DataParallel
-from torch.optim import Adam
-from torch.optim.lr_scheduler import ExponentialLR
-from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
-
-from data.UTKFace import UTKFaceDataset, load_utkface
-from hpo.Hyperparameters import hyperparameters_from_config
-from hpo.Cost import cost_functions
-from model.FlexVAE import FlexVAE
-from training.Training import train_variational_autoencoder
-
 start_date = datetime.now()
 
 arg_parser = ArgumentParser(
@@ -52,7 +31,6 @@ arg_parser.add_argument(
     required=False,
     help="Cost function used for HPO",
 )
-
 arg_parser.add_argument(
     "--sensitive-attribute",
     type=int,
@@ -60,16 +38,15 @@ arg_parser.add_argument(
     required=False,
     help="Index of the sensitive attribute",
 )
-
 arg_parser.add_argument(
-    "--image_size",
+    "--image-size",
     default=64,
     type=int,
     required=False,
     help="Image size used for loading the dataset",
 )
 arg_parser.add_argument(
-    "--batch_size",
+    "--batch-size",
     default=144,
     type=int,
     required=False,
@@ -143,6 +120,27 @@ log_file_path = path.join(output_directory, "log.txt")
 logging.basicConfig(filename=log_file_path, level=logging.DEBUG, force=True)
 print(f"Logging started in output directory {output_directory}")
 logging.info(f"Script started at {start_date}")
+
+import numpy.random
+import torch.random
+from numpy.random import RandomState
+from smac.facade.smac_hpo_facade import SMAC4HPO
+from smac.initial_design.default_configuration_design import DefaultConfiguration
+from smac.initial_design.sobol_design import SobolDesign
+from smac.scenario.scenario import Scenario
+from torch import cuda, float32, save
+from torch.backends import cudnn
+from torch.nn import DataParallel
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ExponentialLR
+from torch.utils.data import DataLoader
+from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
+
+from data.UTKFace import UTKFaceDataset, load_utkface
+from hpo.Cost import cost_functions
+from hpo.Hyperparameters import hyperparameters_from_config
+from model.FlexVAE import FlexVAE
+from training.Training import train_variational_autoencoder
 
 if cuda.is_available():
     device = "cuda"
@@ -252,12 +250,13 @@ def hyperparameter_cost(hyperparameter_config, seed):
     )
     hyperparameter_cost.hyperparameters = deepcopy(hyperparameters)
 
-    def train_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+    def train_criterion(_model, _data, _target, _output, _mu, _log_var, _data_fraction):
         if isinstance(_model, DataParallel):
             _model = _model.module
         train_criterion.iteration += 1
         return _model.criterion(
             _data,
+            _target,
             _output,
             _mu,
             _log_var,
@@ -267,11 +266,14 @@ def hyperparameter_cost(hyperparameter_config, seed):
 
     train_criterion.iteration = 0
 
-    def validation_criterion(_model, _data, _, _output, _mu, _log_var, _data_fraction):
+    def validation_criterion(
+        _model, _data, _target, _output, _mu, _log_var, _data_fraction
+    ):
         if isinstance(_model, DataParallel):
             _model = _model.module
         return _model.criterion(
             _data,
+            _target,
             _output,
             _mu,
             _log_var,
@@ -288,6 +290,9 @@ def hyperparameter_cost(hyperparameter_config, seed):
         hyperparameters.C_stop_iteration,
         hyperparameters.reconstruction_loss,
         hyperparameters.reconstruction_loss_args,
+        hyperparameters.reconstruction_loss_label_weights,
+        hyperparameters.kld_loss_label_weights,
+        hyperparameters.weighted_average_type,
     )
     if device_count > 1:
         model = DataParallel(model)
