@@ -33,6 +33,7 @@ source env/bin/activate
   --smac-pcs-file config/baseline-utkface.pcs \
   --smac-runcount 1 \
   --smac-seed 42 \
-  --utkface-dir datasets/UTKFace
+  --utkface-dir datasets/UTKFace \
+  --in-memory-dataset
 
 exit 0

@@ -32,6 +32,7 @@ source env/bin/activate
   --smac-initial-design DefaultConfiguration \
   --smac-pcs-file config/baseline-celeba.pcs \
   --smac-runcount 1 \
-  --smac-seed 42
+  --smac-seed 42 \
+  --in-memory-dataset
 
 exit 0

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import logging
 from argparse import ArgumentParser
 from copy import deepcopy
@@ -7,7 +6,31 @@ from datetime import datetime
 from os import makedirs, path
 from sys import argv
 
+import numpy.random
+import torch.random
+from numpy.random import RandomState
+from smac.facade.smac_hpo_facade import SMAC4HPO
+from smac.initial_design.default_configuration_design import DefaultConfiguration
+from smac.initial_design.sobol_design import SobolDesign
+from smac.scenario.scenario import Scenario
+from torch import cuda, float32, save
+from torch.backends import cudnn
+from torch.nn import DataParallel
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ExponentialLR
+from torch.utils.data import DataLoader
+from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
+
+from data.CelebA import CelebADataset, load_celeba
+from data.UTKFace import UTKFaceDataset, load_utkface
+from hpo.Cost import cost_functions
+from hpo.Hyperparameters import hyperparameters_from_config
+from model.FlexVAE import FlexVAE
+from training.Training import train_variational_autoencoder
+
 start_date = datetime.now()
+
+logging.basicConfig(level=logging.DEBUG, force=True)
 
 arg_parser = ArgumentParser(
     description="Perform HPO with SMAC to train a generative model"
@@ -20,6 +43,11 @@ arg_parser.add_argument(
     required=False,
     help="Batch size used for loading the dataset",
 )
+dataset_dir_group.add_argument(
+    "--celeba-dir",
+    help="CelebA dataset directory",
+    required=False,
+),
 arg_parser.add_argument(
     "--cost",
     default="MS-SSIM",
@@ -47,6 +75,11 @@ arg_parser.add_argument(
     type=int,
     required=False,
     help="Image size used for loading the dataset",
+)
+arg_parser.add_argument(
+    "--in-memory-dataset",
+    action="store_true",
+    help="Load dataset into memory",
 )
 arg_parser.add_argument(
     "--output-dir",
@@ -99,7 +132,11 @@ dataset_dir_group.add_argument(
     help="UTKFace dataset directory",
     required=False,
 ),
-opt_params = arg_parser.parse_args(argv[1:])
+args = arg_parser.parse_args(argv[1:])
+
+opt_params = deepcopy(args)
+del opt_params.in_memory_dataset
+
 output_directory = path.join(
     opt_params.output_dir, start_date.strftime("%Y-%m-%d_%H:%M:%S_%f")
 )
@@ -109,27 +146,6 @@ log_file_path = path.join(output_directory, "log.txt")
 logging.basicConfig(filename=log_file_path, level=logging.DEBUG, force=True)
 print(f"Logging started in output directory {output_directory}")
 logging.info(f"Script started at {start_date}")
-
-import numpy.random
-import torch.random
-from numpy.random import RandomState
-from smac.facade.smac_hpo_facade import SMAC4HPO
-from smac.initial_design.default_configuration_design import DefaultConfiguration
-from smac.initial_design.sobol_design import SobolDesign
-from smac.scenario.scenario import Scenario
-from torch import cuda, float32, save
-from torch.backends import cudnn
-from torch.nn import DataParallel
-from torch.optim import Adam
-from torch.optim.lr_scheduler import ExponentialLR
-from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
-
-from data.UTKFace import UTKFaceDataset, load_utkface
-from hpo.Cost import cost_functions
-from hpo.Hyperparameters import hyperparameters_from_config
-from model.FlexVAE import FlexVAE
-from training.Training import train_variational_autoencoder
 
 if cuda.is_available():
     device = "cuda"
@@ -151,7 +167,8 @@ logging.info(
 )
 
 logging.info(
-    f"Data will be loaded with sensitive attribute {opt_params.sensitive_attribute}, "
+    f"Data will be loaded from {'memory' if args.in_memory_dataset else 'disk'} with "
+    f"sensitive attribute {opt_params.sensitive_attribute}, "
     f"image size {opt_params.image_size}, batch size {opt_params.batch_size} and "
     f"datasplit seed {opt_params.datasplit_seed}"
 )
@@ -169,59 +186,57 @@ logging.info(
 )
 
 num_workers = device_count * 4
+transform = Compose(
+    [
+        ConvertImageDtype(float32),
+        Resize(opt_params.image_size),
+        Lambda(lambda x: 2 * x - 1),
+    ]
+)
+target_transform = Lambda(lambda x: x[opt_params.sensitive_attribute])
 
 if opt_params.utkface_dir is not None:
     dataset_directory = opt_params.utkface_dir
-
-    assert 0 <= opt_params.sensitive_attribute < len(UTKFaceDataset.target_attributes)
-    sensitive_attribute = UTKFaceDataset.target_attributes[
-        opt_params.sensitive_attribute
-    ]
-
-    transform = Compose(
-        [
-            ConvertImageDtype(float32),
-            Resize(opt_params.image_size),
-            Lambda(lambda x: 2 * x - 1),
-        ]
-    )
-    target_transform = Lambda(lambda x: x[opt_params.sensitive_attribute])
-    train_dataset, validation_dataset, test_dataset = load_utkface(
+    dataset_class = UTKFaceDataset
+    train_dataset, validation_dataset, _ = load_utkface(
         random_split_seed=opt_params.datasplit_seed,
         image_directory_path=dataset_directory,
         transform=transform,
         target_transform=target_transform,
-        in_memory=True,
+        in_memory=args.in_memory_dataset,
     )
-
-    train_dataloader = DataLoader(
-        train_dataset,
-        batch_size=opt_params.batch_size,
-        num_workers=num_workers,
-        shuffle=True,
-        pin_memory=True,
-    )
-    validation_dataloader = DataLoader(
-        validation_dataset,
-        batch_size=opt_params.batch_size,
-        num_workers=num_workers,
-        shuffle=True,
-        pin_memory=True,
-    )
-    test_dataloader = DataLoader(
-        test_dataset,
-        batch_size=opt_params.batch_size,
-        num_workers=num_workers,
-        shuffle=False,
-        pin_memory=True,
-    )
-
-    logging.info(
-        f"UTKFace dataset was loaded from directory '{dataset_directory}' with "
-        f"target sensitive attribute {sensitive_attribute.__name__}"
+elif opt_params.celeba_dir is not None:
+    dataset_directory = opt_params.celeba_dir
+    dataset_class = CelebADataset
+    train_dataset, validation_dataset, _ = load_celeba(
+        image_directory_path=dataset_directory,
+        transform=transform,
+        target_transform=target_transform,
+        in_memory=args.in_memory_dataset,
     )
 else:
-    raise RuntimeError("No dataset was specified")
+    raise RuntimeError("No dataset directory was specified")
+
+if not (0 <= opt_params.sensitive_attribute < len(dataset_class.target_attributes)):
+    raise RuntimeError("Sensitive attribute index is out of range")
+
+sensitive_attribute = dataset_class.target_attributes[opt_params.sensitive_attribute]
+
+train_dataloader, validation_dataloader = [
+    DataLoader(
+        dataset,
+        batch_size=opt_params.batch_size,
+        num_workers=num_workers,
+        shuffle=True,
+        pin_memory=True,
+    )
+    for dataset in [train_dataset, validation_dataset]
+]
+
+logging.info(
+    f"{dataset_class.__name__} was loaded from directory '{dataset_directory}' "
+    f"with target sensitive attribute {sensitive_attribute.__name__}"
+)
 
 save_file_directory = path.join(output_directory, "save-states")
 makedirs(save_file_directory)

@@ -32,6 +32,7 @@ source env/bin/activate
   --smac-initial-design Sobol \
   --smac-pcs-file config/flexvae-celeba.pcs \
   --smac-runtime 84600 \
-  --smac-seed 42
+  --smac-seed 42 \
+  --in-memory-dataset
 
 exit 0

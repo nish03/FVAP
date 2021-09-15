@@ -34,6 +34,7 @@ source env/bin/activate
   --smac-pcs-file config/hyperfair-utkface-race.pcs \
   --smac-runtime 84600 \
   --smac-seed 42 \
-  --utkface-dir datasets/UTKFace
+  --utkface-dir datasets/UTKFace \
+  --in-memory-dataset
 
 exit 0
