@@ -12,17 +12,13 @@ start_date = datetime.now()
 arg_parser = ArgumentParser(
     description="Perform HPO with SMAC to train a generative model"
 )
-dataset_directory_group = arg_parser.add_mutually_exclusive_group(required=True)
-dataset_directory_group.add_argument(
-    "--utkface-dir",
-    help="UTKFace dataset directory",
-    required=False,
-),
+dataset_dir_group = arg_parser.add_mutually_exclusive_group(required=True)
 arg_parser.add_argument(
-    "--output-dir",
-    default=".",
+    "--batch-size",
+    default=144,
+    type=int,
     required=False,
-    help="Directory for log files, save states and HPO output",
+    help="Batch size used for loading the dataset",
 )
 arg_parser.add_argument(
     "--cost",
@@ -32,11 +28,18 @@ arg_parser.add_argument(
     help="Cost function used for HPO",
 )
 arg_parser.add_argument(
-    "--sensitive-attribute",
+    "--datasplit-seed",
+    default=42,
     type=int,
-    default=0,
     required=False,
-    help="Index of the sensitive attribute",
+    help="Seed used for creating random train, validation and tast dataset splits",
+)
+arg_parser.add_argument(
+    "--epochs",
+    default=100,
+    type=int,
+    required=False,
+    help="Number of epochs used for training the generative model",
 )
 arg_parser.add_argument(
     "--image-size",
@@ -46,30 +49,17 @@ arg_parser.add_argument(
     help="Image size used for loading the dataset",
 )
 arg_parser.add_argument(
-    "--batch-size",
-    default=144,
-    type=int,
+    "--output-dir",
+    default=".",
     required=False,
-    help="Batch size used for loading the dataset",
+    help="Directory for log files, save states and HPO output",
 )
 arg_parser.add_argument(
-    "--epochs",
-    default=100,
+    "--sensitive-attribute",
     type=int,
+    default=0,
     required=False,
-    help="Epochs used for training the generative model",
-)
-arg_parser.add_argument(
-    "--datasplit-seed",
-    default=42,
-    type=int,
-    required=False,
-    help="Seed used for creating random train, validation and tast dataset splits",
-)
-arg_parser.add_argument(
-    "--smac-pcs-file",
-    required=True,
-    help="Parameter configuration file used for hyperparameter optimization with SMAC",
+    help="Index of the sensitive attribute",
 )
 arg_parser.add_argument(
     "--smac-initial-design",
@@ -79,11 +69,16 @@ arg_parser.add_argument(
     help="Initial design for hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
-    "--smac-seed",
-    default=42,
+    "--smac-pcs-file",
+    required=True,
+    help="Parameter configuration file used for hyperparameter optimization with SMAC",
+)
+arg_parser.add_argument(
+    "--smac-runcount",
+    default=None,
     type=int,
     required=False,
-    help="Seed used for hyperparameter optimization with SMAC",
+    help="Maximum number of runs during hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
     "--smac-runtime",
@@ -93,27 +88,21 @@ arg_parser.add_argument(
     help="Maximum amount runtime used for hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
-    "--smac-runcount",
-    default=None,
+    "--smac-seed",
+    default=42,
     type=int,
     required=False,
-    help="Maximum number of runs during hyperparameter optimization with SMAC",
+    help="Seed used for hyperparameter optimization with SMAC",
 )
-args = arg_parser.parse_args(argv[1:])
+dataset_dir_group.add_argument(
+    "--utkface-dir",
+    help="UTKFace dataset directory",
+    required=False,
+),
+opt_params = arg_parser.parse_args(argv[1:])
 output_directory = path.join(
-    args.output_dir, start_date.strftime("%Y-%m-%d_%H:%M:%S_%f")
+    opt_params.output_dir, start_date.strftime("%Y-%m-%d_%H:%M:%S_%f")
 )
-cost_function_name = args.cost
-sensitive_attribute_index = args.sensitive_attribute
-image_size = args.image_size
-batch_size = args.batch_size
-epoch_count = args.epochs
-datasplit_seed = args.datasplit_seed
-pcs_file = args.smac_pcs_file
-max_runtime = args.smac_runtime
-max_runcount = args.smac_runcount
-smac_seed = args.smac_seed
-initial_design_name = args.smac_initial_design
 
 makedirs(output_directory, exist_ok=True)
 log_file_path = path.join(output_directory, "log.txt")
@@ -162,41 +151,43 @@ logging.info(
 )
 
 logging.info(
-    f"Data will be loaded with sensitive attribute {sensitive_attribute_index}, "
-    f"image size {image_size}, batch size {batch_size} and "
-    f"datasplit seed {datasplit_seed}"
+    f"Data will be loaded with sensitive attribute {opt_params.sensitive_attribute}, "
+    f"image size {opt_params.image_size}, batch size {opt_params.batch_size} and "
+    f"datasplit seed {opt_params.datasplit_seed}"
 )
-logging.info(f"Generative model will be trained for {epoch_count} epochs")
 logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for {max_runtime}s with "
-    f"{'' if max_runcount is None else str(max_runcount) + ' evaluations, '}"
-    f"parameter configuration file '{pcs_file}', {initial_design_name} initial design, "
-    f"seed {smac_seed} and cost function {cost_function_name}"
+    f"Generative model will be trained for {opt_params.epochs} epochs and "
+    f"batch size {opt_params.batch_size}"
+)
+logging.info(
+    f"Hyperparameter optimisation with SMAC will be run for "
+    f"{opt_params.smac_runtime}s with "
+    f"{'infinite' if opt_params.smac_runcount is None else opt_params.smac_runcount}"
+    f" evaluations, parameter configuration file '{opt_params.smac_pcs_file}', "
+    f"{opt_params.smac_initial_design} initial design, seed {opt_params.smac_seed} "
+    f"and cost function {opt_params.cost}"
 )
 
 num_workers = device_count * 4
-data_state = {
-    "sensitive_attribute_index": sensitive_attribute_index,
-    "image_size": image_size,
-    "batch_size": batch_size,
-    "datasplit_seed": datasplit_seed,
-}
 
-if args.utkface_dir is not None:
-    dataset_directory = args.utkface_dir
+if opt_params.utkface_dir is not None:
+    dataset_directory = opt_params.utkface_dir
 
-    assert 0 <= sensitive_attribute_index < len(UTKFaceDataset.target_attributes)
-    sensitive_attribute = UTKFaceDataset.target_attributes[sensitive_attribute_index]
+    assert 0 <= opt_params.sensitive_attribute < len(UTKFaceDataset.target_attributes)
+    sensitive_attribute = UTKFaceDataset.target_attributes[
+        opt_params.sensitive_attribute
+    ]
 
     transform = Compose(
-        [ConvertImageDtype(float32), Resize(image_size), Lambda(lambda x: 2 * x - 1)]
+        [
+            ConvertImageDtype(float32),
+            Resize(opt_params.image_size),
+            Lambda(lambda x: 2 * x - 1),
+        ]
     )
-    target_transform = Lambda(lambda x: x[sensitive_attribute_index])
-    data_state["dataset_directory"] = dataset_directory
-    data_state["dataset"] = "UTKFace"
-    data_state["sensitive_attribute"] = sensitive_attribute
+    target_transform = Lambda(lambda x: x[opt_params.sensitive_attribute])
     train_dataset, validation_dataset, test_dataset = load_utkface(
-        random_split_seed=datasplit_seed,
+        random_split_seed=opt_params.datasplit_seed,
         image_directory_path=dataset_directory,
         transform=transform,
         target_transform=target_transform,
@@ -205,21 +196,21 @@ if args.utkface_dir is not None:
 
     train_dataloader = DataLoader(
         train_dataset,
-        batch_size=batch_size,
+        batch_size=opt_params.batch_size,
         num_workers=num_workers,
         shuffle=True,
         pin_memory=True,
     )
     validation_dataloader = DataLoader(
         validation_dataset,
-        batch_size=batch_size,
+        batch_size=opt_params.batch_size,
         num_workers=num_workers,
         shuffle=True,
         pin_memory=True,
     )
     test_dataloader = DataLoader(
         test_dataset,
-        batch_size=batch_size,
+        batch_size=opt_params.batch_size,
         num_workers=num_workers,
         shuffle=False,
         pin_memory=True,
@@ -232,10 +223,10 @@ if args.utkface_dir is not None:
 else:
     raise RuntimeError("No dataset was specified")
 
-save_file_directory = path.join(output_directory, "save_states")
+save_file_directory = path.join(output_directory, "save-states")
 makedirs(save_file_directory)
-data_save_file_path = path.join(save_file_directory, "data.pt")
-save(data_state, data_save_file_path)
+optimization_parameters_save_file_path = path.join(save_file_directory, "opt-params.pt")
+save(opt_params, optimization_parameters_save_file_path)
 
 
 def hyperparameter_cost(hyperparameter_config, seed):
@@ -245,10 +236,10 @@ def hyperparameter_cost(hyperparameter_config, seed):
     torch.random.manual_seed(seed)
     numpy.random.seed(seed)
 
-    hyperparameters = hyperparameters_from_config(
-        hyperparameter_config, max_iteration=epoch_count * len(train_dataloader)
+    hyper_params = hyperparameters_from_config(
+        hyperparameter_config, max_iteration=opt_params.epochs * len(train_dataloader)
     )
-    hyperparameter_cost.hyperparameters = deepcopy(hyperparameters)
+    hyperparameter_cost.hyper_params = deepcopy(hyper_params)
 
     def train_criterion(_model, _data, _target, _output, _mu, _log_var, _data_fraction):
         if isinstance(_model, DataParallel):
@@ -282,17 +273,17 @@ def hyperparameter_cost(hyperparameter_config, seed):
         )
 
     model = FlexVAE(
-        image_size,
-        hyperparameters.latent_dimension_count,
-        hyperparameters.hidden_layer_count,
-        hyperparameters.vae_loss_gamma,
-        hyperparameters.C_max,
-        hyperparameters.C_stop_iteration,
-        hyperparameters.reconstruction_loss,
-        hyperparameters.reconstruction_loss_args,
-        hyperparameters.reconstruction_loss_label_weights,
-        hyperparameters.kld_loss_label_weights,
-        hyperparameters.weighted_average_type,
+        opt_params.image_size,
+        hyper_params.latent_dimension_count,
+        hyper_params.hidden_layer_count,
+        hyper_params.vae_loss_gamma,
+        hyper_params.C_max,
+        hyper_params.C_stop_iteration,
+        hyper_params.reconstruction_loss,
+        hyper_params.reconstruction_loss_args,
+        hyper_params.reconstruction_loss_label_weights,
+        hyper_params.kld_loss_label_weights,
+        hyper_params.weighted_average_type,
     )
     if device_count > 1:
         model = DataParallel(model)
@@ -300,16 +291,16 @@ def hyperparameter_cost(hyperparameter_config, seed):
 
     optimizer = Adam(
         model.parameters(),
-        lr=hyperparameters.learning_rate,
-        weight_decay=hyperparameters.weight_decay,
+        lr=hyper_params.learning_rate,
+        weight_decay=hyper_params.weight_decay,
     )
-    lr_scheduler = ExponentialLR(optimizer, gamma=hyperparameters.lr_scheduler_gamma)
+    lr_scheduler = ExponentialLR(optimizer, gamma=hyper_params.lr_scheduler_gamma)
 
     train_epoch_losses, validation_epoch_losses = train_variational_autoencoder(
         model,
         optimizer,
         lr_scheduler,
-        epoch_count,
+        opt_params.epochs,
         train_criterion,
         validation_criterion,
         train_dataloader,
@@ -320,20 +311,19 @@ def hyperparameter_cost(hyperparameter_config, seed):
 
     if isinstance(model, DataParallel):
         model = model.module
-    cost, additional_info = hyperparameter_cost.function(
+    cost_value, additional_info = hyperparameter_cost.function(
         model, validation_dataloader, sensitive_attribute
     )
 
     model_state = {
-        "run": hyperparameter_cost.run,
-        "seed": hyperparameter_cost.seed,
-        "hyperparameters": hyperparameter_cost.hyperparameters,
-        "cost": cost,
         "additional_info": additional_info,
-        "epoch_count": epoch_count,
+        "cost_value": cost_value,
+        "hyper_params": hyperparameter_cost.hyper_params,
+        "lr_scheduler_state_dict": lr_scheduler.state_dict(),
         "model_state_dict": model.state_dict(),
         "optimizer_state_dict": optimizer.state_dict(),
-        "lr_scheduler_state_dict": lr_scheduler.state_dict(),
+        "run": hyperparameter_cost.run,
+        "seed": hyperparameter_cost.seed,
         "train_epoch_losses": train_epoch_losses,
         "validation_epoch_losses": validation_epoch_losses,
     }
@@ -341,34 +331,34 @@ def hyperparameter_cost(hyperparameter_config, seed):
     model_save_file_name = f"model-run-{hyperparameter_cost.run:04}.pt"
     model_save_file_path = path.join(save_file_directory, model_save_file_name)
     save(model_state, model_save_file_path)
-    return cost, additional_info
+    return cost_value, additional_info
 
 
 hyperparameter_cost.run = 0
 hyperparameter_cost.seed = None
-hyperparameter_cost.hyperparameters = None
-hyperparameter_cost.function = cost_functions[cost_function_name]
+hyperparameter_cost.hyper_params = None
+hyperparameter_cost.function = cost_functions[opt_params.cost]
 
 
-smac_output_directory = path.join(output_directory, "smac")
+smac_output_directory = path.join(output_directory, "smac-output")
 scenario_dict = {
-    "pcs_fn": pcs_file,
+    "pcs_fn": opt_params.smac_pcs_file,
     "run_obj": "quality",
-    "wallclock-limit": max_runtime,
+    "wallclock-limit": opt_params.smac_runtime,
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_output_directory,
     "abort_on_first_run_crash": False,
 }
-if max_runcount is not None:
-    scenario_dict["ta_run_limit"] = max_runcount
+if opt_params.smac_runcount is not None:
+    scenario_dict["ta_run_limit"] = opt_params.smac_runcount
 scenario = Scenario(scenario_dict)
 initial_designs = {"DefaultConfiguration": DefaultConfiguration, "Sobol": SobolDesign}
 smac = SMAC4HPO(
     scenario=scenario,
-    rng=RandomState(smac_seed),
+    rng=RandomState(opt_params.smac_seed),
     tae_runner=hyperparameter_cost,
-    initial_design=initial_designs[initial_design_name],
+    initial_design=initial_designs[opt_params.smac_initial_design],
     initial_design_kwargs={"n_configs_x_params": 4},
     intensifier_kwargs={"maxR": 5},
 )
@@ -377,16 +367,14 @@ run_history = smac.get_runhistory()
 trajectory = smac.get_trajectory()
 logging.info(f"SMAC HPO finished with Incumbent {incumbent_hyperparameter_config}")
 
-smac_state = {
+smac_results_state = {
     "scenario": scenario,
-    "seed": smac_seed,
-    "cost_function": cost_function_name,
     "incumbent_hyperparameter_config": incumbent_hyperparameter_config,
     "run_history": run_history,
     "trajectory": trajectory,
 }
-smac_save_file_path = path.join(save_file_directory, "smac.pt")
-save(smac_state, smac_save_file_path)
+smac_results_save_file_path = path.join(save_file_directory, "smac-results.pt")
+save(smac_results_state, smac_results_save_file_path)
 
 end_date = datetime.now()
 duration = end_date - start_date
