@@ -19,15 +19,15 @@ weight_decay real [0.0, 0.30] [0.0]
 weighted_average_type categorical {IndividualLosses, BatchLosses} [IndividualLosses]
 
 # optimization parameters:
---batch-size 144
---cost FairMS-SSIM
---datasplit-seed 42
---epochs 50
---image-size 64
---output-dir experiments/hyperfair-utkface-age
---sensitive-attribute 0
---smac-initial-design Sobol
---smac-pcs-file config/hyperfair-utkface-age.pcs
---smac-runtime 84600
---smac-seed 42
---utkface-dir datasets/UTKFace
+# --batch-size 144
+# --cost FairMS-SSIM
+# --datasplit-seed 42
+# --epochs 50
+# --image-size 64
+# --output-dir experiments/hyperfair-utkface-age
+# --sensitive-attribute 0
+# --smac-initial-design Sobol
+# --smac-pcs-file config/hyperfair-utkface-age.pcs
+# --smac-runtime 84600
+# --smac-seed 42
+# --utkface-dir datasets/UTKFace
