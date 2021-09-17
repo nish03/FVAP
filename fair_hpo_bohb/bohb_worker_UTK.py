@@ -15,12 +15,7 @@ from torchvision.transforms import (
     ToTensor,
     Lambda,
 )
-from data.CelebA import CelebA
-#from torchvision.datasets.celeba import CelebA
-from ConfigSpace.hyperparameters import (
-    UniformFloatHyperparameter,
-    UniformIntegerHyperparameter,
-)
+from data.UTKFace import UTKFaceDataset, load_utkface
 from hpbandster.core.worker import Worker
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
@@ -47,23 +42,23 @@ arg_parser = ArgumentParser(
 if cuda.device_count() > 1:
     arg_parser.add_argument(
         "-u",
-        "--celeba-dir",
-        default="/srv/nfs/data/mengze/vae",
+        "--utkface_dir",
+        default="/srv/nfs/data/mengze/vae/UTKFace",
         help="UTKFace dataset directory",
         required=False,
     ),
     arg_parser.add_argument(
         "-o",
         "--output-dir",
-        default="/srv/nfs/output/mengze/bohbCelebA",
+        default="/srv/nfs/output/mengze/bohbUTK/",
         required=False,
         help="Directory for log files, save states and BOHB output",
     )
 else:
     arg_parser.add_argument(
         "-u",
-        "--celeba-dir",
-        default="C:/Users/OGMENGLI/Projects",
+        "--utkface_dir",
+        default="C:/Users/OGMENGLI/Projects/UTKFace",
         help="UTKFace dataset directory",
         required=False,
     ),
@@ -90,14 +85,14 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--max_epochs",
-    default=51,
+    default=100,
     type=int,
     required=False,
     help="maximum epochs used for training the model",
 )
 arg_parser.add_argument(
     "--min_epochs",
-    default=17,
+    default=33,
     type=int,
     required=False,
     help="minimum epochs used for training the model",
@@ -113,6 +108,13 @@ arg_parser.add_argument(
     choices=["MS-SSIM", "FairMS-SSIM"],
     required=False,
     help="Cost function used for HPO",
+)
+arg_parser.add_argument(
+    "--datasplit-seed",
+    default=42,
+    type=int,
+    required=False,
+    help="Seed used for creating random train, validation and tast dataset splits",
 )
 args = arg_parser.parse_args(argv[1:])
 
@@ -135,7 +137,6 @@ else:
     device = "cpu"
     device_count = 1
     logging.info("Memory allocation was selected to be performed on the CPU device")
-#device = "cpu"
 if cudnn.is_available():
     cudnn.benchmark = True
 logging.info(
@@ -157,66 +158,45 @@ cost_function_name = args.cost
 cost_function = cost_functions[cost_function_name]
 
 
-## the cluster has multiple gpus while the laptop has one GPU only
-if device_count > 1:
+if args.utkface_dir is not None:
+    dataset_directory = args.utkface_dir
+    datasplit_seed = args.datasplit_seed
     transform = Compose(
-        [
-            RandomHorizontalFlip(),
-            CenterCrop(148),
-            Resize(image_size),
-            ToTensor(),
-            Lambda(lambda x: 2.0 * x - 1.0),
-        ]
+        [ConvertImageDtype(float32), Resize(image_size), Lambda(lambda x: 2 * x - 1)]
     )
-else:
-    transform = Compose(
-        [
-            RandomHorizontalFlip(),
-            CenterCrop(148),
-            Resize(image_size),
-            ToTensor(),
-            #Lambda(lambda x: 2.0 * x - 1.0),
-        ]
+    train_dataset, validation_dataset, test_dataset = load_utkface(
+        random_split_seed=datasplit_seed,
+        image_directory_path=dataset_directory,
+        transform=transform,
+        in_memory=True,
     )
-dataset_directory = args.celeba_dir
-try:
-    train_dataset, validation_dataset, test_dataset = [
-        CelebA(root=dataset_directory, split=split, transform=transform, download=False)
-        for split in ["train", "valid", "test"]
-    ]
-except:
-    train_dataset, validation_dataset, test_dataset = [
-        CelebA(root="C:/Users/OGMENGLI/Projects", split=split, transform=transform, download=False)
-        for split in ["train", "valid", "test"]
-    ]
-train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
-validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
-test_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
-train_dataloader = DataLoader(
-    train_dataset,
-    batch_size=batch_size,
-    num_workers=num_workers,
-    shuffle=False,
-    pin_memory=True,
-    #sampler=train_sampler
-)
-validation_dataloader = DataLoader(
-    validation_dataset,
-    batch_size=batch_size,
-    num_workers=num_workers,
-    shuffle=False,
-    pin_memory=True,
-    #sampler=validation_sampler
-)
-test_dataloader = DataLoader(
-    test_dataset,
-    batch_size=batch_size,
-    num_workers=num_workers,
-    shuffle=False,
-    pin_memory=True,
-    #sampler=test_sampler
-)
-
+    train_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+    validation_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+    test_sampler = torch.utils.data.sampler.SubsetRandomSampler(range(100))
+    train_dataloader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=False,
+        pin_memory=True,
+        #sampler=train_sampler
+    )
+    validation_dataloader = DataLoader(
+        validation_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=False,
+        pin_memory=True,
+        #sampler=train_sampler
+    )
+    test_dataloader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        shuffle=False,
+        pin_memory=True,
+        #sampler=train_sampler
+    )
 logging.info(f"UTKFace dataset was loaded from directory {dataset_directory}, ")
 
 save_file_directory = path.join(args.output_dir, "save_states")
@@ -230,7 +210,7 @@ class PyTorchWorker(Worker):
         # Load the MNIST Data here
         self.train_loader = train_dataloader
         self.validation_loader = validation_dataloader
-        #self.test_loader = test_dataloader
+        self.test_loader = test_dataloader
         self.best_cost = float('inf')
         self.runid = 0
         self.loss = "Reconstruction"
@@ -382,12 +362,11 @@ if __name__ == "__main__":
     NS.start()
     w = PyTorchWorker(nameserver=host, run_id='example1')
     w.run(background=True)
-    previous_run = hpres.logged_results_to_HBS_result("/srv/nfs/output/mengze/bohbCelebA/previous_result")
+    #previous_run = hpres.logged_results_to_HBS_result("/srv/nfs/data/mengze/vae/bohb/data")
     bohb = BOHB(configspace=w.get_configspace(),
                 run_id='example1', nameserver=host,
                 result_logger=result_logger,
-                min_budget=args.min_epochs, max_budget=args.max_epochs,
-                previous_result=previous_run)
+                min_budget=args.min_epochs, max_budget=args.max_epochs)
     res = bohb.run(n_iterations=30)
     with open(path.join(args.output_dir, 'results.pkl'), 'wb') as fh:
         pickle.dump(res, fh)

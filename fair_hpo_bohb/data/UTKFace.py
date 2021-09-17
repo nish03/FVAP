@@ -1,5 +1,6 @@
 from glob import glob
 from os import path
+from enum import IntEnum
 
 from torch import Generator, tensor
 from torch.utils.data import Dataset, random_split
@@ -7,8 +8,22 @@ from torchvision.io import read_image
 
 
 class UTKFaceDataset(Dataset):
-    gender_categories = ["Male", "Female"]
-    race_categories = ["White", "Black", "Asian", "Indian", "Other"]
+    class Age(IntEnum):
+        Young = 0
+        Old = 1
+
+    class Gender(IntEnum):
+        Male = 0
+        Female = 1
+
+    class Race(IntEnum):
+        White = 0
+        Black = 1
+        Asian = 2
+        Indian = 3
+        Other = 4
+
+    target_attributes = [Age, Gender, Race]
 
     def __init__(
         self,
@@ -40,6 +55,7 @@ class UTKFaceDataset(Dataset):
         image_file_name = path.basename(image_file_path)
         image_file_name_sections = image_file_name.split("_")
         age, gender, race = [int(x) for x in image_file_name_sections[0:3]]
+        age = 0 if age < 60 else 1
         target = tensor([age, gender, race])
         if self.target_transform:
             target = self.target_transform(target)
