@@ -20,7 +20,7 @@ class CelebADataset(Dataset):
 
     def __init__(
         self,
-        image_directory_path,
+        image_directory_path, # pass the folder that includes /celeba/img_align_celeba.zip, for ex: /home/erdem/dataset
         split="all",
         transform=None,
         target_transform=None,
@@ -33,7 +33,6 @@ class CelebADataset(Dataset):
             )
         get_sensitve_attributes = Lambda(lambda x: 1 - x[[39, 20]])
         crop_images = Compose([CenterCrop(148), PILToTensor()])
-
         self.celeba = CelebA(
             root=self.image_directory,
             split=split,
