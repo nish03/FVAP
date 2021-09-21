@@ -14,7 +14,7 @@ vae_loss_gamma real [1.0, 200.0] [10.0] log
 weight_decay real [0.0, 0.30] [0.0]
 
 # optimization parameters:
-# --batch-size 144
+# --batch-size 512
 # --cost MS-SSIM
 # --datasplit-seed 42
 # --epochs 100

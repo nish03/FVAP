@@ -19,7 +19,7 @@ weight_decay real [0.0, 0.30] [0.0]
 weighted_average_type categorical {IndividualLosses, BatchLosses} [IndividualLosses]
 
 # optimization parameters:
-# --batch-size 144
+# --batch-size 512
 # --celeba-dir datasets/CelebA
 # --cost FairMS-SSIM
 # --epochs 50

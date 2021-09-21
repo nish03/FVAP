@@ -23,7 +23,7 @@ export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 source env/bin/activate
 
 ./smac-hpo.py \
-  --batch-size 144 \
+  --batch-size 512 \
   --celeba-dir datasets/CelebA \
   --cost FairMS-SSIM \
   --epochs 50 \
