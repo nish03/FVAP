@@ -115,7 +115,7 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--smac-runtime",
-    default=604800,
+    default=None,
     type=int,
     required=False,
     help="Maximum amount runtime used for hyperparameter optimization with SMAC",
@@ -177,10 +177,11 @@ logging.info(
     f"batch size {opt_params.batch_size}"
 )
 logging.info(
-    f"Hyperparameter optimisation with SMAC will be run for "
-    f"{opt_params.smac_runtime}s with "
+    f"Hyperparameter optimisation with SMAC will be run with "
+    f"{'infinite' if opt_params.smac_runtime is None else opt_params.smac_time + 's'}"
+    " runtime limit, "
     f"{'infinite' if opt_params.smac_runcount is None else opt_params.smac_runcount}"
-    f" evaluations, parameter configuration file '{opt_params.smac_pcs_file}', "
+    f" runcount limit, parameter configuration file '{opt_params.smac_pcs_file}', "
     f"{opt_params.smac_initial_design} initial design, seed {opt_params.smac_seed} "
     f"and cost function {opt_params.cost}"
 )
@@ -359,7 +360,6 @@ smac_output_directory = path.join(output_directory, "smac-output")
 scenario_dict = {
     "pcs_fn": opt_params.smac_pcs_file,
     "run_obj": "quality",
-    "wallclock-limit": opt_params.smac_runtime,
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_output_directory,
@@ -367,6 +367,8 @@ scenario_dict = {
 }
 if opt_params.smac_runcount is not None:
     scenario_dict["ta_run_limit"] = opt_params.smac_runcount
+if opt_params.smac_runtime is not None:
+    scenario_dict["wallclock-limit"] = opt_params.smac_runtime
 scenario = Scenario(scenario_dict)
 initial_designs = {"DefaultConfiguration": DefaultConfiguration, "Sobol": SobolDesign}
 smac = SMAC4HPO(
@@ -374,8 +376,8 @@ smac = SMAC4HPO(
     rng=RandomState(opt_params.smac_seed),
     tae_runner=hyperparameter_cost,
     initial_design=initial_designs[opt_params.smac_initial_design],
-    initial_design_kwargs={"n_configs_x_params": 4},
     intensifier_kwargs={"maxR": 5},
+    run_id=1,
 )
 incumbent_hyperparameter_config = smac.optimize()
 run_history = smac.get_runhistory()

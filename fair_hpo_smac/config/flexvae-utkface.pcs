@@ -22,6 +22,6 @@ weight_decay real [0.0, 0.30] [0.0]
 # --output-dir experiments/flexvae-utkface
 # --smac-initial-design Sobol
 # --smac-pcs-file config/flexvae-utkface.pcs
-# --smac-runtime 84600
+# --smac-runcount 200
 # --smac-seed 42
 # --utkface-dir datasets/UTKFace

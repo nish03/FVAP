@@ -28,6 +28,6 @@ weighted_average_type categorical {IndividualLosses, BatchLosses} [IndividualLos
 # --sensitive-attribute 0
 # --smac-initial-design Sobol
 # --smac-pcs-file config/hyperfair-utkface-age.pcs
-# --smac-runtime 84600
+# --smac-runcount 200
 # --smac-seed 42
 # --utkface-dir datasets/UTKFace

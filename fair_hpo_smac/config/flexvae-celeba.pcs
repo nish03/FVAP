@@ -22,5 +22,5 @@ weight_decay real [0.0, 0.30] [0.0]
 # --output-dir experiments/flexvae-celeba
 # --smac-initial-design Sobol
 # --smac-pcs-file config/flexvae-celeba.pcs
-# --smac-runtime 84600
+# --smac-runcount 200
 # --smac-seed 42
