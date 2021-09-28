@@ -23,7 +23,7 @@ export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 source env/bin/activate
 
 ./smac-hpo.py \
-  --batch-size 144 \
+  --batch-size 128 \
   --cost MS-SSIM \
   --datasplit-seed 42 \
   --epochs 200 \
