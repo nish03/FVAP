@@ -28,7 +28,9 @@ hyperparameter_names = [
 Hyperparameters = namedtuple("Hyperparameters", hyperparameter_names)
 
 
-def hyperparameters_from_config(hyperparameter_config, max_iteration):
+def hyperparameters_from_config(
+    hyperparameter_config, max_iteration, log_transform_weights=True
+):
     params = dict(**hyperparameter_config)
 
     params["C_stop_iteration"] = params.pop("C_stop_fraction") * max_iteration
@@ -51,10 +53,12 @@ def hyperparameters_from_config(hyperparameter_config, max_iteration):
         else:
             break
     if len(reconstruction_label_weights) > 0:
-        # generate convex weight combination from uniformly sampled weights,
-        # by transformation to normalized exponential distribution
-        # see https://cs.stackexchange.com/q/3229
-        reconstruction_label_weights = -log(array(reconstruction_label_weights))
+        reconstruction_label_weights = array(reconstruction_label_weights)
+        if log_transform_weights:
+            # generate convex weight combination from uniformly sampled weights,
+            # by transformation to normalized exponential distribution
+            # see https://cs.stackexchange.com/q/3229
+            reconstruction_label_weights = -log(reconstruction_label_weights)
         reconstruction_label_weights /= reconstruction_label_weights.sum()
         params["reconstruction_loss_label_weights"] = reconstruction_label_weights
     else:
@@ -68,10 +72,12 @@ def hyperparameters_from_config(hyperparameter_config, max_iteration):
         else:
             break
     if len(kld_label_weights) > 0:
-        # generate convex weight combination from uniformly sampled weights,
-        # by transformation to normalized exponential distribution
-        # see https://cs.stackexchange.com/q/3229
-        kld_label_weights = -log(array(kld_label_weights))
+        kld_label_weights = array(kld_label_weights)
+        if log_transform_weights:
+            # generate convex weight combination from uniformly sampled weights,
+            # by transformation to normalized exponential distribution
+            # see https://cs.stackexchange.com/q/3229
+            kld_label_weights = -log(kld_label_weights)
         kld_label_weights /= kld_label_weights.sum()
         params["kld_loss_label_weights"] = kld_label_weights
     else:
