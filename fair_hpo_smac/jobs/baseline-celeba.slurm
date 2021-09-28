@@ -26,7 +26,7 @@ source env/bin/activate
   --batch-size 128 \
   --celeba-dir datasets/CelebA \
   --cost MS-SSIM \
-  --epochs 200 \
+  --epochs 50 \
   --image-size 64 \
   --output-dir experiments/baseline-celeba \
   --smac-initial-design DefaultConfiguration \
