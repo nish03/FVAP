@@ -2,11 +2,11 @@
 
 #SBATCH --time=24:00:00
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:2
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=8
 #SBATCH --partition=alpha
-#SBATCH --mem=50G
+#SBATCH --mem=100G
 #SBATCH --chdir=/home/s9911486/prog/discoret/fair_hpo_smac/jobs
 #SBATCH --job-name="jupyter-lab"
 #SBATCH --output=slurm-%x.out
