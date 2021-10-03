@@ -20,21 +20,22 @@ class CelebADataset(Dataset):
 
     def __init__(
         self,
-        image_directory_path, # pass the folder that includes /celeba/img_align_celeba.zip, for ex: /home/erdem/dataset
+        image_dir_path,
         split="all",
         transform=None,
         target_transform=None,
         in_memory=False,
     ):
-        self.image_directory = image_directory_path
-        if not path.isdir(self.image_directory):
+        self.image_dir = image_dir_path
+        if not path.isdir(self.image_dir):
             raise ValueError(
-                f"Invalid image directory path {image_directory_path} - does not exist"
+                f"Invalid image directory path {image_dir_path} - does not exist"
             )
         get_sensitve_attributes = Lambda(lambda x: 1 - x[[39, 20]])
         crop_images = Compose([CenterCrop(148), PILToTensor()])
+
         self.celeba = CelebA(
-            root=self.image_directory,
+            root=self.image_dir,
             split=split,
             transform=crop_images,
             target_transform=get_sensitve_attributes,

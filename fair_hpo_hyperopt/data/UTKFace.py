@@ -27,17 +27,17 @@ class UTKFaceDataset(Dataset):
 
     def __init__(
         self,
-        image_directory_path,
+        image_dir_path,
         transform=None,
         target_transform=None,
         in_memory=False,
     ):
-        self.image_directory = image_directory_path
-        if not path.isdir(self.image_directory):
+        self.image_dir = image_dir_path
+        if not path.isdir(self.image_dir):
             raise ValueError(
-                f"Invalid image directory path {image_directory_path} - does not exist"
+                f"Invalid image directory path {image_dir_path} - does not exist"
             )
-        self.image_file_paths = glob(path.join(image_directory_path, "*_*_*_*.jpg"))
+        self.image_file_paths = glob(path.join(image_dir_path, "*_*_*_*.jpg"))
         self.transform = transform
         self.target_transform = target_transform
         self.data = []
