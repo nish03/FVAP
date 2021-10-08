@@ -177,7 +177,7 @@ class FlexVAE(Module):
         mu, log_var = self.encode(x)
         z = self.reparameterize(mu, log_var)
         y = self.decode(z)
-        return y, mu, log_var
+        return y, z, mu, log_var
 
     def _reconstruction_batch_loss(self, x, y):
         # reconstruction criterion performs mean reduction

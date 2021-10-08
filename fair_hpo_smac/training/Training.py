@@ -86,7 +86,7 @@ def train_variational_autoencoder_epoch(
 
         data_fraction = len(data) / len(dataloader.dataset)
 
-        output, mu, log_var = model(data)
+        output, _, mu, log_var = model(data)
         losses = criterion(model, data, target, output, mu, log_var, data_fraction)
 
         optimizer.zero_grad(set_to_none=True)
@@ -124,7 +124,7 @@ def evaluate_variational_autoencoder_epoch(model, criterion, dataloader):
         for data, target in dataloader:
             data, target = data.to(device), target.to(device)
             data_fraction = len(data) / len(dataloader.dataset)
-            output, mu, log_var = model(data)
+            output, _, mu, log_var = model(data)
             losses = criterion(model, data, target, output, mu, log_var, data_fraction)
             for name, loss in losses.items():
                 mean_losses[name] += loss.item()
