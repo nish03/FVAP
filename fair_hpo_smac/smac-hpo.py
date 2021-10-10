@@ -367,7 +367,7 @@ def hyperparameter_cost(hyperparameter_config, seed):
         train_dataloader,
         validation_dataloader,
         schedule_lr_after_epoch=True,
-        display_progress=False,
+        display_progress=True,
     )
 
     if isinstance(model, DataParallel):

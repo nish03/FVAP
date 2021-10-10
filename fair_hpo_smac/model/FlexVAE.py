@@ -199,54 +199,69 @@ class FlexVAE(Module):
 
     @staticmethod
     def _batch_loss(batch_loss, args, *_):
-        return batch_loss(*args)
+        loss = batch_loss(*args)
+        return loss, None
 
     @staticmethod
     def _weighted_average_individual_losses(individual_losses, args, labels, weights):
-        return (
+        parts = (
             cat(
                 [
-                    individual_losses(*[arg[mask] for arg in args]) * weights[label]
-                    for label in range(len(weights))
+                    individual_losses(*[arg[mask] for arg in args]).sum().view(1)
+                    * weights[label]
                     if (mask := labels == label).sum() > 0
+                    else tensor([0.0]).to(labels.device)
+                    for label in range(len(weights))
                 ]
-            ).sum()
+            )
             / (
                 weights[(contained_labels := labels.unique(return_counts=True))[0]]
                 * contained_labels[1]
             ).sum()
         )
+        loss = parts.sum()
+        return loss, parts
 
     @staticmethod
     def _weighted_average_batch_losses(batch_loss, args, labels, weights):
-        return (
+        parts = (
             cat(
                 [
                     batch_loss(*[arg[mask] for arg in args]).view(1) * weights[label]
-                    for label in range(len(weights))
                     if (mask := labels == label).sum() > 0
+                    else tensor([0.0]).to(labels.device)
+                    for label in range(len(weights))
                 ]
-            ).sum()
+            )
             / weights[labels.unique()].sum()
         )
+        loss = parts.sum()
+        return loss, parts
 
     def criterion(self, x, labels, y, mu, log_var, iteration, kld_weight):
-        reconstruction_loss = self._weighted_average_loss_fn(
+        reconstruction_loss, reconstruction_loss_parts = self._weighted_average_loss_fn(
             self._reconstruction_loss_fn,
             [x, y],
             labels,
             self.reconstruction_weights,
         )
-        kld_loss = self._weighted_average_loss_fn(
+        kld_loss, kld_loss_parts = self._weighted_average_loss_fn(
             self._kld_loss_fn, [mu, log_var], labels, self.kld_weights
         )
         C = clip(self.c_max / self.c_stop_iteration * iteration, 0, self.c_max)
-        elbo_loss = reconstruction_loss + self.gamma * kld_weight * (kld_loss - C).abs()
-        return {
+        regularisation_loss = self.gamma * kld_weight * (kld_loss - C).abs()
+        elbo_loss = reconstruction_loss + regularisation_loss
+        loss_values = {
             "ELBO": elbo_loss,
             "Reconstruction": reconstruction_loss,
+            "Regularisation": regularisation_loss,
             "KLD": kld_loss,
         }
+        if reconstruction_loss_parts is not None:
+            loss_values["ReconstructionParts"] = reconstruction_loss_parts
+        if kld_loss_parts is not None:
+            loss_values["KLDParts"] = kld_loss_parts
+        return loss_values
 
     def sample(self, num_samples, device):
         z = randn(num_samples, self.latent_dimension_count).to(device)
