@@ -30,7 +30,7 @@ from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 
 from data.CelebA import CelebADataset, load_celeba
 from data.UTKFace import UTKFaceDataset, load_utkface
-from hpo.Cost import cost_functions
+from hpo.Cost import hpo_cost
 from hpo.Hyperparameters import hyperparameters_from_config
 from model.FlexVAE import FlexVAE
 from training.Training import train_variational_autoencoder
@@ -38,6 +38,25 @@ from training.Training import train_variational_autoencoder
 start_date = datetime.now()
 
 logging.basicConfig(level=logging.DEBUG, force=True)
+
+
+class FloatRange:
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def __eq__(self, other):
+        return self.start <= other <= self.end
+
+    def __contains__(self, item):
+        return self.__eq__(item)
+
+    def __iter__(self):
+        yield self
+
+    def __repr__(self):
+        return f"[{self.start}, {self.end}]"
+
 
 arg_parser = ArgumentParser(
     description="Perform HPO with SMAC to train a generative model"
@@ -56,11 +75,12 @@ dataset_dir_group.add_argument(
     required=False,
 ),
 arg_parser.add_argument(
-    "--cost",
-    default="MS-SSIM",
-    choices=["MS-SSIM", "FairMS-SSIM"],
+    "--fair-cost-coefficient",
+    default=0.5,
+    type=float,
+    choices=FloatRange(0.0, 1.0),
     required=False,
-    help="Cost function used for HPO",
+    help="Coefficient α in the HPO cost function: (1 - α) * performance + α * fairness",
 )
 arg_parser.add_argument(
     "--datasplit-seed",
@@ -222,7 +242,7 @@ if not resume_experiment:
         f" evaluations runcount limit, "
         f"parameter configuration file '{opt_params.smac_pcs_file}', "
         f"{opt_params.smac_initial_design} initial design, seed {opt_params.smac_seed} "
-        f"and cost function {opt_params.cost}"
+        f"and fair cost coefficient {opt_params.fair_cost_coefficient}"
     )
 else:
     logging.info(
@@ -372,8 +392,12 @@ def hyperparameter_cost(hyperparameter_config, seed):
 
     if isinstance(model, DataParallel):
         model = model.module
-    cost_value, additional_info = hyperparameter_cost.function(
-        model, validation_dataloader, sensitive_attribute
+    cost_value, additional_info = hpo_cost(
+        model,
+        validation_dataloader,
+        sensitive_attribute,
+        alpha=opt_params.fair_cost_coefficient,
+        window_sigma=0.5,
     )
 
     model_run_data = {
@@ -399,7 +423,6 @@ def hyperparameter_cost(hyperparameter_config, seed):
 hyperparameter_cost.model_run = 0
 hyperparameter_cost.seed = None
 hyperparameter_cost.hyper_params = None
-hyperparameter_cost.function = cost_functions[opt_params.cost]
 hyperparameter_cost.model_run_file_paths = []
 
 scenario_dict = {
