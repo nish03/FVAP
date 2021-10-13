@@ -23,16 +23,15 @@ export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 source env/bin/activate
 
 ./smac-hpo.py \
-  --batch-size 128 \
+  --batch-size 144 \
   --celeba-dir datasets/CelebA \
-  --cost MS-SSIM \
   --epochs 50 \
   --image-size 64 \
+  --in-memory-dataset \
   --output-dir experiments/baseline-celeba \
   --smac-initial-design DefaultConfiguration \
   --smac-pcs-file config/baseline-celeba.pcs \
   --smac-runcount 1 \
-  --smac-seed 42 \
-  --in-memory-dataset
+  --smac-seed 42
 
 exit 0

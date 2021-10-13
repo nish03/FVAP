@@ -23,17 +23,16 @@ export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE
 source env/bin/activate
 
 ./smac-hpo.py \
-  --batch-size 128 \
-  --cost MS-SSIM \
+  --batch-size 144 \
   --datasplit-seed 42 \
   --epochs 200 \
   --image-size 64 \
+  --in-memory-dataset \
   --output-dir experiments/baseline-utkface \
   --smac-initial-design DefaultConfiguration \
   --smac-pcs-file config/baseline-utkface.pcs \
   --smac-runcount 1 \
   --smac-seed 42 \
-  --utkface-dir datasets/UTKFace \
-  --in-memory-dataset
+  --utkface-dir datasets/UTKFace
 
 exit 0
