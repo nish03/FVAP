@@ -1,20 +1,18 @@
 # hyperparameters
 # NOTE: only default values at the end of each line are used
 C_max real [1.0, 25.0] [25.0]
-C_stop_fraction real [0.175, 1.0] [0.2]
-hidden_layer_count integer [1, 5] [2]
+C_stop_fraction real [0.175, 1.0] [0.43103448275862066]
+hidden_layer_count integer [1, 5] [5]
 latent_dimension_count integer [1, 128] [128]
-learning_rate real [5e-5, 5e-3] [5e-4] log
+learning_rate real [5e-5, 5e-3] [0.0005] log
 lr_scheduler_gamma real [0.95, 1.0] [0.95]
-ms_ssim_window_sigma real [0.25, 6.0] [0.5]
-reconstruction_loss categorical {MS-SSIM} [MS-SSIM]
+reconstruction_loss categorical {MSE} [MSE]
 vae_loss_gamma real [1.0, 10.0] [10.0]
 weight_decay real [0.0, 1.0] [0.0]
 
 # optimization parameters:
-# --batch-size 128
+# --batch-size 144
 # --celeba-dir datasets/CelebA
-# --cost MS-SSIM
 # --epochs 50
 # --image-size 64
 # --output-dir experiments/baseline-celeba
