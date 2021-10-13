@@ -1,0 +1,9 @@
+VAE Reconstruction Performances:
+  Complete Test Dataset:
+     Overall - MS-SSIM: 0.7107, PSNR: 14.3416, FSIM: 0.6816, GMSD: 0.2635, MS-GMSDc: 0.2637, HaarPSI: 0.3980, MDSI: 0.5507
+  Sensitive Attribute Age:
+       Young - MS-SSIM: 0.7131, PSNR: 14.3631, FSIM: 0.6812, GMSD: 0.2643, MS-GMSDc: 0.2643, HaarPSI: 0.4002, MDSI: 0.5527
+         Old - MS-SSIM: 0.7035, PSNR: 14.2747, FSIM: 0.6828, GMSD: 0.2607, MS-GMSDc: 0.2621, HaarPSI: 0.3912, MDSI: 0.5442
+  Sensitive Attribute Gender:
+        Male - MS-SSIM: 0.7082, PSNR: 14.2454, FSIM: 0.6827, GMSD: 0.2641, MS-GMSDc: 0.2642, HaarPSI: 0.3913, MDSI: 0.5476
+      Female - MS-SSIM: 0.7123, PSNR: 14.4022, FSIM: 0.6809, GMSD: 0.2630, MS-GMSDc: 0.2634, HaarPSI: 0.4022, MDSI: 0.5526
