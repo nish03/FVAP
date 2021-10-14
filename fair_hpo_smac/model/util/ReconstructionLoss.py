@@ -39,7 +39,7 @@ class MultiScaleSSIMLoss(Module):
     def gaussian_window(self):
         kernel = tensor(
             [
-                exp((x - self.window_size // 2) ** 2 / (2 * self.window_sigma ** 2))
+                exp(-(x - self.window_size // 2) ** 2 / (2 * self.window_sigma ** 2))
                 for x in range(self.window_size)
             ]
         )
