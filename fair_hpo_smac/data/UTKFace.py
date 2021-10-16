@@ -2,12 +2,15 @@ from glob import glob
 from os import path
 from enum import IntEnum
 
-from torch import Generator, tensor
-from torch.utils.data import Dataset, random_split
+from torch import tensor
+from torch.utils.data import Dataset
 from torchvision.io import read_image
+from data.util.DatasetSplit import create_dataset_split
 
 
 class UTKFaceDataset(Dataset):
+    name = "UTKFace"
+
     class Age(IntEnum):
         Young = 0
         Old = 1
@@ -41,7 +44,8 @@ class UTKFaceDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.data = []
-        if in_memory:
+        self.in_memory = in_memory
+        if self.in_memory:
             self.data = [self.get_data(i) for i in range(len(self.image_file_paths))]
 
     def __len__(self):
@@ -67,19 +71,16 @@ class UTKFaceDataset(Dataset):
         else:
             return self.get_data(index)
 
+    def split(self, **kwargs):
+        return create_dataset_split(self, **kwargs)
+
 
 def load_utkface(
     train_split_factor=0.7, validation_split_factor=0.2, random_split_seed=42, **kwargs
 ):
-    dataset = UTKFaceDataset(
-        **kwargs,
+    dataset = UTKFaceDataset(**kwargs)
+    return dataset.split(
+        train_split_factor=train_split_factor,
+        validation_split_factor=validation_split_factor,
+        random_split_seed=random_split_seed,
     )
-    train_count = int(train_split_factor * len(dataset))
-    validation_count = int(validation_split_factor * len(dataset))
-    test_count = len(dataset) - train_count - validation_count
-    train_dataset, validation_dataset, test_dataset = random_split(
-        dataset,
-        [train_count, validation_count, test_count],
-        Generator().manual_seed(random_split_seed),
-    )
-    return train_dataset, validation_dataset, test_dataset

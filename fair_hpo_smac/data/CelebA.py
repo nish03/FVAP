@@ -8,6 +8,8 @@ from torchvision.datasets.utils import verify_str_arg
 
 
 class CelebADataset(Dataset):
+    name = "CelebA"
+
     class Age(IntEnum):
         Young = 0
         Old = 1
@@ -67,7 +69,8 @@ class CelebADataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.data = []
-        if in_memory:
+        self.in_memory = in_memory
+        if self.in_memory:
             self.data = [self.get_data(i) for i in range(len(self.celeba))]
 
     def __len__(self):
@@ -86,6 +89,30 @@ class CelebADataset(Dataset):
             return self.data[index]
         else:
             return self.get_data(index)
+
+    def split(self):
+        train_dataset = CelebADataset(
+            image_dir_path=self.image_dir,
+            split="train",
+            transform=self.transform,
+            target_transform=self.target_transform,
+            in_memory=self.in_memory,
+        )
+        validation_dataset = CelebADataset(
+            image_dir_path=self.image_dir,
+            split="valid",
+            transform=self.transform,
+            target_transform=self.target_transform,
+            in_memory=self.in_memory,
+        )
+        test_dataset = CelebADataset(
+            image_dir_path=self.image_dir,
+            split="test",
+            transform=self.transform,
+            target_transform=self.target_transform,
+            in_memory=self.in_memory,
+        )
+        return train_dataset, validation_dataset, test_dataset
 
 
 def load_celeba(**kwargs):
