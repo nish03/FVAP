@@ -4,6 +4,7 @@ from pathlib import Path, PureWindowsPath
 from torch import tensor
 from torch.utils.data import Dataset
 from torchvision.io import read_image
+from torchvision.transforms import Compose, CenterCrop
 from mat73 import loadmat
 
 from data.util.DatasetSplit import create_dataset_split
@@ -54,7 +55,9 @@ class LFWAPlusDataset(Dataset):
         self.lfwa_attributes = loadmat(self.image_dir / "lfw_att_40.mat")
         self.lfwa_plus_attributes = loadmat(self.image_dir / "lfw_att_73.mat")
         self.image_file_paths = self.lfwa_attributes["name"]
-        self.transform = transform
+        self.transform = Compose(
+            [CenterCrop(170)] + ([transform] if transform is not None else [])
+        )
         self.target_transform = target_transform
         self.data = []
         self.in_memory = in_memory
@@ -67,8 +70,7 @@ class LFWAPlusDataset(Dataset):
     def get_data(self, index):
         image_file_path = PureWindowsPath(self.image_file_paths[index])
         image_data = read_image(str(self.image_dir / "lfw" / image_file_path))
-        if self.transform:
-            image_data = self.transform(image_data)
+        image_data = self.transform(image_data)
         age = int(1 - self.lfwa_attributes["label"][index, 39])
         gender = int(1 - self.lfwa_plus_attributes["label"][index, 0])
         white_race = int(self.lfwa_plus_attributes["label"][index, 2])
