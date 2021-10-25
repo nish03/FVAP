@@ -1,9 +1,8 @@
 import logging
 
-from torch import float32, int64, no_grad, zeros, tensor
 from numpy import histogram_bin_edges
-
-from model.util.ReconstructionLoss import MultiScaleSSIMLoss
+from piq import FSIMLoss
+from torch import float32, int64, no_grad, tensor, zeros
 
 
 def entropy(samples):
@@ -21,9 +20,9 @@ def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5
     with no_grad():
         data_index = 0
         dataset_size = len(dataloader.dataset)
-        ms_ssim_scores = zeros(dataset_size, dtype=float32, device=device)
+        performance_costs = zeros(dataset_size, dtype=float32, device=device)
         labels = zeros(dataset_size, dtype=int64, device=device)
-        ms_ssim_loss = MultiScaleSSIMLoss(window_sigma=window_sigma, reduction="none")
+        performance_loss = FSIMLoss(data_range=1.0, chromatic=True, reduction="none")
         for data, target in dataloader:
             data = data.to(device)
             target = target.to(device)
@@ -34,25 +33,25 @@ def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5
             data_range = range(data_index, data_index + batch_size)
             data_index += batch_size
 
-            ms_ssim_scores[data_range] = 1.0 - ms_ssim_loss(output, data)
+            performance_costs[data_range] = performance_loss(output, data)
             labels[data_range] = target
 
         assert data_index == dataset_size
 
-        ms_ssim_entropy = entropy(ms_ssim_scores)
-        mi_ms_ssim_sensitive_attribute = ms_ssim_entropy.clone()
+        performance_entropy = entropy(performance_costs)
+        mi_performance_sensitive_attribute = performance_entropy.clone()
         sensitive_attribute_entropy = tensor(0.0, device=device)
         for sensitive_attribute_member in sensitive_attribute:
             in_member = labels == sensitive_attribute_member
             probability = in_member.sum() / dataset_size
-            mi_ms_ssim_sensitive_attribute -= probability * entropy(
-                ms_ssim_scores[in_member]
+            mi_performance_sensitive_attribute -= probability * entropy(
+                performance_costs[in_member]
             )
             sensitive_attribute_entropy -= probability * probability.log()
-        performance_cost = 1.0 - ms_ssim_scores.mean().item()
+        performance_cost = performance_costs.mean().item()
         fairness_cost = (
-            mi_ms_ssim_sensitive_attribute
-            / (ms_ssim_entropy + sensitive_attribute_entropy).sqrt()
+            mi_performance_sensitive_attribute
+            / (performance_entropy + sensitive_attribute_entropy).sqrt()
         ).item()
         total_cost = (1.0 - alpha) * performance_cost + alpha * fairness_cost
 
