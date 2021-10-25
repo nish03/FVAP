@@ -4,7 +4,6 @@ from enum import IntEnum
 from torch.utils.data import Dataset
 from torchvision.datasets import CelebA
 from torchvision.transforms import Compose, PILToTensor, CenterCrop, Lambda
-from torchvision.datasets.utils import verify_str_arg
 
 
 class CelebADataset(Dataset):
@@ -42,28 +41,6 @@ class CelebADataset(Dataset):
             transform=crop_images,
             target_transform=get_sensitve_attributes,
             download=False,
-        )
-
-        # workaround for splits not being applied to images
-        # fixed future torchvision version
-        # see https://github.com/pytorch/vision/pull/4377
-        split_map = {
-            "train": 0,
-            "valid": 1,
-            "test": 2,
-            "all": None,
-        }
-        split_index = split_map[
-            verify_str_arg(split.lower(), "split", ("train", "valid", "test", "all"))
-        ]
-        splits = self.celeba._load_csv("list_eval_partition.txt")
-        self.celeba.filename = (
-            splits.index
-            if split_index is None
-            else [
-                splits.index[i]
-                for i in (splits.data == split_index).squeeze().nonzero().squeeze()
-            ]
         )
 
         self.transform = transform
