@@ -1,7 +1,7 @@
 # hyperparameters
 # NOTE: only default values at the end of each line are used
 C_max real [1.0, 25.0] [25.0]
-C_stop_fraction real [0.175, 1.0] [0.1768346595932803]
+C_stop_fraction real [0.175, 1.0] [0.390625]
 hidden_layer_count integer [1, 5] [5]
 latent_dimension_count integer [1, 128] [128]
 learning_rate real [5e-5, 5e-3] [0.0005] log
@@ -12,10 +12,10 @@ weight_decay real [0.0, 1.0] [0.0]
 
 # optimization parameters:
 # --batch-size 144
-# --dataset CelebA
-# --epochs 50
+# --dataset LFWA+
+# --epochs 400
 # --image-size 64
-# --output-dir experiments/baseline-celeba
+# --output-dir experiments/baseline-lfwaplus
 # --smac-initial-design DefaultConfiguration
-# --smac-pcs-file config/baseline-celeba.pcs
+# --smac-pcs-file config/baseline-lfwaplus.pcs
 # --smac-runcount 1

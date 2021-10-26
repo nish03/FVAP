@@ -12,12 +12,10 @@ weight_decay real [0.0, 1.0] [0.0]
 
 # optimization parameters:
 # --batch-size 144
-# --datasplit-seed 42
+# --dataset UTKFace
 # --epochs 200
 # --image-size 64
 # --output-dir experiments/baseline-utkface
 # --smac-initial-design DefaultConfiguration
 # --smac-pcs-file config/baseline-utkface.pcs
 # --smac-runcount 1
-# --smac-seed 42
-# --utkface-dir datasets/UTKFace
