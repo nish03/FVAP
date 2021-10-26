@@ -113,13 +113,9 @@ class FairFaceDataset(Dataset):
     def split(self, **kwargs):
         return create_dataset_split(self, **kwargs)
 
-
-def load_fairface(
-    train_split_factor=0.7, validation_split_factor=0.2, random_split_seed=42, **kwargs
-):
-    dataset = FairFaceDataset(**kwargs)
-    return dataset.split(
-        train_split_factor=train_split_factor,
-        validation_split_factor=validation_split_factor,
-        random_split_seed=random_split_seed,
-    )
+    @staticmethod
+    def load(
+        **kwargs,
+    ):
+        dataset = FairFaceDataset(**kwargs)
+        return dataset.split()

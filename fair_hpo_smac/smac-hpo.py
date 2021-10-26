@@ -4,8 +4,7 @@ from argparse import ArgumentParser
 from copy import deepcopy
 from datetime import datetime
 from os import makedirs, symlink, remove
-from os.path import basename, isdir, islink
-from os.path import join as join_path
+from pathlib import Path
 from os.path import relpath
 from shutil import copy, copyfileobj, rmtree
 from sys import argv
@@ -28,8 +27,10 @@ from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 
-from data.CelebA import CelebADataset, load_celeba
-from data.UTKFace import UTKFaceDataset, load_utkface
+from data.CelebA import CelebADataset
+from data.UTKFace import UTKFaceDataset
+from data.FairFace import FairFaceDataset
+from data.LFWAPlus import LFWAPlusDataset
 from hpo.Cost import hpo_cost
 from hpo.Hyperparameters import hyperparameters_from_config
 from model.FlexVAE import FlexVAE
@@ -61,65 +62,79 @@ class FloatRange:
 arg_parser = ArgumentParser(
     description="Perform HPO with SMAC to train a generative model"
 )
-dataset_dir_group = arg_parser.add_mutually_exclusive_group(required=True)
 arg_parser.add_argument(
     "--batch-size",
     default=144,
     type=int,
     required=False,
-    help="Batch size used for loading the dataset",
+    help="Batch size for loading the dataset",
 )
-dataset_dir_group.add_argument(
-    "--celeba-dir",
-    help="CelebA dataset directory",
+arg_parser.add_argument(
+    "--dataset",
+    help="Dataset for training the generative model",
+    choices=["UTKFace", "CelebA", "LFWA+", "FairFace"],
+    required=True,
+),
+arg_parser.add_argument(
+    "--dataset-dir",
+    help="Directory for loading the dataset",
     required=False,
 ),
+arg_parser.add_argument(
+    "--epochs",
+    default=100,
+    type=int,
+    required=False,
+    help="Number of epochs for training the generative model",
+)
 arg_parser.add_argument(
     "--fair-cost-coefficient",
     default=0.5,
     type=float,
     choices=FloatRange(0.0, 1.0),
     required=False,
-    help="Coefficient α in the HPO cost function: (1 - α) * performance + α * fairness",
-)
-arg_parser.add_argument(
-    "--datasplit-seed",
-    default=42,
-    type=int,
-    required=False,
-    help="Seed used for creating random train, validation and tast dataset splits",
-)
-arg_parser.add_argument(
-    "--epochs",
-    default=100,
-    type=int,
-    required=False,
-    help="Number of epochs used for training the generative model",
+    help="Coefficient α for the hyperparameter optimization cost function: "
+    "(1 - α) * performance + α * fairness",
 )
 arg_parser.add_argument(
     "--image-size",
     default=64,
     type=int,
     required=False,
-    help="Image size used for loading the dataset",
+    help="Image size for loading the dataset",
 )
 arg_parser.add_argument(
     "--in-memory-dataset",
     action="store_true",
-    help="Load dataset into memory",
+    help="Store datset in memory for faster training with slow storage",
 )
+arg_parser.add_argument(
+    "--log-transform-label-weights",
+    dest="log_transform_label_weights",
+    action="store_true",
+    help="Log transform label weights for generating uniformly distributed "
+    "convex weight combinations",
+)
+arg_parser.add_argument(
+    "--no-log-transform-label-weights",
+    dest="log_transform_label_weights",
+    action="store_false",
+    help="Don't log transform label weights for generating non-uniformly distributed "
+    "convex weight combinations",
+)
+arg_parser.set_defaults(log_transform_label_weights=True)
 arg_parser.add_argument(
     "--output-dir",
     default=".",
     required=False,
-    help="Output directory for log files, save states and HPO runs",
+    help="Output directory for storing log files, save states and HPO runs",
 )
 arg_parser.add_argument(
     "--sensitive-attribute",
     type=int,
     default=0,
     required=False,
-    help="Index of the sensitive attribute",
+    help="Index of the sensitive attribute for fairness optimization",
 )
 arg_parser.add_argument(
     "--smac-initial-design",
@@ -131,7 +146,7 @@ arg_parser.add_argument(
 arg_parser.add_argument(
     "--smac-pcs-file",
     required=True,
-    help="Parameter configuration file used for hyperparameter optimization with SMAC",
+    help="Parameter configuration file for hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
     "--smac-runcount",
@@ -144,34 +159,32 @@ arg_parser.add_argument(
     default=None,
     type=int,
     required=False,
-    help="Maximum amount runtime used for hyperparameter optimization with SMAC",
+    help="Maximum amount runtime for hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
     "--smac-seed",
     default=42,
     type=int,
     required=False,
-    help="Seed used for hyperparameter optimization with SMAC",
+    help="Seed for hyperparameter optimization with SMAC",
 )
-dataset_dir_group.add_argument(
-    "--utkface-dir",
-    help="UTKFace dataset directory",
-    required=False,
-),
 args = arg_parser.parse_args(argv[1:])
 
 opt_params = deepcopy(args)
 del opt_params.in_memory_dataset
 
-resume_experiment = isdir(opt_params.output_dir)
-save_states_dir = join_path(opt_params.output_dir, "save-states")
-last_opt_params_file_path = join_path(save_states_dir, "opt-params.pt")
+output_dir = Path(opt_params.output_dir)
+resume_experiment = output_dir.is_dir()
+save_states_dir = output_dir / "save-states"
+last_opt_params_file_path = save_states_dir / "opt-params.pt"
 last_opt_params = (
-    load(last_opt_params_file_path) if islink(last_opt_params_file_path) else None
+    load(last_opt_params_file_path) if last_opt_params_file_path.is_symlink() else None
 )
-last_smac_results_file_path = join_path(save_states_dir, "smac-results.pt")
+last_smac_results_file_path = save_states_dir / "smac-results.pt"
 last_smac_results = (
-    load(last_smac_results_file_path) if islink(last_smac_results_file_path) else None
+    load(last_smac_results_file_path)
+    if last_smac_results_file_path.is_symlink()
+    else None
 )
 if not resume_experiment:
     makedirs(save_states_dir)
@@ -180,7 +193,7 @@ else:
     if last_smac_results is None:
         raise RuntimeError(
             f"Script can't be resumed from exisiting output directory "
-            f"{opt_params.output_dir}: results from previous SMAC run are missing!"
+            f"{output_dir}: results from previous SMAC run are missing!"
         )
     if last_opt_params.smac_runtime is not None and opt_params.smac_runtime is not None:
         opt_params.smac_runtime += last_opt_params.smac_runtime
@@ -188,18 +201,15 @@ else:
     smac_run = last_smac_results["smac_run"] + 1
 
 
-smac_run_dir = join_path(
-    opt_params.output_dir,
-    f"smac-run-{smac_run:04}",
-)
+smac_run_dir = output_dir / f"smac-run-{smac_run:04}"
 removed_aborted_run = False
-if isdir(smac_run_dir):
+if smac_run_dir.is_dir():
     rmtree(smac_run_dir)
     removed_aborted_run = True
 makedirs(smac_run_dir)
-run_log_file_path = join_path(smac_run_dir, "log.txt")
+run_log_file_path = smac_run_dir / "log.txt"
 logging.basicConfig(filename=run_log_file_path, level=logging.DEBUG, force=True)
-print(f"OutputDirectory={opt_params.output_dir}")
+print(f"OutputDirectory={output_dir}")
 print(f"SMACRun={smac_run}")
 logging.info(f"Script {'resumed' if resume_experiment else 'started'} at {start_date}")
 if removed_aborted_run:
@@ -214,7 +224,7 @@ if cuda.is_available():
             f"CUDA device{'s' if device_count > 1 else ''}"
         )
 else:
-    device = "cpu"
+    device = "cpu "
     device_count = 1
     if not resume_experiment:
         logging.info("Memory allocation is performed on the CPU device")
@@ -227,12 +237,13 @@ if not resume_experiment:
     logging.info(
         f"Data will be loaded from {'memory' if args.in_memory_dataset else 'disk'} "
         f"with sensitive attribute {opt_params.sensitive_attribute}, "
-        f"image size {opt_params.image_size}, batch size {opt_params.batch_size} and "
-        f"datasplit seed {opt_params.datasplit_seed}"
+        f"image size {opt_params.image_size}, batch size {opt_params.batch_size}"
     )
     logging.info(
-        f"Generative model will be trained for {opt_params.epochs} epochs and "
-        f"batch size {opt_params.batch_size}"
+        f"Generative model will be trained for {opt_params.epochs} epochs and with "
+        f"batch size {opt_params.batch_size} and "
+        f"{'enabled' if opt_params.log_transform_label_weights else 'disabled'} "
+        f"label weight log transformation"
     )
     logging.info(
         f"SMAC HPO run {smac_run} will be started with, "
@@ -263,27 +274,23 @@ transform = Compose(
 )
 target_transform = Lambda(lambda x: x[opt_params.sensitive_attribute])
 
-if opt_params.utkface_dir is not None:
-    dataset_dir = opt_params.utkface_dir
-    dataset_class = UTKFaceDataset
-    train_dataset, validation_dataset, _ = load_utkface(
-        random_split_seed=opt_params.datasplit_seed,
-        image_dir_path=dataset_dir,
-        transform=transform,
-        target_transform=target_transform,
-        in_memory=args.in_memory_dataset,
-    )
-elif opt_params.celeba_dir is not None:
-    dataset_dir = opt_params.celeba_dir
-    dataset_class = CelebADataset
-    train_dataset, validation_dataset, _ = load_celeba(
-        image_dir_path=dataset_dir,
-        transform=transform,
-        target_transform=target_transform,
-        in_memory=args.in_memory_dataset,
-    )
-else:
-    raise RuntimeError("No dataset directory was specified")
+dataset_class = {
+    "UTKFace": UTKFaceDataset,
+    "CelebA": CelebADataset,
+    "LFWA+": LFWAPlusDataset,
+    "FairFace": FairFaceDataset,
+}[opt_params.dataset]
+
+dataset_dir = opt_params.dataset_dir
+if dataset_dir is None:
+    dataset_dir = Path("datasets") / dataset_class.name
+
+train_dataset, validation_dataset, _ = dataset_class.load(
+    image_dir_path=dataset_dir,
+    transform=transform,
+    target_transform=target_transform,
+    in_memory=args.in_memory_dataset,
+)
 
 if not (0 <= opt_params.sensitive_attribute < len(dataset_class.target_attributes)):
     raise RuntimeError(
@@ -305,8 +312,9 @@ train_dataloader, validation_dataloader = [
 
 if not resume_experiment:
     logging.info(
-        f"{dataset_class.__name__} was loaded from directory '{dataset_dir}' "
-        f"with target sensitive attribute {sensitive_attribute.__name__}"
+        f"{dataset_class.name} dataset was loaded from directory "
+        f"'{dataset_dir}' with target sensitive attribute "
+        f"{sensitive_attribute.__name__}"
     )
 
 
@@ -318,7 +326,9 @@ def hyperparameter_cost(hyperparameter_config, seed):
     numpy.random.seed(seed)
 
     hyper_params = hyperparameters_from_config(
-        hyperparameter_config, max_iteration=opt_params.epochs * len(train_dataloader)
+        hyperparameter_config,
+        max_iteration=opt_params.epochs * len(train_dataloader),
+        log_transform_weights=opt_params.log_transform_label_weights,
     )
     hyperparameter_cost.hyper_params = deepcopy(hyper_params)
 
@@ -414,7 +424,7 @@ def hyperparameter_cost(hyperparameter_config, seed):
     }
 
     model_run_file_name = f"model-run-{hyperparameter_cost.model_run:04}.pt"
-    model_run_file_path = join_path(smac_run_dir, model_run_file_name)
+    model_run_file_path = smac_run_dir / model_run_file_name
     save(model_run_data, model_run_file_path)
     hyperparameter_cost.model_run_file_paths.append(model_run_file_path)
     return cost_value, additional_info
@@ -449,28 +459,25 @@ smac_args = {
 if not resume_experiment:
     smac = SMAC4HPO(rng=RandomState(opt_params.smac_seed), **smac_args)
 else:
-    old_smac_output_dir = join_path(
-        opt_params.output_dir,
-        f"smac-run-{smac_run - 1:04}",
-    )
-    old_smac_run_id_dir = join_path(old_smac_output_dir, f"run_{smac_args['run_id']}")
-    old_runhistory_json_file_path = join_path(old_smac_run_id_dir, "runhistory.json")
+    old_smac_output_dir = output_dir / f"smac-run-{smac_run - 1:04}"
+    old_smac_run_id_dir = old_smac_output_dir / f"run_{smac_args['run_id']}"
+    old_runhistory_json_file_path = old_smac_run_id_dir / "runhistory.json"
     run_history = RunHistory()
-    run_history.load_json(old_runhistory_json_file_path, scenario.cs)
+    run_history.load_json(str(old_runhistory_json_file_path), scenario.cs)
     hyperparameter_cost.model_run = len(run_history.data)
-    old_stats_json_file_path = join_path(old_smac_run_id_dir, "stats.json")
+    old_stats_json_file_path = old_smac_run_id_dir / "stats.json"
     stats = Stats(scenario)
-    stats.load(old_stats_json_file_path)
-    old_trajectory_json_file_path = join_path(old_smac_run_id_dir, "traj_aclib2.json")
+    stats.load(str(old_stats_json_file_path))
+    old_trajectory_json_file_path = old_smac_run_id_dir / "traj_aclib2.json"
     trajectory = TrajLogger.read_traj_aclib_format(
-        fn=old_trajectory_json_file_path, cs=scenario.cs
+        fn=str(old_trajectory_json_file_path), cs=scenario.cs
     )
     incumbent_hyperparameter_config = trajectory[-1]["incumbent"]
 
-    smac_run_id_dir = join_path(
-        opt_params.output_dir, f"smac-run-{smac_run:04}", f"run_{smac_args['run_id']}"
+    smac_run_id_dir = (
+        output_dir / f"smac-run-{smac_run:04}" / f"run_{smac_args['run_id']}"
     )
-    new_trajectory_json_file_path = join_path(smac_run_id_dir, "traj_aclib2.json")
+    new_trajectory_json_file_path = smac_run_id_dir / "traj_aclib2.json"
     makedirs(smac_run_id_dir)
     copy(old_trajectory_json_file_path, new_trajectory_json_file_path)
 
@@ -504,9 +511,9 @@ smac_results_data = {
     "rng": smac.solver.rng,
     "smac_run": smac_run,
 }
-run_smac_results_file_path = join_path(smac_run_dir, "smac-results.pt")
-run_opt_params_file_path = join_path(smac_run_dir, "opt-params.pt")
-log_file_path = join_path(opt_params.output_dir, "log.txt")
+run_smac_results_file_path = smac_run_dir / "smac-results.pt"
+run_opt_params_file_path = smac_run_dir / "opt-params.pt"
+log_file_path = output_dir / "log.txt"
 save(opt_params, run_opt_params_file_path)
 save(smac_results_data, run_smac_results_file_path)
 run_file_paths = [
@@ -516,8 +523,8 @@ run_file_paths = [
 run_file_paths += hyperparameter_cost.model_run_file_paths
 for run_file_path in run_file_paths:
     link_src_path = relpath(run_file_path, save_states_dir)
-    link_dst_path = join_path(save_states_dir, basename(run_file_path))
-    if islink(link_dst_path):
+    link_dst_path = save_states_dir / run_file_path.name
+    if link_dst_path.is_symlink():
         remove(link_dst_path)
     symlink(link_src_path, link_dst_path)
 

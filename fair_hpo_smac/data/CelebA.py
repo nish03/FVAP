@@ -91,9 +91,9 @@ class CelebADataset(Dataset):
         )
         return train_dataset, validation_dataset, test_dataset
 
-
-def load_celeba(**kwargs):
-    train_dataset = CelebADataset(split="train", **kwargs)
-    validation_dataset = CelebADataset(split="valid", **kwargs)
-    test_dataset = CelebADataset(split="test", **kwargs)
-    return train_dataset, validation_dataset, test_dataset
+    @staticmethod
+    def load(**kwargs):
+        train_dataset = CelebADataset(split="train", **kwargs)
+        validation_dataset = CelebADataset(split="valid", **kwargs)
+        test_dataset = CelebADataset(split="test", **kwargs)
+        return train_dataset, validation_dataset, test_dataset
