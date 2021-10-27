@@ -27,14 +27,11 @@ from torch.optim.lr_scheduler import ExponentialLR
 from torch.utils.data import DataLoader
 from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 
-from data.CelebA import CelebADataset
-from data.UTKFace import UTKFaceDataset
-from data.FairFace import FairFaceDataset
-from data.LFWAPlus import LFWAPlusDataset
 from hpo.Cost import hpo_cost
 from hpo.Hyperparameters import hyperparameters_from_config
+from data.Util import load_dataset
 from model.FlexVAE import FlexVAE
-from training.Training import train_variational_autoencoder
+from training.VAE import train_variational_autoencoder
 
 start_date = datetime.now()
 
@@ -105,9 +102,18 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--in-memory-dataset",
+    dest="in_memory_dataset",
     action="store_true",
-    help="Store datset in memory for faster training with slow storage",
+    help="Load dataset into memory for training the generative model",
 )
+arg_parser.add_argument(
+    "--no-in-memory-dataset",
+    dest="in_memory_dataset",
+    action="store_false",
+    help="Load dataset from storage",
+)
+arg_parser.set_defaults(in_memory_dataset=False)
+
 arg_parser.add_argument(
     "--log-transform-label-weights",
     dest="log_transform_label_weights",
@@ -168,10 +174,7 @@ arg_parser.add_argument(
     required=False,
     help="Seed for hyperparameter optimization with SMAC",
 )
-args = arg_parser.parse_args(argv[1:])
-
-opt_params = deepcopy(args)
-del opt_params.in_memory_dataset
+opt_params = arg_parser.parse_args(argv[1:])
 
 output_dir = Path(opt_params.output_dir)
 resume_experiment = output_dir.is_dir()
@@ -235,9 +238,10 @@ if cudnn.is_available():
 
 if not resume_experiment:
     logging.info(
-        f"Data will be loaded from {'memory' if args.in_memory_dataset else 'disk'} "
-        f"with sensitive attribute {opt_params.sensitive_attribute}, "
-        f"image size {opt_params.image_size}, batch size {opt_params.batch_size}"
+        f"Data will be loaded from "
+        f"{'memory' if opt_params.in_memory_dataset else 'disk'} with sensitive "
+        f"attribute {opt_params.sensitive_attribute}, image size "
+        f"{opt_params.image_size}, batch size {opt_params.batch_size}"
     )
     logging.info(
         f"Generative model will be trained for {opt_params.epochs} epochs and with "
@@ -274,23 +278,14 @@ transform = Compose(
 )
 target_transform = Lambda(lambda x: x[opt_params.sensitive_attribute])
 
-dataset_class = {
-    "UTKFace": UTKFaceDataset,
-    "CelebA": CelebADataset,
-    "LFWA+": LFWAPlusDataset,
-    "FairFace": FairFaceDataset,
-}[opt_params.dataset]
-
-dataset_dir = opt_params.dataset_dir
-if dataset_dir is None:
-    dataset_dir = Path("datasets") / dataset_class.name
-
-train_dataset, validation_dataset, _ = dataset_class.load(
-    image_dir_path=dataset_dir,
+(train_dataset, validation_dataset, _), dataset_class, dataset_dir = load_dataset(
+    dataset_name=opt_params.dataset,
+    dataset_dir=opt_params.dataset_dir,
     transform=transform,
     target_transform=target_transform,
-    in_memory=args.in_memory_dataset,
+    in_memory=opt_params.in_memory_dataset,
 )
+
 
 if not (0 <= opt_params.sensitive_attribute < len(dataset_class.target_attributes)):
     raise RuntimeError(

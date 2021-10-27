@@ -7,7 +7,7 @@ from torchvision.io import read_image
 from torchvision.transforms import Compose, CenterCrop
 from mat73 import loadmat
 
-from data.util.DatasetSplit import create_dataset_split
+import data.Util
 
 
 class LFWAPlusDataset(Dataset):
@@ -89,7 +89,7 @@ class LFWAPlusDataset(Dataset):
             return self.get_data(index)
 
     def split(self, **kwargs):
-        return create_dataset_split(self, **kwargs)
+        return data.Util.create_dataset_split(self, **kwargs)
 
     @staticmethod
     def load(
