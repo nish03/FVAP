@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from data.CelebA import CelebADataset
-from data.FairFace import FairFaceDataset
-from data.LFWAPlus import LFWAPlusDataset
-from data.UTKFace import UTKFaceDataset
+import data.CelebA
+import data.FairFace
+import data.LFWAPlus
+import data.UTKFace
 
 
 from torch import Generator
@@ -11,7 +11,12 @@ from torch.utils.data import random_split
 
 datasets = {
     dataset.name: dataset
-    for dataset in [CelebADataset, FairFaceDataset, LFWAPlusDataset, UTKFaceDataset]
+    for dataset in [
+        data.CelebA.CelebADataset,
+        data.FairFace.FairFaceDataset,
+        data.LFWAPlus.LFWAPlusDataset,
+        data.UTKFace.UTKFaceDataset,
+    ]
 }
 
 
