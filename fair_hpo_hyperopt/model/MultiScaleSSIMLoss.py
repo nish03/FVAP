@@ -1,23 +1,8 @@
 from math import ceil, exp
 
-from torch import cosh, log, stack, tensor
-from torch.nn import Module, L1Loss, MSELoss
+from torch import stack, tensor
+from torch.nn import Module
 from torch.nn.functional import avg_pool2d, conv2d, relu
-
-
-class LogCoshLoss(Module):
-    def __init__(self, a=10.0, reduction="mean"):
-        super(LogCoshLoss, self).__init__()
-        self.a = a
-        self.reduction = reduction
-
-    def forward(self, reconstruction, data):
-        log_cosh_loss = log(cosh(self.a * (reconstruction - data))) / self.a
-        if self.reduction == "mean":
-            return log_cosh_loss.mean()
-        elif self.reduction == "sum":
-            return log_cosh_loss.sum()
-        return log_cosh_loss
 
 
 class MultiScaleSSIMLoss(Module):
@@ -39,7 +24,7 @@ class MultiScaleSSIMLoss(Module):
     def gaussian_window(self):
         kernel = tensor(
             [
-                exp(-(x - self.window_size // 2) ** 2 / (2 * self.window_sigma ** 2))
+                exp(-((x - self.window_size // 2) ** 2) / (2 * self.window_sigma ** 2))
                 for x in range(self.window_size)
             ]
         )
@@ -113,11 +98,3 @@ class MultiScaleSSIMLoss(Module):
         elif self.reduction == "sum":
             return ms_ssim_loss.sum()
         return ms_ssim_loss
-
-
-reconstruction_losses = {
-    "MAE": L1Loss,
-    "MSE": MSELoss,
-    "MS-SSIM": MultiScaleSSIMLoss,
-    "LogCosh": LogCoshLoss,
-}

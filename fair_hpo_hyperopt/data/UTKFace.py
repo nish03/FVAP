@@ -5,7 +5,8 @@ from enum import IntEnum
 from torch import tensor
 from torch.utils.data import Dataset
 from torchvision.io import read_image
-from data.util.DatasetSplit import create_dataset_split
+
+import data.Util
 
 
 class UTKFaceDataset(Dataset):
@@ -72,7 +73,7 @@ class UTKFaceDataset(Dataset):
             return self.get_data(index)
 
     def split(self, **kwargs):
-        return create_dataset_split(self, **kwargs)
+        return data.Util.create_dataset_split(self, **kwargs)
 
     @staticmethod
     def load(

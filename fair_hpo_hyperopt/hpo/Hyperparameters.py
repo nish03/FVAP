@@ -3,7 +3,7 @@ from itertools import count
 
 from numpy import array, log
 
-from model.util.ReconstructionLoss import reconstruction_losses
+from model.Util import reconstruction_losses
 
 hyperparameter_names = [
     "C_max",  # FlexVAE disentangled beta VAE KLD-Loss
