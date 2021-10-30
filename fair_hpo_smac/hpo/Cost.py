@@ -1,16 +1,9 @@
 import logging
 
-from numpy import histogram_bin_edges
 from piq import FSIMLoss
 from torch import float32, int64, no_grad, tensor, zeros
 
-
-def entropy(samples):
-    bin_count = len(histogram_bin_edges(samples.cpu(), bins="auto")) - 1
-    probabilities = samples.histc(bins=bin_count)
-    probabilities /= probabilities.sum()
-    probabilities = probabilities[probabilities.nonzero(as_tuple=True)]
-    return -(probabilities * probabilities.log()).sum()
+import hpo.Util
 
 
 def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5):
@@ -37,21 +30,30 @@ def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5
             labels[data_range] = target
 
         assert data_index == dataset_size
-
-        performance_entropy = entropy(performance_costs)
+        entropy_bin_count = max(
+            1, int((tensor(performance_costs.shape[0]).log2() - 1).ceil().item())
+        )
+        entropy_bin_start = performance_costs.min().item()
+        entropy_bin_end = performance_costs.max().item()
+        performance_entropy = hpo.Util.entropy(
+            performance_costs, entropy_bin_count, entropy_bin_start, entropy_bin_end
+        )
         mi_performance_sensitive_attribute = performance_entropy.clone()
         sensitive_attribute_entropy = tensor(0.0, device=device)
         for sensitive_attribute_member in sensitive_attribute:
             in_member = labels == sensitive_attribute_member
             probability = in_member.sum() / dataset_size
-            mi_performance_sensitive_attribute -= probability * entropy(
-                performance_costs[in_member]
+            mi_performance_sensitive_attribute -= probability * hpo.Util.entropy(
+                performance_costs[in_member],
+                entropy_bin_count,
+                entropy_bin_start,
+                entropy_bin_end,
             )
             sensitive_attribute_entropy -= probability * probability.log()
         performance_cost = performance_costs.mean().item()
         fairness_cost = (
             mi_performance_sensitive_attribute
-            / (performance_entropy + sensitive_attribute_entropy).sqrt()
+            / (performance_entropy * sensitive_attribute_entropy).sqrt()
         ).item()
         total_cost = (1.0 - alpha) * performance_cost + alpha * fairness_cost
 
