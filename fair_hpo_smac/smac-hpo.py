@@ -57,7 +57,8 @@ class FloatRange:
 
 
 arg_parser = ArgumentParser(
-    description="Perform HPO with SMAC to train a generative model"
+    description="Perform HPO with SMAC to train a generative model",
+    fromfile_prefix_chars="+"
 )
 arg_parser.add_argument(
     "--batch-size",

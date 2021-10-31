@@ -1,4 +1,3 @@
-# hyperparameters
 # NOTE: only default values at the end of each line are used
 C_max real [1.0, 25.0] [25.0]
 C_stop_fraction real [0.175, 1.0] [0.21052631578947367]
@@ -9,13 +8,3 @@ lr_scheduler_gamma real [0.95, 1.0] [0.95]
 reconstruction_loss categorical {MSE} [MSE]
 vae_loss_gamma real [1.0, 10.0] [10.0]
 weight_decay real [0.0, 1.0] [0.0]
-
-# optimization parameters:
-# --batch-size 144
-# --dataset FairFace
-# --epochs 100
-# --image-size 64
-# --output-dir experiments/baseline-fairface
-# --smac-initial-design DefaultConfiguration
-# --smac-pcs-file config/baseline-fairface.pcs
-# --smac-runcount 1

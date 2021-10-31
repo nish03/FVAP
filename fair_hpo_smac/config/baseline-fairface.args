@@ -1,0 +1,16 @@
+--batch-size
+144
+--dataset
+FairFace
+--epochs
+100
+--image-size
+64
+--output-dir
+experiments/baseline-fairface
+--smac-initial-design
+DefaultConfiguration
+--smac-pcs-file
+config/baseline-fairface.pcs
+--smac-runcount
+1
