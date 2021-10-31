@@ -10,7 +10,5 @@ UTKFace
 experiments/baseline-utkface
 --smac-initial-design
 DefaultConfiguration
---smac-pcs-file
-config/baseline-utkface.pcs
 --smac-runcount
 1

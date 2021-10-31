@@ -58,7 +58,7 @@ class FloatRange:
 
 arg_parser = ArgumentParser(
     description="Perform HPO with SMAC to train a generative model",
-    fromfile_prefix_chars="+"
+    fromfile_prefix_chars="+",
 )
 arg_parser.add_argument(
     "--batch-size",
@@ -152,7 +152,7 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--smac-pcs-file",
-    required=True,
+    required=False,
     help="Parameter configuration file for hyperparameter optimization with SMAC",
 )
 arg_parser.add_argument(
@@ -175,9 +175,9 @@ arg_parser.add_argument(
     required=False,
     help="Seed for hyperparameter optimization with SMAC",
 )
-opt_params = arg_parser.parse_args(argv[1:])
+args = arg_parser.parse_args(argv[1:])
 
-output_dir = Path(opt_params.output_dir)
+output_dir = Path(args.output_dir)
 resume_experiment = output_dir.is_dir()
 save_states_dir = output_dir / "save-states"
 last_opt_params_file_path = save_states_dir / "opt-params.pt"
@@ -199,13 +199,18 @@ else:
             f"Script can't be resumed from exisiting output directory "
             f"{output_dir}: results from previous SMAC run are missing!"
         )
-    if last_opt_params.smac_runtime is not None and opt_params.smac_runtime is not None:
-        opt_params.smac_runtime += last_opt_params.smac_runtime
-    opt_params.smac_runcount += last_opt_params.smac_runcount
+    if last_opt_params.smac_runtime is not None and args.smac_runtime is not None:
+        args.smac_runtime += last_opt_params.smac_runtime
+    args.smac_runcount += last_opt_params.smac_runcount
     smac_run = last_smac_results["smac_run"] + 1
 
 
 smac_run_dir = output_dir / f"smac-run-{smac_run:04}"
+smac_pcs_file_path = (
+    Path("config") / f"{output_dir.resolve().stem}.pcs"
+    if args.smac_pcs_file is None
+    else Path(args.smac_pcs_file)
+)
 removed_aborted_run = False
 if smac_run_dir.is_dir():
     rmtree(smac_run_dir)
@@ -240,32 +245,32 @@ if cudnn.is_available():
 if not resume_experiment:
     logging.info(
         f"Data will be loaded from "
-        f"{'memory' if opt_params.in_memory_dataset else 'disk'} with sensitive "
-        f"attribute {opt_params.sensitive_attribute}, image size "
-        f"{opt_params.image_size}, batch size {opt_params.batch_size}"
+        f"{'memory' if args.in_memory_dataset else 'disk'} with sensitive "
+        f"attribute {args.sensitive_attribute}, image size "
+        f"{args.image_size}, batch size {args.batch_size}"
     )
     logging.info(
-        f"Generative model will be trained for {opt_params.epochs} epochs and with "
-        f"batch size {opt_params.batch_size} and "
-        f"{'enabled' if opt_params.log_transform_label_weights else 'disabled'} "
+        f"Generative model will be trained for {args.epochs} epochs and with "
+        f"batch size {args.batch_size} and "
+        f"{'enabled' if args.log_transform_label_weights else 'disabled'} "
         f"label weight log transformation"
     )
     logging.info(
         f"SMAC HPO run {smac_run} will be started with, "
-        f"{'inf' if opt_params.smac_runtime is None else opt_params.smac_runtime}"
+        f"{'inf' if args.smac_runtime is None else args.smac_runtime}"
         " seconds runtime limit, "
-        f"{'inf' if opt_params.smac_runcount is None else opt_params.smac_runcount}"
+        f"{'inf' if args.smac_runcount is None else args.smac_runcount}"
         f" evaluations runcount limit, "
-        f"parameter configuration file '{opt_params.smac_pcs_file}', "
-        f"{opt_params.smac_initial_design} initial design, seed {opt_params.smac_seed} "
-        f"and fair cost coefficient {opt_params.fair_cost_coefficient}"
+        f"parameter configuration file '{smac_pcs_file_path}', "
+        f"{args.smac_initial_design} initial design, seed {args.smac_seed} "
+        f"and fair cost coefficient {args.fair_cost_coefficient}"
     )
 else:
     logging.info(
         f"SMAC HPO run {smac_run} will be resumed with "
-        f"{'inf' if opt_params.smac_runtime is None else opt_params.smac_runtime}"
+        f"{'inf' if args.smac_runtime is None else args.smac_runtime}"
         " seconds runtime limit, "
-        f"{'inf' if opt_params.smac_runcount is None else opt_params.smac_runcount}"
+        f"{'inf' if args.smac_runcount is None else args.smac_runcount}"
         f" evaluations runcount limit, "
     )
 
@@ -273,32 +278,32 @@ num_workers = device_count * 4
 transform = Compose(
     [
         ConvertImageDtype(float32),
-        Resize(opt_params.image_size),
+        Resize(args.image_size),
         Lambda(lambda x: 2 * x - 1),
     ]
 )
-target_transform = Lambda(lambda x: x[opt_params.sensitive_attribute])
+target_transform = Lambda(lambda x: x[args.sensitive_attribute])
 
 (train_dataset, validation_dataset, _), dataset_class, dataset_dir = load_dataset(
-    dataset_name=opt_params.dataset,
-    dataset_dir=opt_params.dataset_dir,
+    dataset_name=args.dataset,
+    dataset_dir=args.dataset_dir,
     transform=transform,
     target_transform=target_transform,
-    in_memory=opt_params.in_memory_dataset,
+    in_memory=args.in_memory_dataset,
 )
 
 
-if not (0 <= opt_params.sensitive_attribute < len(dataset_class.target_attributes)):
+if not (0 <= args.sensitive_attribute < len(dataset_class.target_attributes)):
     raise RuntimeError(
-        f"Sensitive attribute index {opt_params.sensitive_attribute} is out of range"
+        f"Sensitive attribute index {args.sensitive_attribute} is out of range"
     )
 
-sensitive_attribute = dataset_class.target_attributes[opt_params.sensitive_attribute]
+sensitive_attribute = dataset_class.target_attributes[args.sensitive_attribute]
 
 train_dataloader, validation_dataloader = [
     DataLoader(
         dataset,
-        batch_size=opt_params.batch_size,
+        batch_size=args.batch_size,
         num_workers=num_workers,
         shuffle=True,
         pin_memory=True,
@@ -323,8 +328,8 @@ def hyperparameter_cost(hyperparameter_config, seed):
 
     hyper_params = hyperparameters_from_config(
         hyperparameter_config,
-        max_iteration=opt_params.epochs * len(train_dataloader),
-        log_transform_weights=opt_params.log_transform_label_weights,
+        max_iteration=args.epochs * len(train_dataloader),
+        log_transform_weights=args.log_transform_label_weights,
     )
     hyperparameter_cost.hyper_params = deepcopy(hyper_params)
 
@@ -360,7 +365,7 @@ def hyperparameter_cost(hyperparameter_config, seed):
         )
 
     model = FlexVAE(
-        opt_params.image_size,
+        args.image_size,
         hyper_params.latent_dimension_count,
         hyper_params.hidden_layer_count,
         hyper_params.vae_loss_gamma,
@@ -387,7 +392,7 @@ def hyperparameter_cost(hyperparameter_config, seed):
         model,
         optimizer,
         lr_scheduler,
-        opt_params.epochs,
+        args.epochs,
         train_criterion,
         validation_criterion,
         train_dataloader,
@@ -402,7 +407,7 @@ def hyperparameter_cost(hyperparameter_config, seed):
         model,
         validation_dataloader,
         sensitive_attribute,
-        alpha=opt_params.fair_cost_coefficient,
+        alpha=args.fair_cost_coefficient,
         window_sigma=0.5,
     )
 
@@ -432,28 +437,28 @@ hyperparameter_cost.hyper_params = None
 hyperparameter_cost.model_run_file_paths = []
 
 scenario_dict = {
-    "pcs_fn": opt_params.smac_pcs_file,
+    "pcs_fn": str(smac_pcs_file_path),
     "run_obj": "quality",
     "deterministic": "false",
     "limit_resources": False,
     "output_dir": smac_run_dir,
     "abort_on_first_run_crash": False,
-    "ta_run_limit": opt_params.smac_runcount,
+    "ta_run_limit": args.smac_runcount,
 }
-if opt_params.smac_runtime is not None:
-    scenario_dict["wallclock-limit"] = opt_params.smac_runtime
+if args.smac_runtime is not None:
+    scenario_dict["wallclock-limit"] = args.smac_runtime
 scenario = Scenario(scenario_dict)
 
 initial_designs = {"DefaultConfiguration": DefaultConfiguration, "Sobol": SobolDesign}
 smac_args = {
     "scenario": scenario,
     "tae_runner": hyperparameter_cost,
-    "initial_design": initial_designs[opt_params.smac_initial_design],
+    "initial_design": initial_designs[args.smac_initial_design],
     "intensifier_kwargs": {"maxR": 5},
     "run_id": 1,
 }
 if not resume_experiment:
-    smac = SMAC4HPO(rng=RandomState(opt_params.smac_seed), **smac_args)
+    smac = SMAC4HPO(rng=RandomState(args.smac_seed), **smac_args)
 else:
     old_smac_output_dir = output_dir / f"smac-run-{smac_run - 1:04}"
     old_smac_run_id_dir = old_smac_output_dir / f"run_{smac_args['run_id']}"
@@ -510,7 +515,7 @@ smac_results_data = {
 run_smac_results_file_path = smac_run_dir / "smac-results.pt"
 run_opt_params_file_path = smac_run_dir / "opt-params.pt"
 log_file_path = output_dir / "log.txt"
-save(opt_params, run_opt_params_file_path)
+save(args, run_opt_params_file_path)
 save(smac_results_data, run_smac_results_file_path)
 run_file_paths = [
     run_opt_params_file_path,

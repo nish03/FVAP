@@ -10,7 +10,5 @@ FairFace
 experiments/baseline-fairface
 --smac-initial-design
 DefaultConfiguration
---smac-pcs-file
-config/baseline-fairface.pcs
 --smac-runcount
 1

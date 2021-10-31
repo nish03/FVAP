@@ -13,7 +13,5 @@ experiments/fairvae-celeba-age-reconstruction_0.5_0.5_kld_0.1_0.9
 0
 --smac-initial-design
 DefaultConfiguration
---smac-pcs-file
-config/fairvae-celeba-age-reconstruction_0.5_0.5_kld_0.1_0.9.pcs
 --smac-runcount
 1

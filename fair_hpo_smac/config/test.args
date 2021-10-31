@@ -3,11 +3,11 @@
 --dataset
 LFWA+
 --epochs
-400
+1
 --image-size
 64
 --output-dir
-experiments/baseline-lfwaplus
+experiments/test
 --smac-initial-design
 DefaultConfiguration
 --smac-runcount
