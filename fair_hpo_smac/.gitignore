@@ -137,3 +137,4 @@ slurm-*.out
 # directory links
 datasets
 experiments
+figures
