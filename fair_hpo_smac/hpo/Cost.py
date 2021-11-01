@@ -2,19 +2,22 @@ import logging
 
 from piq import FSIMLoss
 from torch import float32, int64, no_grad, tensor, zeros
+from math import log, ceil
 
 import hpo.Util
 
 
-def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5):
+def hpo_cost(
+    model, dataloader, sensitive_attribute, dataset_size, alpha=0.5, window_sigma=0.5
+):
     device = next(model.parameters()).device
     model.eval()
 
     with no_grad():
         data_index = 0
-        dataset_size = len(dataloader.dataset)
-        performance_costs = zeros(dataset_size, dtype=float32, device=device)
-        labels = zeros(dataset_size, dtype=int64, device=device)
+        dataset_split_size = len(dataloader.dataset)
+        performance_costs = zeros(dataset_split_size, dtype=float32, device=device)
+        labels = zeros(dataset_split_size, dtype=int64, device=device)
         performance_loss = FSIMLoss(data_range=1.0, chromatic=True, reduction="none")
         for data, target in dataloader:
             data = data.to(device)
@@ -29,12 +32,11 @@ def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5
             performance_costs[data_range] = performance_loss(output, data)
             labels[data_range] = target
 
-        assert data_index == dataset_size
-        entropy_bin_count = max(
-            1, int((tensor(performance_costs.shape[0]).log2() - 1).ceil().item())
-        )
-        entropy_bin_start = performance_costs.min().item()
-        entropy_bin_end = performance_costs.max().item()
+        assert data_index == dataset_split_size
+        entropy_bin_count = max(1, ceil(log(dataset_size, 2) - 1))
+        entropy_bin_start = 0.0
+        entropy_bin_end = 1.0
+
         performance_entropy = hpo.Util.entropy(
             performance_costs, entropy_bin_count, entropy_bin_start, entropy_bin_end
         )
@@ -42,7 +44,7 @@ def hpo_cost(model, dataloader, sensitive_attribute, alpha=0.5, window_sigma=0.5
         sensitive_attribute_entropy = tensor(0.0, device=device)
         for sensitive_attribute_member in sensitive_attribute:
             in_member = labels == sensitive_attribute_member
-            probability = in_member.sum() / dataset_size
+            probability = in_member.sum() / dataset_split_size
             mi_performance_sensitive_attribute -= probability * hpo.Util.entropy(
                 performance_costs[in_member],
                 entropy_bin_count,

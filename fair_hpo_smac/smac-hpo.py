@@ -302,13 +302,19 @@ transform = Compose(
 )
 target_transform = Lambda(lambda x: x[args.sensitive_attribute])
 
-(train_dataset, validation_dataset, _), dataset_class, dataset_dir = load_dataset(
+(
+    (train_dataset, validation_dataset, test_dataset),
+    dataset_class,
+    dataset_dir,
+) = load_dataset(
     dataset_name=args.dataset,
     dataset_dir=args.dataset_dir,
     transform=transform,
     target_transform=target_transform,
     in_memory=args.in_memory_dataset,
 )
+
+dataset_size = len(train_dataset) + len(validation_dataset) + len(test_dataset)
 
 
 if not (0 <= args.sensitive_attribute < len(dataset_class.target_attributes)):
@@ -425,6 +431,7 @@ def hyperparameter_cost(hyperparameter_config, seed):
         model,
         validation_dataloader,
         sensitive_attribute,
+        dataset_size,
         alpha=args.fair_cost_coefficient,
         window_sigma=0.5,
     )
