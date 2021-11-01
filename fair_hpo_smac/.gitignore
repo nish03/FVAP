@@ -134,9 +134,6 @@ dmypy.json
 # SLURM output files
 slurm-*.out
 
-# TAURUS jobs directory
-jobs
-
 # directory links
 datasets
 experiments
