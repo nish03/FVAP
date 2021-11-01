@@ -137,6 +137,19 @@ arg_parser.add_argument(
     help="Output directory for storing log files, save states and HPO runs",
 )
 arg_parser.add_argument(
+    "--resume-experiment",
+    dest="resume_experiment",
+    action="store_true",
+    help="Resume a previous experiment run",
+)
+arg_parser.add_argument(
+    "--no-resume-experiment",
+    dest="resume_experiment",
+    action="store_false",
+    help="Start a new experiment run",
+)
+arg_parser.set_defaults(resume_run=False)
+arg_parser.add_argument(
     "--sensitive-attribute",
     type=int,
     default=0,
@@ -178,7 +191,7 @@ arg_parser.add_argument(
 args = arg_parser.parse_args(argv[1:])
 
 output_dir = Path(args.output_dir)
-resume_experiment = output_dir.is_dir()
+resume_experiment = args.resume_experiment
 save_states_dir = output_dir / "save-states"
 last_opt_params_file_path = save_states_dir / "opt-params.pt"
 last_opt_params = (
@@ -191,6 +204,11 @@ last_smac_results = (
     else None
 )
 if not resume_experiment:
+    if save_states_dir.is_dir():
+        raise RuntimeError(
+            f"Script can't be started: save states directory {save_states_dir} already "
+            "exists!"
+        )
     makedirs(save_states_dir)
     smac_run = 1
 else:
