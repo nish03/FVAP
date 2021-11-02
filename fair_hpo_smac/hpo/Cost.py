@@ -2,7 +2,7 @@ import logging
 
 from piq import FSIMLoss
 from torch import float32, int64, no_grad, tensor, zeros
-from math import log, ceil
+from math import ceil
 
 import hpo.Util
 
@@ -33,7 +33,7 @@ def hpo_cost(
             labels[data_range] = target
 
         assert data_index == dataset_split_size
-        entropy_bin_count = max(1, ceil(log(dataset_size, 2) - 1))
+        entropy_bin_count = ceil(2 * dataset_size ** (1 / 3))
         entropy_bin_start = 0.0
         entropy_bin_end = 1.0
 
@@ -55,7 +55,7 @@ def hpo_cost(
         performance_cost = performance_costs.mean().item()
         fairness_cost = (
             mi_performance_sensitive_attribute
-            / (performance_entropy * sensitive_attribute_entropy).sqrt()
+            / min(performance_entropy, sensitive_attribute_entropy)
         ).item()
         total_cost = (1.0 - alpha) * performance_cost + alpha * fairness_cost
 
