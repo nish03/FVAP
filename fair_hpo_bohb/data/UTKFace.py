@@ -2,12 +2,16 @@ from glob import glob
 from os import path
 from enum import IntEnum
 
-from torch import Generator, tensor
-from torch.utils.data import Dataset, random_split
+from torch import tensor
+from torch.utils.data import Dataset
 from torchvision.io import read_image
+
+import data.Util
 
 
 class UTKFaceDataset(Dataset):
+    name = "UTKFace"
+
     class Age(IntEnum):
         Young = 0
         Old = 1
@@ -27,21 +31,22 @@ class UTKFaceDataset(Dataset):
 
     def __init__(
         self,
-        image_directory_path,
+        image_dir_path,
         transform=None,
         target_transform=None,
         in_memory=False,
     ):
-        self.image_directory = image_directory_path
-        if not path.isdir(self.image_directory):
+        self.image_dir = image_dir_path
+        if not path.isdir(self.image_dir):
             raise ValueError(
-                f"Invalid image directory path {image_directory_path} - does not exist"
+                f"Invalid image directory path {image_dir_path} - does not exist"
             )
-        self.image_file_paths = glob(path.join(image_directory_path, "*_*_*_*.jpg"))
+        self.image_file_paths = glob(path.join(image_dir_path, "*_*_*_*.jpg"))
         self.transform = transform
         self.target_transform = target_transform
         self.data = []
-        if in_memory:
+        self.in_memory = in_memory
+        if self.in_memory:
             self.data = [self.get_data(i) for i in range(len(self.image_file_paths))]
 
     def __len__(self):
@@ -67,19 +72,12 @@ class UTKFaceDataset(Dataset):
         else:
             return self.get_data(index)
 
+    def split(self, **kwargs):
+        return data.Util.create_dataset_split(self, **kwargs)
 
-def load_utkface(
-    train_split_factor=0.7, validation_split_factor=0.2, random_split_seed=42, **kwargs
-):
-    dataset = UTKFaceDataset(
+    @staticmethod
+    def load(
         **kwargs,
-    )
-    train_count = int(train_split_factor * len(dataset))
-    validation_count = int(validation_split_factor * len(dataset))
-    test_count = len(dataset) - train_count - validation_count
-    train_dataset, validation_dataset, test_dataset = random_split(
-        dataset,
-        [train_count, validation_count, test_count],
-        Generator().manual_seed(random_split_seed),
-    )
-    return train_dataset, validation_dataset, test_dataset
+    ):
+        dataset = UTKFaceDataset(**kwargs)
+        return dataset.split()

@@ -1,41 +1,90 @@
 from collections import namedtuple
-from model.util.ReconstructionLoss import reconstruction_losses
+from itertools import count
+
+from numpy import array, log
+
+from model.Util import reconstruction_losses
 
 hyperparameter_names = [
-    "C_max",
-    "C_stop_iteration",
-    "hidden_layer_count",
-    "latent_dimension_count",
-    "learning_rate",
-    "lr_scheduler_gamma",
-    "reconstruction_loss",
-    "reconstruction_loss_args",
-    "vae_loss_gamma",
-    "weight_decay",
+    "C_max",  # FlexVAE disentangled beta VAE KLD-Loss
+    "C_stop_iteration",  # FlexVAE disentangled beta VAE KLD-Loss
+    # NOTE: from C_stop_fraction
+    "hidden_layer_count",  # FlexVAE network architecture
+    "kld_loss_label_weights",  # FlexVAE weighted average KLD loss
+    # NOTE: from kld_loss_label_weight_*
+    "latent_dimension_count",  # FlexVAE network architecture
+    "learning_rate",  # Adam optimizer
+    "lr_scheduler_gamma",  # ExponentialLR learning rate scheduler
+    "reconstruction_loss",  # FlexVAE reconstruction loss
+    "reconstruction_loss_args",  # FlexVAE reconstruction loss
+    # NOTE: from ms_ssim_window_sigma and logcosh_a
+    "reconstruction_loss_label_weights",  # FlexVAE weighted average reconstruction loss
+    # NOTE: from reconstruction kld_loss_label_weight_{LABEL}
+    "vae_loss_gamma",  # FlexVAE KLD-Loss disentangled beta VAE
+    "weight_decay",  # Adam optimizer
+    "weighted_average_type",  # FlexVAE weighted average loss
 ]
 
 Hyperparameters = namedtuple("Hyperparameters", hyperparameter_names)
 
 
-def hyperparameters_from_config(hyperparameter_config, max_iteration):
-    hyperparameter_dict = dict(**hyperparameter_config)
-    hyperparameter_dict["C_stop_iteration"] = (
-        hyperparameter_dict["C_stop_fraction"] * max_iteration
-    )
-    del hyperparameter_dict["C_stop_fraction"]
-    hyperparameter_dict["reconstruction_loss_args"] = {}
-    if hyperparameter_dict["reconstruction_loss"] == "MS-SSIM":
-        hyperparameter_dict["reconstruction_loss_args"][
-            "window_sigma"
-        ] = hyperparameter_dict["ms_ssim_window_sigma"]
-        del hyperparameter_dict["ms_ssim_window_sigma"]
-    elif hyperparameter_dict["reconstruction_loss"] == "LogCosh":
-        hyperparameter_dict["reconstruction_loss_args"]["a"] = hyperparameter_dict[
-            "logcosh_a"
-        ]
-        del hyperparameter_dict["logcosh_a"]
-    hyperparameter_dict["reconstruction_loss"] = reconstruction_losses[
-        hyperparameter_dict["reconstruction_loss"]
-    ]
-    hyperparameters = Hyperparameters(**hyperparameter_dict)
+def hyperparameters_from_config(
+    hyperparameter_config, max_iteration, log_transform_weights=True
+):
+    params = dict(**hyperparameter_config)
+
+    params["C_stop_iteration"] = params.pop("C_stop_fraction") * max_iteration
+
+    reconstruction_loss_args = {}
+    reconstruction_loss_name = params["reconstruction_loss"]
+    if reconstruction_loss_name == "MS-SSIM":
+        reconstruction_loss_args["window_sigma"] = params.pop("ms_ssim_window_sigma")
+    elif reconstruction_loss_name == "LogCosh":
+        reconstruction_loss_args["a"] = params.pop("logcosh_a")
+    params["reconstruction_loss_args"] = reconstruction_loss_args
+
+    params["reconstruction_loss"] = reconstruction_losses[reconstruction_loss_name]
+
+    reconstruction_label_weights = []
+    for label in count():
+        weight_name = f"reconstruction_loss_label_weight_{label}"
+        if weight_name in params:
+            reconstruction_label_weights.append(params.pop(weight_name))
+        else:
+            break
+    if len(reconstruction_label_weights) > 0:
+        reconstruction_label_weights = array(reconstruction_label_weights)
+        if log_transform_weights:
+            # generate convex weight combination from uniformly sampled weights,
+            # by transformation to normalized exponential distribution
+            # see https://cs.stackexchange.com/q/3229
+            reconstruction_label_weights = -log(reconstruction_label_weights)
+        reconstruction_label_weights /= reconstruction_label_weights.sum()
+        params["reconstruction_loss_label_weights"] = reconstruction_label_weights
+    else:
+        params["reconstruction_loss_label_weights"] = None
+
+    kld_label_weights = []
+    for label in count():
+        weight_name = f"kld_loss_label_weight_{label}"
+        if weight_name in params:
+            kld_label_weights.append(params.pop(weight_name))
+        else:
+            break
+    if len(kld_label_weights) > 0:
+        kld_label_weights = array(kld_label_weights)
+        if log_transform_weights:
+            # generate convex weight combination from uniformly sampled weights,
+            # by transformation to normalized exponential distribution
+            # see https://cs.stackexchange.com/q/3229
+            kld_label_weights = -log(kld_label_weights)
+        kld_label_weights /= kld_label_weights.sum()
+        params["kld_loss_label_weights"] = kld_label_weights
+    else:
+        params["kld_loss_label_weights"] = None
+
+    if "weighted_average_type" not in params:
+        params["weighted_average_type"] = "None"
+
+    hyperparameters = Hyperparameters(**params)
     return hyperparameters

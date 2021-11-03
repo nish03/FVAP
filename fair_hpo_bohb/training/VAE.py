@@ -1,9 +1,8 @@
 import logging
 from collections import defaultdict
 
-from torch import no_grad
+from torch import no_grad, stack
 from tqdm import tqdm
-from math import isnan
 
 
 def train_variational_autoencoder(
@@ -50,19 +49,23 @@ def train_variational_autoencoder(
 
         nan_loss_encountered = False
         for name, value in train_losses.items():
-            if isnan(value):
+            if value.isnan().any():
                 nan_loss_encountered = True
             train_epoch_losses[name].append(value)
         for name, value in validation_losses.items():
-            if isnan(value):
+            if value.isnan().any():
                 nan_loss_encountered = True
             validation_epoch_losses[name].append(value)
 
         if nan_loss_encountered:
-            logging.debug(
-                f"    Encountered NaN loss value, aborting training"
-            )
+            logging.debug(f"    Encountered NaN loss value, aborting training")
             break
+
+    for name, loss_values in train_epoch_losses.items():
+        train_epoch_losses[name] = stack(loss_values, -1).tolist()
+
+    for name, loss_values in validation_epoch_losses.items():
+        validation_epoch_losses[name] = stack(loss_values, -1).tolist()
 
     return train_epoch_losses, validation_epoch_losses
 
@@ -79,14 +82,14 @@ def train_variational_autoencoder_epoch(
     model.train()
     device = next(model.parameters()).device
 
-    final_losses = defaultdict(float)
+    mean_losses = {}
     data_iterator = tqdm(dataloader, leave=False) if display_progress else dataloader
     for data, target in data_iterator:
         data, target = data.to(device), target.to(device)
 
         data_fraction = len(data) / len(dataloader.dataset)
 
-        output, mu, log_var = model(data)
+        output, _, mu, log_var = model(data)
         losses = criterion(model, data, target, output, mu, log_var, data_fraction)
 
         optimizer.zero_grad(set_to_none=True)
@@ -97,11 +100,18 @@ def train_variational_autoencoder_epoch(
         optimizer.step()
 
         for name, loss in losses.items():
-            final_losses[name] += loss.item()
+            if name in mean_losses:
+                mean_losses[name] += loss
+            else:
+                mean_losses[name] = loss
 
         if display_progress:
             description = "Training Losses - " + " ".join(
-                [f"{name}: {loss.item()}" for name, loss in losses.items()]
+                [
+                    f"{name}: {loss.item():0.4f}"
+                    for name, loss in losses.items()
+                    if loss.dim() == 0
+                ]
             )
             data_iterator.set_description(desc=description)
         if not schedule_lr_after_epoch and lr_scheduler is not None:
@@ -110,24 +120,27 @@ def train_variational_autoencoder_epoch(
     if schedule_lr_after_epoch and lr_scheduler is not None:
         lr_scheduler.step()
 
-    for name in final_losses:
-        final_losses[name] /= len(dataloader)
-    return final_losses
+    for name in mean_losses:
+        mean_losses[name] /= len(dataloader)
+    return mean_losses
 
 
 def evaluate_variational_autoencoder_epoch(model, criterion, dataloader):
     model.eval()
     device = next(model.parameters()).device
 
-    mean_losses = defaultdict(float)
+    mean_losses = {}
     with no_grad():
         for data, target in dataloader:
             data, target = data.to(device), target.to(device)
             data_fraction = len(data) / len(dataloader.dataset)
-            output, mu, log_var = model(data)
+            output, _, mu, log_var = model(data)
             losses = criterion(model, data, target, output, mu, log_var, data_fraction)
             for name, loss in losses.items():
-                mean_losses[name] += loss.item()
+                if name in mean_losses:
+                    mean_losses[name] += loss
+                else:
+                    mean_losses[name] = loss
 
     for name in mean_losses:
         mean_losses[name] /= len(dataloader)
