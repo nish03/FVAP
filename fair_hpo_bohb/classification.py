@@ -12,7 +12,10 @@ from torch.optim.lr_scheduler import ExponentialLR
 from torchvision.transforms import Compose, ConvertImageDtype, Lambda, Resize
 from torch.nn import CrossEntropyLoss, BCEWithLogitsLoss
 import numpy as np
-from sklearn import svm
+from sklearn.svm import LinearSVC
+from sklearn.metrics import recall_score, precision_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
 from model.FlexVAE import FlexVAE
 from data.Util import load_dataset
 
@@ -38,14 +41,14 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--dataset",
-    default="CelebA",
+    default="UTKFace",
     help="Dataset for training the generative model",
     choices=["UTKFace", "CelebA", "LFWA+", "FairFace"],
     required=False,
 )
 arg_parser.add_argument(
     "--dataset-dir",
-    default="/srv/nfs/data/mengze/vae",
+    default="/srv/nfs/data/mengze/vae/UTKFace",
     help="Directory for loading the dataset",
     required=False,
 )
@@ -64,7 +67,7 @@ arg_parser.add_argument(
 )
 arg_parser.add_argument(
     "--vae-trained",
-    default="/srv/nfs/data/mengze/vae/bohb/recon0901.pt",
+    default="/srv/nfs/data/mengze/vae/bohb/UTK_age_09_01_05_05.pt",
     help="pre-trained VAE model",
     required=False,
 )
@@ -106,7 +109,7 @@ train_dataloader = DataLoader(
     num_workers=num_workers,
     shuffle=False,
     pin_memory=True,
-    sampler=train_sampler
+    # sampler=train_sampler
 )
 validation_dataloader = DataLoader(
     validation_dataset,
@@ -114,7 +117,7 @@ validation_dataloader = DataLoader(
     num_workers=num_workers,
     shuffle=False,
     pin_memory=True,
-    sampler=validation_sampler
+    # sampler=validation_sampler
 )
 test_dataloader = DataLoader(
     test_dataset,
@@ -122,7 +125,7 @@ test_dataloader = DataLoader(
     num_workers=num_workers,
     shuffle=False,
     pin_memory=True,
-    sampler=train_sampler
+    # sampler=train_sampler
 )
 
 print("Starting to transform data into representation vectors")
@@ -185,27 +188,13 @@ validation_targets = cat(validation_targets)
 # validation_reconstructions = cat(validation_reconstructions)
 validation_representations = cat(validation_representations)
 print("Starting to do classification")
-# from sklearn.model_selection import GridSearchCV
-# parameters = {'C': np.logspace(-2,2,5), 'kernel': ('linear', 'rbf', 'poly', 'sigmoid')}
-# svc = svm.SVC()
-# clf = GridSearchCV(svc, parameters)
-# clf.fit(representations, targets)
-#C = [0.01, 0.1, 1, 10, 100]
-C = [1]
-for c in C:
-    print("c", c)
-    clf_svm = svm.SVC(C=c, kernel='sigmoid').fit(representations, targets)
-    score_svm = clf_svm.score(validation_representations, validation_targets)
-    print(f"overall acc: {score_svm:.4f} ")
-    predictions_svm = clf_svm.predict(validation_representations)
-    predictions_svm = torch.as_tensor(predictions_svm)
-    target_classes = np.unique(validation_targets)
-    precisions = []
-    if torch.is_tensor(validation_targets) == False:
-        print("this is not a tensor")
-        validation_targets = torch.as_tensor(validation_targets)
-    for target_class in target_classes:
-        TP_count = torch.sum((predictions_svm == validation_targets) & (validation_targets == target_class)).item()
-        precision = (TP_count/torch.sum(validation_targets == target_class)).item()
-        precisions.append(precision)
-    print("precision for each sensitive attribute", precisions)
+clf = make_pipeline(StandardScaler(),
+        LinearSVC(random_state=0))
+clf.fit(representations, targets)
+score = clf.score(validation_representations, validation_targets)
+print(f"overall acc: {score:.4f} ")
+predictions = clf.predict(validation_representations)
+precision = precision_score(validation_targets, predictions, average = None)
+recall = recall_score(validation_targets, predictions, average = None)
+print(f"precision: {precision.round(4)} ")
+print(f"recall: {recall.round(4)} ")
