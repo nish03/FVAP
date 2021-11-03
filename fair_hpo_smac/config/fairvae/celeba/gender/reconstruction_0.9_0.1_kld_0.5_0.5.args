@@ -1,0 +1,17 @@
+--batch-size
+144
+--dataset
+CelebA
+--epochs
+50
+--image-size
+64
+--no-log-transform-label-weights
+--output-dir
+experiments/fairvae/celeba/gender/reconstruction_0.9_0.1_kld_0.5_0.5
+--sensitive-attribute
+1
+--smac-initial-design
+DefaultConfiguration
+--smac-runcount
+1

@@ -1,0 +1,14 @@
+--batch-size
+144
+--dataset
+UTKFace
+--epochs
+200
+--image-size
+64
+--output-dir
+experiments/baseline/utkface
+--smac-initial-design
+DefaultConfiguration
+--smac-runcount
+1

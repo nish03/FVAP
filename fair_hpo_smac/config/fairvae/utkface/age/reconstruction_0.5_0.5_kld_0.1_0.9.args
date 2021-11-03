@@ -1,0 +1,17 @@
+--batch-size
+144
+--dataset
+UTKFace
+--epochs
+200
+--image-size
+64
+--no-log-transform-label-weights
+--output-dir
+experiments/fairvae/utkface/age/reconstruction_0.5_0.5_kld_0.1_0.9
+--sensitive-attribute
+0
+--smac-initial-design
+DefaultConfiguration
+--smac-runcount
+1

@@ -1,0 +1,14 @@
+--batch-size
+144
+--dataset
+CelebA
+--epochs
+50
+--image-size
+64
+--output-dir
+experiments/baseline/celeba
+--smac-initial-design
+DefaultConfiguration
+--smac-runcount
+1

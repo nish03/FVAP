@@ -224,11 +224,19 @@ else:
 
 
 smac_run_dir = output_dir / f"smac-run-{smac_run:04}"
-smac_pcs_file_path = (
-    Path("config") / f"{output_dir.resolve().stem}.pcs"
-    if args.smac_pcs_file is None
-    else Path(args.smac_pcs_file)
-)
+if args.smac_pcs_file is not None:
+    smac_pcs_file_path = Path(args.smac_pcs_file)
+else:
+    if output_dir.parts[0] == "experiments":
+        smac_pcs_file_path = Path(
+            "config", *output_dir.parts[1:-1], f"{output_dir.parts[-1]}.pcs"
+        )
+    else:
+        raise RuntimeError(
+            f"SMAC PCS file can't be determined automatically from {output_dir}: "
+            f"output dir is not an experiment directory!"
+        )
+
 removed_aborted_run = False
 if smac_run_dir.is_dir():
     rmtree(smac_run_dir)

@@ -1,0 +1,14 @@
+--batch-size
+144
+--dataset
+LFWA+
+--epochs
+1
+--image-size
+64
+--output-dir
+experiments/test/configdir/pcs_default_value
+--smac-initial-design
+DefaultConfiguration
+--smac-runcount
+1
