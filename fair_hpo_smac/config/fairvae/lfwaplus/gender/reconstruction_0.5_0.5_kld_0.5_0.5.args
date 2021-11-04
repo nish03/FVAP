@@ -1,0 +1,17 @@
+--batch-size
+144
+--dataset
+LFWA+
+--epochs
+400
+--image-size
+64
+--no-log-transform-label-weights
+--output-dir
+experiments/fairvae/lfwaplus/gender/reconstruction_0.5_0.5_kld_0.5_0.5
+--sensitive-attribute
+1
+--smac-initial-design
+DefaultConfiguration
+--smac-runcount
+1
