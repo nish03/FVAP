@@ -1,14 +1,14 @@
 --batch-size
 144
 --dataset
-FairFace
+UTKFace
 --epochs
-100
+200
 --image-size
 64
 --no-log-transform-label-weights
 --output-dir
-experiments/fairvae/fairface/race/reconstruction_0.2_0.2_0.2_0.2_0.2_0.2_0.2_kld_0.2_0.2_0.2_0.2_0.2_0.2_0.2
+experiments/fairvae/utkface/race/reconstruction_0.07_0.15_0.20_0.17_0.41_kld_0.07_0.15_0.20_0.17_0.41
 --sensitive-attribute
 2
 --smac-initial-design

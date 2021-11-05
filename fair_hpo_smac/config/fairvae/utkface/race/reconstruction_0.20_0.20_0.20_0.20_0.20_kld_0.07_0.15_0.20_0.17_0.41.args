@@ -8,7 +8,7 @@ UTKFace
 64
 --no-log-transform-label-weights
 --output-dir
-experiments/fairvae/utkface/race/reconstruction_0.2_0.2_0.2_0.2_0.2_kld_0.2_0.2_0.2_0.2_0.2
+experiments/fairvae/utkface/race/reconstruction_0.20_0.20_0.20_0.20_0.20_kld_0.07_0.15_0.20_0.17_0.41
 --sensitive-attribute
 2
 --smac-initial-design
