@@ -66,7 +66,7 @@ class CelebA(Dataset):
         image = read_image(str(image_file_path))
         attribute_values = tensor(self.attribute_data[image_index])
         if self.image_transform:
-            image = self.image_transform(attribute_values)
+            image = self.image_transform(image)
         if self.attribute_transform:
             attribute_values = self.attribute_transform(attribute_values)
         return image, attribute_values
