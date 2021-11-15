@@ -4,17 +4,12 @@ from torch import stack, tensor
 from torch.nn import Module
 from torch.nn.functional import avg_pool2d, conv2d, relu
 
+# based on  https://github.com/AntixK/PyTorch-VAE/blob/master/models/mssim_vae.py
+#    (Apache-2.0 License)
+
 
 class MultiScaleSSIMLoss(Module):
     def __init__(self, data_range=1.0, window_sigma=1.5, reduction="mean"):
-        """
-        Computes the differentiable MS-SSIM loss
-        Reference:
-        https://github.com/AntixK/PyTorch-VAE/blob/master/models/mssim_vae.py
-            (Apache-2.0 License)
-        :param window_sigma: (float)
-        :param reduction: (bool)
-        """
         super(MultiScaleSSIMLoss, self).__init__()
         self.data_range = data_range
         self.window_sigma = window_sigma
