@@ -11,7 +11,6 @@ from torch.nn import (
     Sigmoid,
 )
 from torch.nn.init import xavier_uniform_
-from torch.nn.functional import sigmoid
 
 # based on https://github.com/gtamba/pytorch-slim-cnn/blob/master/layers.py
 
