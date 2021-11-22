@@ -3,13 +3,13 @@ from copy import deepcopy
 from pathlib import Path
 
 from torch import tensor
-from torch.utils.data import Dataset
 from torchvision.io import read_image
 from numpy import loadtxt, arange
 import numpy
 
+from MultiAttributeDataset import MultiAttributeDataset
 
-class CelebA(Dataset):
+class CelebA(MultiAttributeDataset):
     def __init__(
         self,
         dataset_dir_path,
@@ -31,7 +31,9 @@ class CelebA(Dataset):
             attribute_data_reader = reader(attribute_data_file, delimiter=" ")
 
             self.dataset_image_count = int(next(attribute_data_reader)[0])
-            self.attribute_names = next(attribute_data_reader)[:-1]
+            attribute_names = next(attribute_data_reader)[:-1]
+        attribute_class_counts = [2] * len(attribute_names)
+        MultiAttributeDataset.__init__(self, attribute_names, attribute_class_counts)
 
         self.image_file_numbers, partition_indices = loadtxt(
             str(self.partitions_file_path),
