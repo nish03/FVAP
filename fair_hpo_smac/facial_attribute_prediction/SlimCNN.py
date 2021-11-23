@@ -1,13 +1,13 @@
 from torch import cat, flatten
 from torch.nn import (
-    Sequential,
-    Conv2d,
-    BatchNorm2d,
-    ReLU,
-    Linear,
-    Module,
-    MaxPool2d,
     AdaptiveAvgPool2d,
+    BatchNorm2d,
+    Conv2d,
+    Linear,
+    MaxPool2d,
+    Module,
+    ReLU,
+    Sequential,
     Sigmoid,
 )
 from torch.nn.init import xavier_uniform_
@@ -140,14 +140,14 @@ class SlimCNN(Module):
     def __init__(
         self,
         squeeze_filter_counts=None,
-        attribute_count=40,
+        class_count=40,
     ):
         super().__init__()
 
         if squeeze_filter_counts is None:
             squeeze_filter_counts = [16, 32, 48, 64]
         self.squeeze_filter_counts = squeeze_filter_counts
-        self.attribute_count = attribute_count
+        self.class_count = class_count
 
         self.layer_count = 0
         self.slim_module_count = 0
@@ -163,7 +163,6 @@ class SlimCNN(Module):
         self.add_max_pooling_layer()
         self.add_global_pooling_layer()
         self.add_fully_connected_layer()
-        self.add_activation_layer()
 
         self.apply(init_module_weights)
 
@@ -204,13 +203,9 @@ class SlimCNN(Module):
             f"layer_{self.layer_count}_fully_connected",
             Linear(
                 self.squeeze_filter_counts[self.slim_module_count - 1] * 3,
-                self.attribute_count,
+                self.class_count,
             ),
         )
-
-    def add_activation_layer(self):
-        self.layer_count += 1
-        self.add_module(f"layer_{self.layer_count}_activation", Sigmoid())
 
     def forward(self, x):
         x = self.layer_1_convolution(x)
@@ -225,5 +220,4 @@ class SlimCNN(Module):
         x = self.layer_10_max_pooling(x)
         x = self.layer_11_global_pooling(x)
         x = self.layer_12_fully_connected(flatten(x, 1))
-        x = self.layer_13_activation(x)
         return x
