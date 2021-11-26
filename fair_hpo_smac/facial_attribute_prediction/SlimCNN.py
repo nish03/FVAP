@@ -1,4 +1,4 @@
-from torch import cat, flatten
+from torch import cat, flatten, tensor
 from torch.nn import (
     AdaptiveAvgPool2d,
     BatchNorm2d,
@@ -8,7 +8,6 @@ from torch.nn import (
     Module,
     ReLU,
     Sequential,
-    Sigmoid,
 )
 from torch.nn.init import xavier_uniform_
 
@@ -140,14 +139,21 @@ class SlimCNN(Module):
     def __init__(
         self,
         squeeze_filter_counts=None,
-        class_count=40,
+        variable_class_counts=None,
     ):
         super().__init__()
 
         if squeeze_filter_counts is None:
             squeeze_filter_counts = [16, 32, 48, 64]
-        self.squeeze_filter_counts = squeeze_filter_counts
-        self.class_count = class_count
+        self.squeeze_filter_counts = tensor(squeeze_filter_counts)
+        (
+            self.class_counts,
+            self.variable_class_count_indices,
+            self.variable_counts,
+        ) = tensor(variable_class_counts).unique(
+            sorted=True, return_inverse=True, return_counts=True
+        )
+        self.output_layers = []
 
         self.layer_count = 0
         self.slim_module_count = 0
@@ -199,13 +205,22 @@ class SlimCNN(Module):
 
     def add_fully_connected_layer(self):
         self.layer_count += 1
-        self.add_module(
-            f"layer_{self.layer_count}_fully_connected",
-            Linear(
+        fully_connected = Module()
+        for class_count, variable_count in zip(self.class_counts, self.variable_counts):
+            output_module = Linear(
                 self.squeeze_filter_counts[self.slim_module_count - 1] * 3,
-                self.class_count,
-            ),
-        )
+                (1 if class_count == 2 else class_count) * variable_count,
+            )
+            fully_connected.add_module(
+                "layer_0_"
+                + (
+                    "binary"
+                    if class_count == 2
+                    else f"categorical_{class_count.item()}"
+                ),
+                output_module,
+            )
+        self.add_module(f"layer_{self.layer_count}_fully_connected", fully_connected)
 
     def forward(self, x):
         x = self.layer_1_convolution(x)
@@ -219,5 +234,14 @@ class SlimCNN(Module):
         x = self.layer_9_slim_module(x)
         x = self.layer_10_max_pooling(x)
         x = self.layer_11_global_pooling(x)
-        x = self.layer_12_fully_connected(flatten(x, 1))
+        x = [
+            output_module(flatten(x, 1))
+            if class_count == 2
+            else output_module(flatten(x, 1)).reshape(-1, class_count, variable_count)
+            for class_count, variable_count, output_module in zip(
+                self.class_counts,
+                self.variable_counts,
+                self.layer_12_fully_connected.children(),
+            )
+        ]
         return x
