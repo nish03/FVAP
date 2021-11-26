@@ -1,3 +1,5 @@
+from itertools import chain
+
 from torch import cat, flatten, tensor
 from torch.nn import (
     AdaptiveAvgPool2d,
@@ -10,6 +12,7 @@ from torch.nn import (
     Sequential,
 )
 from torch.nn.init import xavier_uniform_
+from torch.nn.functional import binary_cross_entropy_with_logits, cross_entropy
 
 # based on https://github.com/gtamba/pytorch-slim-cnn/blob/master/layers.py
 
@@ -146,14 +149,13 @@ class SlimCNN(Module):
         if squeeze_filter_counts is None:
             squeeze_filter_counts = [16, 32, 48, 64]
         self.squeeze_filter_counts = tensor(squeeze_filter_counts)
+        self.variable_class_counts = tensor(variable_class_counts)
         (
             self.class_counts,
-            self.variable_class_count_indices,
             self.variable_counts,
-        ) = tensor(variable_class_counts).unique(
-            sorted=True, return_inverse=True, return_counts=True
+        ) = self.variable_class_counts.unique(
+            sorted=True, return_counts=True
         )
-        self.output_layers = []
 
         self.layer_count = 0
         self.slim_module_count = 0
@@ -169,8 +171,50 @@ class SlimCNN(Module):
         self.add_max_pooling_layer()
         self.add_global_pooling_layer()
         self.add_fully_connected_layer()
+        self.weight_regularisation_parameters = [
+            [parameter for parameter in module.parameters()]
+            for module in [
+                self.layer_3_slim_module.layer_3_dw_sep_3x3_conv,
+                self.layer_5_slim_module.layer_3_dw_sep_3x3_conv,
+                self.layer_7_slim_module.layer_3_dw_sep_3x3_conv,
+                self.layer_9_slim_module.layer_3_dw_sep_3x3_conv,
+            ]
+        ]
+        self.weight_regularisation_parameters = list(
+            chain.from_iterable(self.weight_regularisation_parameters)
+        )
 
         self.apply(init_module_weights)
+
+    def criterion(self, outputs, class_index_targets):
+        loss = 0.0
+        for class_score_predictions in outputs:
+            if class_score_predictions.dim() == 2:
+                class_count = 2
+                loss += binary_cross_entropy_with_logits(
+                    class_score_predictions,
+                    class_index_targets[
+                        :, self.variable_class_counts == class_count
+                    ].float(),
+                    reduction="sum",
+                )
+            else:
+                class_count = class_score_predictions.shape[1]
+                loss += cross_entropy(
+                    class_score_predictions,
+                    class_index_targets[:, self.variable_class_counts == class_count],
+                    reduction="sum",
+                )
+        loss /= class_index_targets.shape[0] * class_index_targets.shape[1]
+        l2_weight = 0.0001
+        l2_penalty = l2_weight * sum(
+            [
+                parameter.pow(2).sum()
+                for parameter in self.weight_regularisation_parameters
+            ]
+        )
+        loss += l2_penalty
+        return loss
 
     def add_convolution_layer(self):
         self.layer_count += 1
