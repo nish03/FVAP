@@ -1,6 +1,7 @@
+from collections import defaultdict
 from itertools import chain
 
-from torch import cat, flatten, tensor
+from torch import cat, flatten, stack, tensor
 from torch.nn import (
     AdaptiveAvgPool2d,
     BatchNorm2d,
@@ -11,8 +12,8 @@ from torch.nn import (
     ReLU,
     Sequential,
 )
-from torch.nn.init import xavier_uniform_
 from torch.nn.functional import binary_cross_entropy_with_logits, cross_entropy
+from torch.nn.init import xavier_uniform_
 
 # based on https://github.com/gtamba/pytorch-slim-cnn/blob/master/layers.py
 
@@ -152,9 +153,10 @@ class SlimCNN(Module):
         self.variable_class_counts = tensor(variable_class_counts)
         (
             self.class_counts,
+            self.variable_class_count_indices,
             self.variable_counts,
         ) = self.variable_class_counts.unique(
-            sorted=True, return_counts=True
+            sorted=True, return_inverse=True, return_counts=True
         )
 
         self.layer_count = 0
@@ -185,36 +187,6 @@ class SlimCNN(Module):
         )
 
         self.apply(init_module_weights)
-
-    def criterion(self, outputs, class_index_targets):
-        loss = 0.0
-        for class_score_predictions in outputs:
-            if class_score_predictions.dim() == 2:
-                class_count = 2
-                loss += binary_cross_entropy_with_logits(
-                    class_score_predictions,
-                    class_index_targets[
-                        :, self.variable_class_counts == class_count
-                    ].float(),
-                    reduction="sum",
-                )
-            else:
-                class_count = class_score_predictions.shape[1]
-                loss += cross_entropy(
-                    class_score_predictions,
-                    class_index_targets[:, self.variable_class_counts == class_count],
-                    reduction="sum",
-                )
-        loss /= class_index_targets.shape[0] * class_index_targets.shape[1]
-        l2_weight = 0.0001
-        l2_penalty = l2_weight * sum(
-            [
-                parameter.pow(2).sum()
-                for parameter in self.weight_regularisation_parameters
-            ]
-        )
-        loss += l2_penalty
-        return loss
 
     def add_convolution_layer(self):
         self.layer_count += 1
@@ -289,3 +261,70 @@ class SlimCNN(Module):
             )
         ]
         return x
+
+    def predict(self, outputs):
+        output_predictions = []
+        for class_score_predictions in outputs:
+            output_predictions.append(
+               (class_score_predictions > 0.0).long()
+               if class_score_predictions.dim() == 2
+               else class_score_predictions.argmax(dim=1)
+            )
+            #print(f"{class_score_predictions}")
+            #print(f"{output_predictions[-1]}")
+        class_index_predictions = []
+        output_prediction_indices = defaultdict(int)
+        for variable_class_count_index, output_index in enumerate(
+            self.variable_class_count_indices
+        ):
+            variable_class_count = self.variable_class_counts[
+                variable_class_count_index
+            ]
+            output_prediction_index = output_prediction_indices[
+                variable_class_count.item()
+            ]
+            #print(
+            #    f"{variable_class_count_index=}: "
+            #    f"{variable_class_count=}, "
+            #    f"{output_prediction_index=}"
+            #)
+            class_index_predictions.append(
+               output_predictions[output_index][:, output_prediction_index]
+            )
+            output_prediction_indices[variable_class_count.item()] += 1
+
+            #print(
+            #    f"{output_predictions[output_index]=}" f"{class_index_predictions[-1]=}"
+            #)
+        class_index_predictions = stack(class_index_predictions, dim=1)
+        return class_index_predictions
+
+    def criterion(self, outputs, class_index_targets):
+        loss = 0.0
+        for class_score_predictions in outputs:
+            if class_score_predictions.dim() == 2:
+                class_count = 2
+                loss += binary_cross_entropy_with_logits(
+                    class_score_predictions,
+                    class_index_targets[
+                        :, self.variable_class_counts == class_count
+                    ].float(),
+                    reduction="sum",
+                )
+            else:
+                class_count = class_score_predictions.shape[1]
+                loss += cross_entropy(
+                    class_score_predictions,
+                    class_index_targets[:, self.variable_class_counts == class_count],
+                    reduction="sum",
+                )
+        loss /= class_index_targets.shape[0] * class_index_targets.shape[1]
+        l2_weight = 0.0001
+        l2_penalty = l2_weight * sum(
+            [
+                parameter.pow(2).sum()
+                for parameter in self.weight_regularisation_parameters
+            ]
+        )
+        loss += l2_penalty
+        return loss
