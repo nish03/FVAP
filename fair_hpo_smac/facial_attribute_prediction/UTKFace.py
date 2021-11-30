@@ -24,7 +24,7 @@ class UTKFace(MultiAttributeDataset):
             raise ValueError(
                 f"Invalid dataset directory path {dataset_dir_path} - does not exist"
             )
-        self.image_file_paths = list(dataset_dir_path.glob("*_*_*_*.jpg"))
+        self.image_file_paths = sorted(dataset_dir_path.glob("*_*_*_*.jpg"))
         self.image_transform = image_transform
         self.attribute_transform = attribute_transform
         self.split_name = split_name
