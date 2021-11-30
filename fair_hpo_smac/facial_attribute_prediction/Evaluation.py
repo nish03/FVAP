@@ -16,6 +16,9 @@ def evaluate(
     loss_value,
     evaluation_state,
 ):
+    print(f"{class_index_predictions.shape=}")
+    print(f"{class_index_targets.shape=}")
+    print(f"{evaluation_state.correct_prediction_counts.shape=}")
     prediction_count = len(class_index_targets)
 
     evaluation_state.processed_prediction_count += prediction_count

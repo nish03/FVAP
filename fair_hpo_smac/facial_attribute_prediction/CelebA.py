@@ -1,13 +1,13 @@
-from csv import reader
 from copy import deepcopy
+from csv import reader
 from pathlib import Path
 
+import numpy
+from MultiAttributeDataset import MultiAttributeDataset
+from numpy import arange, loadtxt
 from torch import tensor
 from torchvision.io import read_image
-from numpy import loadtxt, arange
-import numpy
 
-from MultiAttributeDataset import MultiAttributeDataset
 
 class CelebA(MultiAttributeDataset):
     def __init__(
@@ -81,23 +81,3 @@ class CelebA(MultiAttributeDataset):
                 partition_indices == split_name_to_partition_index[split_name]
             ]
         return split_image_indices
-
-    def split(self, split_name):
-        if self.split_name == "all":
-            split_dataset = deepcopy(self)
-            if split_name == "all":
-                return split_dataset
-            split_dataset.split_name = split_name
-            image_indices = self._split_image_indices(
-                self.partition_indices, split_name
-            )
-            split_dataset.attribute_data = self.attribute_data[image_indices]
-            split_dataset.image_file_numbers = self.image_file_numbers[image_indices]
-            return split_dataset
-        else:
-            return CelebA(
-                dataset_dir_path=self.dataset_dir_path,
-                image_transform=self.image_transform,
-                attribute_transform=self.attribute_transform,
-                split_name=split_name,
-            )
