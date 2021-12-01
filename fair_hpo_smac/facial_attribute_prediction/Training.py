@@ -1,10 +1,10 @@
 from collections import defaultdict
 
-from torch import zeros, no_grad
+from torch import no_grad
 from tqdm.notebook import tqdm
 
 from Util import get_device
-from Evaluation import EvaluationState, evaluate
+from Evaluation import evaluate
 
 
 def train_classifier(
@@ -20,16 +20,11 @@ def train_classifier(
         "valid_accuracy": 0.0,
     }
     device = get_device()
-    train_dataset = train_dataloader.dataset
-    valid_dataset = valid_dataloader.dataset
     for epoch in range(1, epoch_count + 1):
         epoch_description = f"Epoch {epoch:0>2}/{epoch_count:0>2}"
 
         model.train()
-        train_eval_state = EvaluationState()
-        train_eval_state.correct_prediction_counts = zeros(
-            train_dataset.attribute_count, device=device
-        )
+        train_eval_state = None
         with tqdm(train_dataloader, unit="batch") as train_epoch_iterator:
             train_epoch_iterator.set_description(f"{epoch_description} Train")
             for batch_index, data in enumerate(train_epoch_iterator):
@@ -40,15 +35,16 @@ def train_classifier(
                 outputs = parallel_model(images)
                 class_index_predictions = model.predict(outputs)
 
-                loss = model.criterion(outputs, class_index_targets)
+                loss, loss_terms = model.criterion(outputs, class_index_targets)
                 loss.backward()
 
                 optimizer.step()
 
-                train_eval_results = evaluate(
+                train_eval_results, train_eval_state = evaluate(
                     class_index_predictions,
                     class_index_targets,
                     loss,
+                    loss_terms,
                     train_eval_state,
                 )
                 train_epoch_iterator.set_postfix(
@@ -58,10 +54,7 @@ def train_classifier(
         epoch_history["train"].append(train_eval_results)
 
         parallel_model.eval()
-        valid_eval_state = EvaluationState()
-        valid_eval_state.correct_prediction_counts = zeros(
-            valid_dataset.attribute_count, device=device
-        )
+        valid_eval_state = None
         with tqdm(valid_dataloader, unit="batch") as valid_epoch_iterator, no_grad():
             valid_epoch_iterator.set_description(f"{epoch_description} Valid")
             for batch_index, data in enumerate(valid_epoch_iterator):
@@ -70,12 +63,12 @@ def train_classifier(
                 outputs = parallel_model(images)
                 class_index_predictions = model.predict(outputs)
 
-                loss = model.criterion(outputs, class_index_targets)
+                loss, loss_terms = model.criterion(outputs, class_index_targets)
 
-                valid_eval_results = evaluate(
+                valid_eval_results, valid_eval_state = evaluate(
                     class_index_predictions,
                     class_index_targets,
-                    loss,
+                    loss, loss_terms,
                     valid_eval_state,
                 )
 
@@ -89,5 +82,5 @@ def train_classifier(
             best_state["model_state_dict"] = model.state_dict()
             best_state["optimizer_state_dict"] = optimizer.state_dict()
             best_state["epoch"] = epoch
-
+            
     return epoch_history, best_state
