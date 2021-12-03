@@ -1,9 +1,8 @@
 from pathlib import Path
 
-from torch import tensor, Generator, randperm
+from torch import Generator, randperm, tensor
 from torchvision.io import read_image
 
-import data.Util
 from MultiAttributeDataset import MultiAttributeDataset
 
 

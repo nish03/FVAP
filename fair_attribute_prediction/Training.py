@@ -3,8 +3,8 @@ from collections import defaultdict
 from torch import no_grad
 from tqdm.notebook import tqdm
 
-from Util import get_device
 from Evaluation import evaluate
+from Util import get_device
 
 
 def train_classifier(
@@ -68,7 +68,8 @@ def train_classifier(
                 valid_eval_results, valid_eval_state = evaluate(
                     class_index_predictions,
                     class_index_targets,
-                    loss, loss_terms,
+                    loss,
+                    loss_terms,
                     valid_eval_state,
                 )
 
@@ -82,5 +83,5 @@ def train_classifier(
             best_state["model_state_dict"] = model.state_dict()
             best_state["optimizer_state_dict"] = optimizer.state_dict()
             best_state["epoch"] = epoch
-            
+
     return epoch_history, best_state

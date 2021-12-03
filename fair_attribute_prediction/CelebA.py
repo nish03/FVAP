@@ -1,4 +1,3 @@
-from copy import deepcopy
 from csv import reader
 from pathlib import Path
 
