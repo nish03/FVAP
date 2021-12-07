@@ -138,3 +138,6 @@ slurm-*.out
 datasets
 experiments
 figures
+
+# Comet config
+.comet.config
