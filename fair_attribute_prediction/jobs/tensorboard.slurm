@@ -2,19 +2,15 @@
 
 #SBATCH --time=08:00:00
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=4
 #SBATCH --partition=alpha
-#SBATCH --mem=100G
-#SBATCH --job-name="jupyter-lab"
+#SBATCH --mem=25G
+#SBATCH --job-name="tensorboard"
 #SBATCH --output=slurm-%x.out
 
-echo $PWD
-
 cd ..
-
-echo $PWD
 
 source jobs/load_alpha_modules.sh
 
@@ -23,4 +19,4 @@ unset XDG_RUNTIME_DIR
 
 source env/bin/activate
 
-srun jupyter lab --ip 0.0.0.0 --port 8888 --no-browser
+srun tensorboard --logdir=experiments --host=0.0.0.0 --port=6006
