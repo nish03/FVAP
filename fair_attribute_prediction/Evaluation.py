@@ -40,18 +40,21 @@ def evaluate(
         class_index_predictions == class_index_targets
     ).sum(dim=0)
 
+    attribute_accuracies = (
+        100 * state.correct_prediction_counts / state.processed_prediction_count
+    )
+    accuracy = attribute_accuracies.mean().item()
+    loss = state.loss_total / state.processed_prediction_count
     results = {
-        "loss": state.loss_total / state.processed_prediction_count,
-        "attribute_accuracies": (
-            100 * state.correct_prediction_counts / state.processed_prediction_count
-        )
-        .cpu()
-        .numpy(),
+        "loss": loss,
+        "accuracy": accuracy,
     }
     for loss_term_name in state.loss_term_totals:
-        results[f"loss_term_{loss_term_name}"] = (
+        loss_term = (
             state.loss_term_totals[loss_term_name] / state.processed_prediction_count
         )
-    results["accuracy"] = results["attribute_accuracies"].mean().item()
-
+        results[f"loss_term_{loss_term_name}"] = loss_term
+    for attribute_index in range(len(attribute_accuracies)):
+        attribute_accuracy = attribute_accuracies[attribute_index]
+        results[f"attribute_{attribute_index}_accuracy"] = attribute_accuracy
     return results, state
