@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import torch
 from torch import Generator, randperm, tensor
 from torchvision.io import read_image
 
@@ -47,10 +48,10 @@ class UTKFace(MultiAttributeDataset):
             split_data_ranges[self.split_name]
         ]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.image_file_indices)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> (torch.Tensor, torch.Tensor):
         image_file_index = self.image_file_indices[index]
         image_file_path = self.image_file_paths[image_file_index]
         image = read_image(str(image_file_path))
@@ -63,6 +64,3 @@ class UTKFace(MultiAttributeDataset):
         if self.attribute_transform:
             attribute_values = self.target_transform(attribute_values)
         return image, attribute_values
-
-    def split(self, **kwargs):
-        return data.Util.create_dataset_split(self, **kwargs)

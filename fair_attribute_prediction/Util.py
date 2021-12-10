@@ -51,8 +51,7 @@ def create_dataloader(params: dict, dataset: torch.utils.data.Dataset):
 def create_model(params: dict, train_dataset: MultiAttributeDataset):
     if params["model_name"] == "SlimCNN":
         model = SlimCNN(
-            variable_class_counts=train_dataset.attribute_class_counts,
-            criterion_l2_weight=params["loss_weight_regularization_factor"],
+            attribute_sizes=train_dataset.attribute_sizes,
         )
         model.to(get_device())
         model_parallel = DataParallel(model)

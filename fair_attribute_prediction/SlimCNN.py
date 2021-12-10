@@ -1,6 +1,6 @@
 from collections import defaultdict
-from itertools import chain
 
+import torch
 from torch import cat, flatten, stack, tensor
 from torch.nn import (
     AdaptiveAvgPool2d,
@@ -12,11 +12,12 @@ from torch.nn import (
     ReLU,
     Sequential,
 )
-from torch.nn.functional import binary_cross_entropy_with_logits, cross_entropy
 from torch.nn.init import xavier_uniform_
 
+from MultiAttributeClassifier import MultiAttributeClassifier
 
 # based on https://github.com/gtamba/pytorch-slim-cnn/blob/master/layers.py
+
 
 def depthwise_separable_3x3_conv(input_channel_count, output_channel_count):
     return Sequential(
@@ -138,27 +139,18 @@ class SlimModule(Module):
 
 # based on https://github.com/gtamba/pytorch-slim-cnn/blob/master/slimnet.py
 
-class SlimCNN(Module):
+
+class SlimCNN(MultiAttributeClassifier):
     def __init__(
         self,
         squeeze_filter_counts=None,
-        variable_class_counts=None,
-        criterion_l2_weight=0.0001,
+        attribute_sizes=None,
     ):
-        super().__init__()
+        MultiAttributeClassifier.__init__(self, attribute_sizes)
 
         if squeeze_filter_counts is None:
             squeeze_filter_counts = [16, 32, 48, 64]
         self.squeeze_filter_counts = tensor(squeeze_filter_counts)
-        self.variable_class_counts = tensor(variable_class_counts)
-        (
-            self.class_counts,
-            self.variable_class_count_indices,
-            self.variable_counts,
-        ) = self.variable_class_counts.unique(
-            sorted=True, return_inverse=True, return_counts=True
-        )
-        self.criterion_l2_weight = criterion_l2_weight
 
         self.layer_count = 0
         self.slim_module_count = 0
@@ -173,18 +165,8 @@ class SlimCNN(Module):
         self.add_slim_module_layer()
         self.add_max_pooling_layer()
         self.add_global_pooling_layer()
-        self.add_fully_connected_layer()
-        self.weight_regularisation_parameters = [
-            [parameter for parameter in module.parameters()]
-            for module in [
-                self.layer_3_slim_module.layer_3_dw_sep_3x3_conv,
-                self.layer_5_slim_module.layer_3_dw_sep_3x3_conv,
-                self.layer_7_slim_module.layer_3_dw_sep_3x3_conv,
-                self.layer_9_slim_module.layer_3_dw_sep_3x3_conv,
-            ]
-        ]
-        self.weight_regularisation_parameters = list(
-            chain.from_iterable(self.weight_regularisation_parameters)
+        self.add_output_layer(
+            self.squeeze_filter_counts[self.slim_module_count - 1] * 3
         )
 
         self.apply(init_module_weights)
@@ -220,26 +202,7 @@ class SlimCNN(Module):
             f"layer_{self.layer_count}_global_pooling", AdaptiveAvgPool2d(1)
         )
 
-    def add_fully_connected_layer(self):
-        self.layer_count += 1
-        fully_connected = Module()
-        for class_count, variable_count in zip(self.class_counts, self.variable_counts):
-            output_module = Linear(
-                self.squeeze_filter_counts[self.slim_module_count - 1] * 3,
-                (1 if class_count == 2 else class_count) * variable_count,
-            )
-            fully_connected.add_module(
-                "layer_0_"
-                + (
-                    "binary"
-                    if class_count == 2
-                    else f"categorical_{class_count.item()}"
-                ),
-                output_module,
-            )
-        self.add_module(f"layer_{self.layer_count}_fully_connected", fully_connected)
-
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> list[torch.Tensor]:
         x = self.layer_1_convolution(x)
         x = self.layer_2_max_pooling(x)
         x = self.layer_3_slim_module(x)
@@ -251,30 +214,22 @@ class SlimCNN(Module):
         x = self.layer_9_slim_module(x)
         x = self.layer_10_max_pooling(x)
         x = self.layer_11_global_pooling(x)
-        x = [
-            output_module(flatten(x, 1))
-            if class_count == 2
-            else output_module(flatten(x, 1)).reshape(-1, class_count, variable_count)
-            for class_count, variable_count, output_module in zip(
-                self.class_counts,
-                self.variable_counts,
-                self.layer_12_fully_connected.children(),
-            )
-        ]
-        return x
+        outputs = self.create_outputs(x)
+        return outputs
 
-    def predict(self, outputs):
+    def predict(self, outputs: list[torch.Tensor]) -> torch.Tensor:
         output_predictions = []
         for class_score_predictions in outputs:
+            class_score_predictions.long()
             output_predictions.append(
-                (class_score_predictions > 0.0).long()
+                tensor(class_score_predictions > 0.0, dtype=torch.long)
                 if class_score_predictions.dim() == 2
                 else class_score_predictions.argmax(dim=1)
             )
         class_index_predictions = []
         output_prediction_indices = defaultdict(int)
         for variable_class_count_index, output_index in enumerate(
-            self.variable_class_count_indices
+            self.inverse_attribute_size_indices
         ):
             variable_class_count = self.variable_class_counts[
                 variable_class_count_index
@@ -288,36 +243,3 @@ class SlimCNN(Module):
             output_prediction_indices[variable_class_count.item()] += 1
         class_index_predictions = stack(class_index_predictions, dim=1)
         return class_index_predictions
-
-    def criterion(self, outputs, class_index_targets):
-        loss_terms = defaultdict(float)
-        for class_score_predictions in outputs:
-            if class_score_predictions.dim() == 2:
-                class_count = 2
-                loss_terms["binary"] += binary_cross_entropy_with_logits(
-                    class_score_predictions,
-                    class_index_targets[
-                        :, self.variable_class_counts == class_count
-                    ].float(),
-                    reduction="sum",
-                )
-            else:
-                class_count = class_score_predictions.shape[1]
-                loss_terms[f"categorical_{class_count}"] += cross_entropy(
-                    class_score_predictions,
-                    class_index_targets[:, self.variable_class_counts == class_count],
-                    reduction="sum",
-                )
-        for loss_part_name in loss_terms:
-            loss_terms[loss_part_name] /= (
-                class_index_targets.shape[0] * class_index_targets.shape[1]
-            )
-
-        loss_terms["l2_penalty"] = self.criterion_l2_weight * sum(
-            [
-                parameter.pow(2).sum()
-                for parameter in self.weight_regularisation_parameters
-            ]
-        )
-        loss = sum(loss_terms.values())
-        return loss, loss_terms
