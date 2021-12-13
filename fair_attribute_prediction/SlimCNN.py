@@ -146,11 +146,17 @@ class SlimCNN(MultiAttributeClassifier):
         squeeze_filter_counts=None,
         attribute_sizes=None,
     ):
-        MultiAttributeClassifier.__init__(self, attribute_sizes)
 
         if squeeze_filter_counts is None:
             squeeze_filter_counts = [16, 32, 48, 64]
         self.squeeze_filter_counts = tensor(squeeze_filter_counts)
+
+        multi_output_in_filter_count = (
+                self.squeeze_filter_counts[- 1] * 3
+        )
+        MultiAttributeClassifier.__init__(
+            self, attribute_sizes, multi_output_in_filter_count
+        )
 
         self.layer_count = 0
         self.slim_module_count = 0
@@ -165,9 +171,6 @@ class SlimCNN(MultiAttributeClassifier):
         self.add_slim_module_layer()
         self.add_max_pooling_layer()
         self.add_global_pooling_layer()
-        self.add_output_layer(
-            self.squeeze_filter_counts[self.slim_module_count - 1] * 3
-        )
 
         self.apply(init_module_weights)
 
@@ -202,44 +205,16 @@ class SlimCNN(MultiAttributeClassifier):
             f"layer_{self.layer_count}_global_pooling", AdaptiveAvgPool2d(1)
         )
 
-    def forward(self, x: torch.Tensor) -> list[torch.Tensor]:
-        x = self.layer_1_convolution(x)
-        x = self.layer_2_max_pooling(x)
-        x = self.layer_3_slim_module(x)
-        x = self.layer_4_max_pooling(x)
-        x = self.layer_5_slim_module(x)
-        x = self.layer_6_max_pooling(x)
-        x = self.layer_7_slim_module(x)
-        x = self.layer_8_max_pooling(x)
-        x = self.layer_9_slim_module(x)
-        x = self.layer_10_max_pooling(x)
-        x = self.layer_11_global_pooling(x)
-        outputs = self.create_outputs(x)
-        return outputs
-
-    def predict(self, outputs: list[torch.Tensor]) -> torch.Tensor:
-        output_predictions = []
-        for class_score_predictions in outputs:
-            class_score_predictions.long()
-            output_predictions.append(
-                tensor(class_score_predictions > 0.0, dtype=torch.long)
-                if class_score_predictions.dim() == 2
-                else class_score_predictions.argmax(dim=1)
-            )
-        class_index_predictions = []
-        output_prediction_indices = defaultdict(int)
-        for variable_class_count_index, output_index in enumerate(
-            self.inverse_attribute_size_indices
-        ):
-            variable_class_count = self.variable_class_counts[
-                variable_class_count_index
-            ]
-            output_prediction_index = output_prediction_indices[
-                variable_class_count.item()
-            ]
-            class_index_predictions.append(
-                output_predictions[output_index][:, output_prediction_index]
-            )
-            output_prediction_indices[variable_class_count.item()] += 1
-        class_index_predictions = stack(class_index_predictions, dim=1)
-        return class_index_predictions
+    def final_layer_output(self, x: torch.Tensor) -> torch.Tensor:
+        output = self.layer_1_convolution(x)
+        output = self.layer_2_max_pooling(output)
+        output = self.layer_3_slim_module(output)
+        output = self.layer_4_max_pooling(output)
+        output = self.layer_5_slim_module(output)
+        output = self.layer_6_max_pooling(output)
+        output = self.layer_7_slim_module(output)
+        output = self.layer_8_max_pooling(output)
+        output = self.layer_9_slim_module(output)
+        output = self.layer_10_max_pooling(output)
+        output = self.layer_11_global_pooling(output)
+        return output

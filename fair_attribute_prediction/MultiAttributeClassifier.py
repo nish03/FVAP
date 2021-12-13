@@ -1,83 +1,83 @@
 from abc import ABC, abstractmethod
-from torch.nn import Module, Linear
-from torch import tensor, flatten, stack
 
 import torch
+from torch import flatten, tensor, sigmoid, softmax, stack
+from torch.nn import Linear, Module
+from typing import List
 
 
 class MultiAttributeClassifier(ABC, Module):
-    def __init__(self, attribute_sizes: list[int]):
+    def __init__(self, attribute_sizes: List[int], multi_output_in_filter_count: int):
         Module.__init__(self)
         self.attribute_sizes = tensor(attribute_sizes)
         (
-            self.unique_attribute_sizes,
-            self.inverse_attribute_size_indices,
-            self.attribute_size_counts,
+            unique_attribute_sizes,
+            inverse_attribute_size_indices,
+            attribute_size_frequencies,
         ) = self.attribute_sizes.unique(
             sorted=True, return_inverse=True, return_counts=True
         )
+        self.unique_attribute_sizes = unique_attribute_sizes
+        self.inverse_attribute_size_indices = inverse_attribute_size_indices
+        self.attribute_size_frequencies = attribute_size_frequencies
 
-    def add_output_layer(self, in_filter_count):
-        output_layer = Module()
-        for attribute_size, attribute_size_count in zip(
-            self.unique_attribute_sizes, self.attribute_size_counts
+        multi_output_layer = Module()
+        for attribute_size, attribute_size_frequency in zip(
+            self.unique_attribute_sizes, self.attribute_size_frequencies
         ):
-            out_filter_count = attribute_size_count
+            multi_output_out_filter_count = attribute_size_frequency.item()
             if attribute_size != 2:
-                out_filter_count *= attribute_size
-            output_module = Linear(in_filter_count, out_filter_count)
-            output_module_name = (
+                multi_output_out_filter_count *= attribute_size
+            multi_output_module = Linear(
+                multi_output_in_filter_count, multi_output_out_filter_count
+            )
+            multi_output_module_name = (
                 "binary"
                 if attribute_size == 2
                 else f"categorical_{attribute_size.item()}"
             )
-            output_layer.add_module(
-                output_module_name,
-                output_module,
+            multi_output_layer.add_module(
+                multi_output_module_name,
+                multi_output_module,
             )
-        self.add_module(f"output_layer", output_layer)
+        self.add_module(f"multi_output_layer", multi_output_layer)
 
     @abstractmethod
-    def forward(self, x: torch.Tensor) -> list[torch.Tensor]:
-        raise NotImplementedError()
+    def final_layer_output(self, x: torch.Tensor) -> torch.Tensor:
+        raise NotImplementedError
 
-    def create_outputs(self, x: torch.Tensor) -> list[torch.Tensor]:
-        outputs = []
-        for attribute_size, attribute_size_count, output_module in zip(
+    def forward(self, x: torch.Tensor) -> (List[torch.Tensor], torch.Tensor):
+        output = self.final_layer_output(x)
+        multi_output_class_logits = []
+        multi_output_class_probabilities = []
+        multi_output_label_predictions = []
+        for attribute_size, attribute_size_frequency, multi_output_module in zip(
             self.unique_attribute_sizes,
-            self.attribute_size_counts,
-            self.output_layer.children(),
+            self.attribute_size_frequencies,
+            self.multi_output_layer.children(),
         ):
-            output = output_module(flatten(x, 1))
-            if attribute_size != 2:
-                output.reshape(-1, attribute_size, attribute_size_count)
-            outputs.append(output)
-        return outputs
-    
-    def output_prediction_index(self, attribute_index: int) -> int:
-
-    def predict(self, outputs: list[torch.Tensor]) -> torch.Tensor:
-        outputs_class_predictions = []
-        for output_logit_predictions in outputs:
-            if output_logit_predictions.dim() == 2:
-                output_class_predictions = tensor(
-                    output_logit_predictions > 0.0, dtype=torch.long
-                )
+            class_logits = multi_output_module(flatten(output, 1))
+            if attribute_size == 2:
+                class_probabilities = sigmoid(class_logits)
+                label_predictions = (class_probabilities > 0.5).long()
             else:
-                output_class_predictions = output_logit_predictions.argmax(dim=1)
-            outputs_class_predictions.append(output_class_predictions)
-        class_predictions = []
+                class_logits = class_logits.reshape(
+                    -1, attribute_size, attribute_size_frequency
+                )
+                class_probabilities = softmax(class_logits, dim=1)
+                label_predictions = class_probabilities.argmax(dim=1)
+            multi_output_class_logits.append(class_logits)
+            multi_output_class_probabilities.append(class_probabilities)
+            multi_output_label_predictions.append(label_predictions)
+        attribute_predictions = []
         for attribute_index, output_index in enumerate(
             self.inverse_attribute_size_indices
         ):
             attribute_size = self.attribute_sizes[attribute_index]
             previous_attribute_sizes = self.attribute_sizes[0:attribute_index]
-            output_prediction_index = tensor(
-                previous_attribute_sizes == attribute_size,
-                dtype=torch.int64,
-            ).sum()
-            class_predictions.append(
-                outputs_class_predictions[output_index][:, output_prediction_index]
+            prediction_index = previous_attribute_sizes.eq(attribute_size).sum()
+            attribute_predictions.append(
+                multi_output_label_predictions[output_index][:, prediction_index]
             )
-        class_predictions = stack(class_predictions, dim=1)
-        return class_predictions
+        attribute_predictions = stack(attribute_predictions, dim=1)
+        return multi_output_class_logits, multi_output_class_probabilities, attribute_predictions
