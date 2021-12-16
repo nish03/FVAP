@@ -53,12 +53,12 @@ def create_model(params: dict, train_dataset: MultiAttributeDataset):
         model = SlimCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
+        model = DataParallel(model)
         model.to(get_device())
-        model_parallel = DataParallel(model)
-        return model_parallel
+        return model
 
 
-def create_optimizer(params: dict, model_parallel: torch.nn.DataParallel):
+def create_optimizer(params: dict, model: torch.nn.Module):
     if params["optimizer"] == "Adam":
-        return Adam(model_parallel.module.parameters(), lr=params["learning_rate"])
+        return Adam(model.parameters(), lr=params["learning_rate"])
     return None
