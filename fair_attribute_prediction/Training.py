@@ -1,5 +1,5 @@
+from math import nan
 from typing import Dict, List, Optional, Tuple
-from statistics import mean
 
 import comet_ml
 import torch.utils.data
@@ -21,57 +21,64 @@ def fair_mi_criterion(
     return tensor(0.0, device=get_device())
 
 
-def intersection_over_union(
-    sensitive_class: int,
-    sensitive_attribute_targets: torch.Tensor,
+def iou(
+    class_probabilities: torch.Tensor,
+    attribute_targets: torch.Tensor,
+) -> torch.Tensor:
+    attribute_size = class_probabilities.shape[1]
+    confusion_matrix = (
+        class_probabilities.unsqueeze(dim=2) * one_hot(attribute_targets, attribute_size).unsqueeze(dim=1)
+    ).sum(dim=0)
+    class_ious = []
+    for attribute_class in range(attribute_size):
+        class_iou = confusion_matrix[attribute_class, attribute_class] / (
+            confusion_matrix[attribute_class, :].sum()
+            + confusion_matrix[:, attribute_class].sum()
+            - confusion_matrix[attribute_class, attribute_class]
+        )
+        class_ious.append(class_iou)
+    _iou = tensor(class_ious).mean()
+    return _iou
+
+
+def sensitive_iou(
+    from_sensitive_class: torch.Tensor,
     target_class_probabilities: torch.Tensor,
     target_attribute_targets: torch.Tensor,
-):
-    is_sensitive_class = sensitive_attribute_targets == sensitive_class
-    class_probabilities = target_class_probabilities[is_sensitive_class]
-    attribute_targets = target_attribute_targets[is_sensitive_class]
-    target_attribute_size = class_probabilities.shape[1]
-    confusion_matrix = (
-        class_probabilities.unsqueeze(dim=2) * one_hot(attribute_targets, target_attribute_size).unsqueeze(dim=1)
-    ).sum(dim=0)
-    target_class_ious = []
-    for target_class in range(target_attribute_size):
-        target_class_iou = confusion_matrix[target_class, target_class] / (
-            confusion_matrix[target_class, :].sum()
-            + confusion_matrix[:, target_class].sum()
-            - confusion_matrix[target_class, target_class]
-        )
-        target_class_ious.append(target_class_iou)
-    iou = mean(target_class_ious)
-    return iou
+) -> torch.Tensor:
+    class_probabilities = target_class_probabilities[from_sensitive_class]
+    attribute_targets = target_attribute_targets[from_sensitive_class]
+    _sensitive_iou = iou(class_probabilities, attribute_targets)
+    return _sensitive_iou
 
 
-def fair_intersection_over_union(
+def fair_iou_criterion(
     model: torch.nn.Module,
     multi_output_class_logits: List[torch.Tensor],
     multi_attribute_targets: torch.Tensor,
     sensitive_attribute: Attribute,
     target_attribute: Attribute,
 ) -> torch.Tensor:
-    sensitive_attribute_targets = multi_attribute_targets[:, sensitive_attribute.index]
-    target_class_probabilities = model.module.attribute_class_probabilities(multi_output_class_logits, target_attribute)
-    target_attribute_targets = multi_attribute_targets[:, target_attribute.index]
-    sensitive_iou_squared_differences = []
-    for sensitive_class_1 in range(sensitive_attribute.size):
-        for sensitive_class_2 in range(sensitive_class_1):
-            sensitive_iou_1 = intersection_over_union(
-                sensitive_class_1, sensitive_attribute_targets, target_class_probabilities, target_attribute_targets
-            )
-            sensitive_iou_2 = intersection_over_union(
-                sensitive_class_2,
-                sensitive_attribute_targets,
-                target_class_probabilities,
-                target_attribute_targets,
-            )
-            sensitive_iou_squared_difference = (sensitive_iou_1 - sensitive_iou_2).pow()
-            sensitive_iou_squared_differences.append(sensitive_iou_squared_difference)
 
-    fair_iou_loss = mean(sensitive_iou_squared_differences)
+    sensitive_attribute_targets = multi_attribute_targets[:, sensitive_attribute.index]
+    class_probabilities = model.module.attribute_class_probabilities(multi_output_class_logits, target_attribute.index)
+    attribute_targets = multi_attribute_targets[:, target_attribute.index]
+    squared_iou_differences = []
+    for sensitive_class_a in range(sensitive_attribute.size):
+        from_sensitive_class_a = sensitive_attribute_targets.eq(sensitive_class_a)
+        if from_sensitive_class_a.sum() == 0:
+            return tensor(0.0, device=sensitive_attribute_targets.device)
+        sensitive_iou_a = sensitive_iou(from_sensitive_class_a, class_probabilities, attribute_targets)
+        for sensitive_class_b in range(sensitive_class_a):
+            from_sensitive_class_b = sensitive_attribute_targets.eq(sensitive_class_b)
+            if from_sensitive_class_b.sum() == 0:
+                return tensor(0.0, device=sensitive_attribute_targets.device)
+            sensitive_iou_b = sensitive_iou(from_sensitive_class_b, class_probabilities, attribute_targets)
+
+            squared_iou_difference = (sensitive_iou_a - sensitive_iou_b).pow(2)
+            squared_iou_differences.append(squared_iou_difference)
+
+    fair_iou_loss = tensor(squared_iou_differences).mean()
     return fair_iou_loss
 
 
@@ -94,7 +101,7 @@ def cross_entropy_criterion(
     return cross_entropy_loss
 
 
-fair_criterions = {"iou": fair_intersection_over_union, "mi": fair_mi_criterion}
+fair_criterions = {"iou": fair_iou_criterion, "mi": fair_mi_criterion}
 
 
 def criterion(

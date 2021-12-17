@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import torch
 from torch import flatten, tensor, sigmoid, softmax, stack
 from torch.nn import Linear, Module
-from typing import List
+from typing import List, Tuple
 
 
 class MultiAttributeClassifier(ABC, Module):
@@ -50,7 +50,7 @@ class MultiAttributeClassifier(ABC, Module):
             multi_output_class_logits.append(output_class_logits)
         return multi_output_class_logits
 
-    def multi_output_indices(self, attribute_index):
+    def multi_output_indices(self, attribute_index: int) -> Tuple[int, int]:
         multi_output_index = self.inverse_attribute_size_indices[attribute_index].item()
         attribute_size = self.attribute_sizes[attribute_index]
         previous_attribute_sizes = self.attribute_sizes[0:attribute_index]
@@ -75,7 +75,7 @@ class MultiAttributeClassifier(ABC, Module):
         return _multi_attribute_predictions
 
     def attribute_class_probabilities(
-        self, multi_output_class_logits: List[torch.Tensor], attribute_index
+        self, multi_output_class_logits: List[torch.Tensor], attribute_index: int
     ) -> torch.Tensor:
         multi_output_index, output_index = self.multi_output_indices(attribute_index)
         class_logits = multi_output_class_logits[multi_output_index][..., output_index]
