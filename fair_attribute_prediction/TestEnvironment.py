@@ -41,9 +41,9 @@ optimizer = Adam(model.parameters(), lr=learning_rate)
 
 parameters = {
     "sensitive_attribute": train_dataset.attribute(0),
-    "target_attribute": train_dataset.attribute(1),
+    "target_attribute": train_dataset.attribute(2),
     "fair_loss_weight": 1.0,
-    "fair_loss_type": "iou",
+    "fair_loss_type": "mi",
 }
 
 model.train()
