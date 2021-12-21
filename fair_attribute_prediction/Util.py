@@ -20,14 +20,14 @@ def get_device_count():
     return torch.cuda.device_count() if torch.cuda.is_available() else 1
 
 
-def create_dataset(params: dict, split_name: str):
-    if params["dataset"] == "UTKFace":
+def create_dataset(parameters: dict, split_name: str):
+    if parameters["dataset"] == "UTKFace":
         return UTKFace(
             dataset_dir_path=Path("datasets") / "UTKFace",
             image_transform=ConvertImageDtype(torch.float32),
             split_name=split_name,
         )
-    elif params["dataset"] == "CelebA":
+    elif parameters["dataset"] == "CelebA":
         return CelebA(
             dataset_dir_path=Path("datasets") / "CelebA" / "celeba",
             image_transform=ConvertImageDtype(torch.float32),
@@ -36,11 +36,11 @@ def create_dataset(params: dict, split_name: str):
     return None
 
 
-def create_dataloader(params: dict, dataset: torch.utils.data.Dataset):
+def create_dataloader(parameters: dict, dataset: torch.utils.data.Dataset):
     num_workers = min(4 * get_device_count(), 8)
     dataloader = DataLoader(
         dataset,
-        batch_size=params["batch_size"],
+        batch_size=parameters["batch_size"],
         shuffle=True,
         num_workers=num_workers,
         pin_memory=True,
@@ -48,8 +48,8 @@ def create_dataloader(params: dict, dataset: torch.utils.data.Dataset):
     return dataloader
 
 
-def create_model(params: dict, train_dataset: MultiAttributeDataset):
-    if params["model_name"] == "SlimCNN":
+def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
+    if parameters["model_name"] == "SlimCNN":
         model = SlimCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
@@ -58,7 +58,7 @@ def create_model(params: dict, train_dataset: MultiAttributeDataset):
         return model
 
 
-def create_optimizer(params: dict, model: torch.nn.Module):
-    if params["optimizer"] == "Adam":
-        return Adam(model.parameters(), lr=params["learning_rate"])
+def create_optimizer(parameters: dict, model: torch.nn.Module):
+    if parameters["optimizer"] == "Adam":
+        return Adam(model.parameters(), lr=parameters["learning_rate"])
     return None
