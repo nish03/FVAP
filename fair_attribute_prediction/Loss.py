@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Tuple
 
 import torch
-from torch import tensor
+from torch import tensor, nonzero
 from torch.nn.functional import binary_cross_entropy_with_logits, cross_entropy, one_hot
 
 from Metrics import MetricsState, metrics
@@ -10,7 +10,41 @@ from Util import get_device
 
 
 def entropy(probabilities: torch.Tensor) -> torch.Tensor:
-    return -(probabilities * probabilities.log()).sum()
+    nonzero_probabilities = probabilities[nonzero(probabilities, as_tuple=True)]
+    return -(nonzero_probabilities * nonzero_probabilities.log()).sum()
+
+
+def fair_mi3_loss(
+    model: torch.nn.Module,
+    multi_output_class_logits: torch.Tensor,
+    multi_attribute_targets: torch.Tensor,
+    sensitive_attribute: Attribute,
+    target_attribute: Attribute,
+) -> torch.Tensor:
+    sensitive_real_probabilities = one_hot(
+        multi_attribute_targets[:, sensitive_attribute.index], num_classes=sensitive_attribute.size
+    ).float()  # p(a* | x, θ)
+    target_real_probabilities = one_hot(
+        multi_attribute_targets[:, target_attribute.index], num_classes=target_attribute.size
+    ).float()  # p(y* | x, θ)
+    target_predicted_probabilities = model.module.attribute_class_probabilities(
+        multi_output_class_logits, target_attribute.index
+    )  # p(y | x, θ)
+    joint_probabilities = (
+        sensitive_real_probabilities.reshape([-1, sensitive_attribute.size, 1, 1])
+        * target_real_probabilities.reshape([-1, 1, target_attribute.size, 1])
+        * target_predicted_probabilities.reshape([-1, 1, 1, target_attribute.size])
+    ).mean(
+        dim=0
+    )  # p(a*, y*, y | θ)
+    sensitive_probabilities = joint_probabilities.sum(dim=[1, 2])  # p(a* | θ)
+    target_probabilities = joint_probabilities.sum(dim=0)  # p(a* | θ)
+    sensitive_entropy = entropy(sensitive_probabilities)
+    target_entropy = entropy(target_probabilities)
+    joint_entropy = entropy(joint_probabilities)
+    print(f"{sensitive_entropy=} {target_entropy=} {joint_entropy=}")
+    mi = sensitive_entropy + target_entropy - joint_entropy
+    return mi
 
 
 def fair_mi_loss(
@@ -116,7 +150,7 @@ def cross_entropy_loss(
     return _cross_entropy_loss
 
 
-fair_losses = {"iou": fair_iou_loss, "mi": fair_mi_loss}
+fair_losses = {"iou": fair_iou_loss, "mi": fair_mi_loss, "mi3": fair_mi3_loss}
 
 
 def loss(

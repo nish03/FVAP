@@ -139,5 +139,6 @@ datasets
 experiments
 figures
 
-# Comet config
+# Comet ML
 .comet.config
+.cometml-runs
