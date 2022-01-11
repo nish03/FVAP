@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 import comet_ml
 import torch.utils.data
 
-from Loss import loss_with_metrics
+from losses.Loss import loss_with_metrics
 
 
 def train_classifier(
