@@ -6,10 +6,10 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision.transforms import ConvertImageDtype
 
-from CelebA import CelebA
-from MultiAttributeDataset import MultiAttributeDataset
-from SlimCNN import SlimCNN
-from UTKFace import UTKFace
+from celeba import CelebA
+from multi_attribute_dataset import MultiAttributeDataset
+from slimcnn import SlimCNN
+from utkface import UTKFace
 
 
 def get_device():

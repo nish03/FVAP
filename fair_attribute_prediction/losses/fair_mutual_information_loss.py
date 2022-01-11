@@ -2,7 +2,7 @@ import torch
 from torch import nonzero
 from torch.nn.functional import one_hot
 
-from MultiAttributeDataset import Attribute
+from multi_attribute_dataset import Attribute
 
 
 def entropy(probabilities: torch.Tensor) -> torch.Tensor:

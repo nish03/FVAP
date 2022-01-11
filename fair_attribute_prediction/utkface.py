@@ -4,7 +4,7 @@ import torch
 from torch import Generator, randperm, tensor
 from torchvision.io import read_image
 
-from MultiAttributeDataset import MultiAttributeDataset
+from multi_attribute_dataset import MultiAttributeDataset
 
 
 class UTKFace(MultiAttributeDataset):

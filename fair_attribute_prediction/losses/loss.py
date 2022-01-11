@@ -1,22 +1,11 @@
 from typing import Dict, List, Optional, Tuple
 import torch
 
-from Metrics import MetricsState, metrics
-from MultiAttributeDataset import Attribute
-from Util import get_device
-from losses.CrossEntropyLoss import cross_entropy_loss
-from losses.FairEqualityOfOpportunityLoss import fair_equality_of_opportunity_loss
-from losses.FairEqualizedOddsLoss import fair_equalized_odds_loss
-from losses.FairIntersectionOverUnionLoss import fair_intersection_over_union_loss
-from losses.FairMutualInformationLoss import fair_mutual_information_3_loss, fair_mutual_information_loss
-
-fair_losses = {
-    "equality_of_opportunity": fair_equality_of_opportunity_loss,
-    "equalized_odds": fair_equalized_odds_loss,
-    "intersection_over_union": fair_intersection_over_union_loss,
-    "mutual_information": fair_mutual_information_loss,
-    "mutual_information_3": fair_mutual_information_3_loss,
-}
+from losses.cross_entropy_loss import cross_entropy_loss
+from losses.fair_losses import fair_losses
+from metrics import MetricsState, metrics
+from multi_attribute_dataset import Attribute
+from util import get_device
 
 
 def loss(

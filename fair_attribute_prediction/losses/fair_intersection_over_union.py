@@ -4,7 +4,7 @@ import torch
 from torch import tensor
 from torch.nn.functional import one_hot
 
-from MultiAttributeDataset import Attribute
+from multi_attribute_dataset import Attribute
 
 
 def intersection_over_union(

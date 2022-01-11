@@ -2,7 +2,7 @@ from csv import reader
 from pathlib import Path
 
 import numpy
-from MultiAttributeDataset import MultiAttributeDataset
+from multi_attribute_dataset import MultiAttributeDataset
 from numpy import arange, loadtxt
 from torch import tensor
 from torchvision.io import read_image

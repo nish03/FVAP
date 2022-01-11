@@ -14,7 +14,7 @@ from torch.nn import (
 )
 from torch.nn.init import xavier_uniform_
 
-from MultiAttributeClassifier import MultiAttributeClassifier
+from multi_attribute_classifier import MultiAttributeClassifier
 
 # based on https://github.com/gtamba/pytorch-slim-cnn/blob/master/layers.py
 

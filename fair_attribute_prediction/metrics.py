@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 import torch
 from torch import no_grad, zeros
 
-from Util import get_device
+from util import get_device
 
 
 @dataclass
