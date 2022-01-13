@@ -49,7 +49,7 @@ def create_dataloader(parameters: dict, dataset: torch.utils.data.Dataset):
 
 
 def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
-    if parameters["model_name"] == "SlimCNN":
+    if parameters["model"] == "SlimCNN":
         model = SlimCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
