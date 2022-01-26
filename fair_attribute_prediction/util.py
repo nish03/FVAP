@@ -3,6 +3,7 @@ from pathlib import Path
 import torch
 from torch.nn import DataParallel
 from torch.optim import Adam
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torchvision.transforms import ConvertImageDtype
 
@@ -62,3 +63,16 @@ def create_optimizer(parameters: dict, model: torch.nn.Module):
     if parameters["optimizer"] == "Adam":
         return Adam(model.parameters(), lr=parameters["learning_rate"])
     return None
+
+
+def create_lr_scheduler(parameters: dict, optimizer: torch.optim.Optimizer):
+    if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
+        return ReduceLROnPlateau(
+            optimizer, patience=parameters["learning_rate_patience"], factor=parameters["learning_rate_decay"]
+        )
+    return None
+
+
+def get_learning_rate(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group["lr"]

@@ -5,10 +5,13 @@ import torch.utils.data
 
 from losses.loss import loss_with_metrics
 
+from util import get_learning_rate
+
 
 def train_classifier(
     model: torch.nn.Module,
     optimizer: torch.optim.Optimizer,
+    lr_scheduler,
     train_dataloader: torch.utils.data.DataLoader,
     valid_dataloader: torch.utils.data.DataLoader,
     parameters: Dict,
@@ -67,6 +70,11 @@ def train_classifier(
                 "optimizer_state_dict": optimizer.state_dict(),
                 "epoch": epoch,
             }
+
+        if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
+            lr_scheduler.step(epoch_valid_loss)
+
+        print(f"Epoch: {epoch} Learning Rate: {get_learning_rate(optimizer)}")
 
     final_model_state = {
         "train_metrics": train_metrics,

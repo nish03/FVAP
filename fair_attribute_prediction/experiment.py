@@ -6,7 +6,7 @@ from comet_ml import OfflineExperiment, Experiment
 from torch import save
 
 from training import train_classifier
-from util import create_dataset, create_dataloader, create_model, create_optimizer
+from util import create_dataset, create_dataloader, create_model, create_optimizer, create_lr_scheduler
 
 
 def train_model_experiment(parameters: Dict, experiment_name: str, offline_experiment: bool = False):
@@ -32,10 +32,12 @@ def train_model_experiment(parameters: Dict, experiment_name: str, offline_exper
 
         model = create_model(parameters, train_dataset)
         optimizer = create_optimizer(parameters, model)
+        lr_scheduler = create_lr_scheduler(parameters, optimizer)
 
         best_model_state, final_model_state = train_classifier(
             model,
             optimizer,
+            lr_scheduler,
             train_dataloader,
             valid_dataloader,
             parameters,

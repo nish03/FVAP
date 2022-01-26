@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from argparse import ArgumentParser
 from copy import deepcopy
 
@@ -10,6 +12,14 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=256, help="Batch size")
     parser.add_argument("--epoch_count", type=int, default=15, help="Training epochs")
     parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate")
+    parser.add_argument(
+        "--learning_rate_scheduler",
+        default="ReduceLROnPlateau",
+        choices=["None", "ReduceLROnPlateau"],
+        help="Learning rate scheduler",
+    )
+    parser.add_argument("--learning_rate_decay", type=float, default=0.5, help="Learning rate decay")
+    parser.add_argument("--learning_rate_patience", type=int, default=2, help="Learning rate patience")
     parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"], help="Dataset")
     parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN"], help="Prediction model")
     parser.add_argument("--optimizer", default="Adam", choices=["Adam"], help="Optimizer")

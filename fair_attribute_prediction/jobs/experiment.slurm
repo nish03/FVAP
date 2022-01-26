@@ -7,11 +7,8 @@
 #SBATCH --cpus-per-task=12
 #SBATCH --partition=alpha
 #SBATCH --mem-per-cpu=16G
-#SBATCH --job-name="jupyter-lab"
-#SBATCH --output=slurm-%x.out
-#SBATCH --error=slurm-%x.err
-
-cd ..
+#SBATCH --output=slurm-%x-%A-%a.out
+#SBATCH --error=slurm-%x-%A-%a.err
 
 source jobs/load_alpha_modules.sh
 
@@ -20,4 +17,4 @@ unset XDG_RUNTIME_DIR
 
 source env/bin/activate
 
-srun jupyter lab --ip 0.0.0.0 --port 9000 --no-browser
+srun main.py +experiments/args/${SLURM_JOB_NAME}/${SLURM_ARRAY_TASK_ID}.args
