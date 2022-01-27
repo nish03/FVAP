@@ -75,7 +75,7 @@ def train_classifier(
 
         if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
             average_window_size = parameters["learning_rate_scheduler_average_window_size"]
-            average_range = range(max(0, epoch - average_window_size + 1), epoch + 1)
+            average_range = range(max(0, epoch - average_window_size), epoch)
             averaged_valid_loss = tensor(epoch_valid_losses)[average_range].mean().item()
 
             lr_scheduler.step(averaged_valid_loss)
