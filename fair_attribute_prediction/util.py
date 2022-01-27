@@ -68,7 +68,10 @@ def create_optimizer(parameters: dict, model: torch.nn.Module):
 def create_lr_scheduler(parameters: dict, optimizer: torch.optim.Optimizer):
     if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
         return ReduceLROnPlateau(
-            optimizer, patience=parameters["learning_rate_patience"], factor=parameters["learning_rate_decay"]
+            optimizer,
+            patience=parameters["learning_rate_scheduler_patience"],
+            factor=parameters["learning_rate_scheduler_factor"],
+            verbose=True,
         )
     return None
 

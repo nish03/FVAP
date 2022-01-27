@@ -3,9 +3,9 @@ from typing import Dict, Tuple
 import comet_ml
 import torch.utils.data
 
-from losses.loss import loss_with_metrics
+from torch import tensor
 
-from util import get_learning_rate
+from losses.loss import loss_with_metrics
 
 
 def train_classifier(
@@ -24,6 +24,7 @@ def train_classifier(
     target_attribute = train_dataloader.dataset.attribute(parameters["target_attribute_index"])
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]
+    epoch_valid_losses = []
     for epoch in range(1, epoch_count + 1):
         model.train()
         train_evaluation_state = None
@@ -61,6 +62,7 @@ def train_classifier(
                 )
             experiment.log_metrics(valid_metrics, epoch=epoch)
         epoch_valid_loss = valid_metrics["loss"]
+        epoch_valid_losses.append(epoch_valid_loss)
         if best_valid_loss is None or best_valid_loss < epoch_valid_loss:
             best_valid_loss = epoch_valid_loss
             best_model_state = {
@@ -72,9 +74,11 @@ def train_classifier(
             }
 
         if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
-            lr_scheduler.step(epoch_valid_loss)
+            average_window_size = parameters["learning_rate_scheduler_average_window_size"]
+            average_range = range(max(0, epoch - average_window_size + 1), epoch + 1)
+            averaged_valid_loss = tensor(epoch_valid_losses)[average_range].mean().item()
 
-        print(f"Epoch: {epoch} Learning Rate: {get_learning_rate(optimizer)}")
+            lr_scheduler.step(averaged_valid_loss)
 
     final_model_state = {
         "train_metrics": train_metrics,

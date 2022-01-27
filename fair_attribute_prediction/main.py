@@ -18,8 +18,18 @@ if __name__ == "__main__":
         choices=["None", "ReduceLROnPlateau"],
         help="Learning rate scheduler",
     )
-    parser.add_argument("--learning_rate_decay", type=float, default=0.5, help="Learning rate decay")
-    parser.add_argument("--learning_rate_patience", type=int, default=2, help="Learning rate patience")
+    parser.add_argument(
+        "--learning_rate_scheduler_factor", type=float, default=0.5, help="Learning rate scheduler factor"
+    )
+    parser.add_argument(
+        "--learning_rate_scheduler_patience", type=int, default=5, help="Learning rate scheduler patience"
+    )
+    parser.add_argument(
+        "--learning_rate_scheduler_average_window_size",
+        type=int,
+        default=5,
+        help="Learning rate scheduler average window size",
+    )
     parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"], help="Dataset")
     parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN"], help="Prediction model")
     parser.add_argument("--optimizer", default="Adam", choices=["Adam"], help="Optimizer")
