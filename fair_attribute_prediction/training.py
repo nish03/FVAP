@@ -3,9 +3,8 @@ from typing import Dict, Tuple
 import comet_ml
 import torch.utils.data
 
-from torch import tensor
-
 from losses.loss import loss_with_metrics
+from util import get_learning_rate
 
 
 def train_classifier(
@@ -24,18 +23,19 @@ def train_classifier(
     target_attribute = train_dataloader.dataset.attribute(parameters["target_attribute_index"])
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]
-    epoch_valid_losses = []
+    metrics_averaging_weight = parameters["metrics_averaging_weight"]
     for epoch in range(1, epoch_count + 1):
         model.train()
-        train_evaluation_state = None
+        train_metrics_state = None
         with experiment.context_manager("train"):
             for batch_data in train_dataloader:
                 optimizer.zero_grad(set_to_none=True)
 
-                _loss, train_metrics, train_evaluation_state = loss_with_metrics(
+                _loss, train_metrics, train_metrics_state = loss_with_metrics(
                     model,
                     batch_data,
-                    train_evaluation_state,
+                    train_metrics_state,
+                    metrics_averaging_weight,
                     sensitive_attribute,
                     target_attribute,
                     fair_loss_type,
@@ -48,23 +48,23 @@ def train_classifier(
             experiment.log_metrics(train_metrics, epoch=epoch)
 
         model.eval()
-        valid_evaluation_state = None
+        valid_metrics_state = None
         with experiment.context_manager("valid"):
             for batch_data in valid_dataloader:
-                _loss, valid_metrics, valid_evaluation_state = loss_with_metrics(
+                _loss, valid_metrics, valid_metrics_state = loss_with_metrics(
                     model,
                     batch_data,
-                    valid_evaluation_state,
+                    valid_metrics_state,
+                    metrics_averaging_weight,
                     sensitive_attribute,
                     target_attribute,
                     fair_loss_type,
                     fair_loss_weight,
                 )
             experiment.log_metrics(valid_metrics, epoch=epoch)
-        epoch_valid_loss = valid_metrics["loss"]
-        epoch_valid_losses.append(epoch_valid_loss)
-        if best_valid_loss is None or best_valid_loss < epoch_valid_loss:
-            best_valid_loss = epoch_valid_loss
+        averaged_valid_loss = valid_metrics["averaged_loss"]
+        if best_valid_loss is None or best_valid_loss < averaged_valid_loss:
+            best_valid_loss = averaged_valid_loss
             best_model_state = {
                 "train_metrics": train_metrics,
                 "valid_metrics": valid_metrics,
@@ -74,11 +74,9 @@ def train_classifier(
             }
 
         if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
-            average_window_size = parameters["learning_rate_scheduler_average_window_size"]
-            average_range = range(max(0, epoch - average_window_size), epoch)
-            averaged_valid_loss = tensor(epoch_valid_losses)[average_range].mean().item()
-
             lr_scheduler.step(averaged_valid_loss)
+
+        experiment.log_metric("learning_rate", get_learning_rate(optimizer), epoch=epoch)
 
     final_model_state = {
         "train_metrics": train_metrics,

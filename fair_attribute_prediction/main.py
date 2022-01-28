@@ -25,10 +25,10 @@ if __name__ == "__main__":
         "--learning_rate_scheduler_patience", type=int, default=5, help="Learning rate scheduler patience"
     )
     parser.add_argument(
-        "--learning_rate_scheduler_average_window_size",
-        type=int,
-        default=5,
-        help="Learning rate scheduler average window size",
+        "--metrics_averaging_weight",
+        type=float,
+        default=0.5,
+        help="Metrics averaging weight",
     )
     parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"], help="Dataset")
     parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN"], help="Prediction model")

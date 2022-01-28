@@ -14,6 +14,7 @@ class MetricsState:
     loss_total = 0.0
     loss_term_totals = None
     correct_prediction_counts = None
+    previous_metrics = None
 
 
 @no_grad()
@@ -23,8 +24,9 @@ def metrics(
     multi_attribute_targets: torch.Tensor,
     loss_value: float,
     loss_term_values: Dict[str, float],
+    averaging_weight: float = 0.5,
     state: Optional[MetricsState] = None,
-):
+) -> (Dict[str, float], MetricsState):
     multi_attribute_predictions = model.module.multi_attribute_predictions(multi_output_class_logits)
     prediction_count = multi_attribute_targets.shape[0]
     if state is None:
@@ -48,7 +50,18 @@ def metrics(
     for loss_term_name in state.loss_term_totals:
         loss_term = state.loss_term_totals[loss_term_name] / state.processed_prediction_count
         _metrics[f"loss_term_{loss_term_name}"] = loss_term
-    for attribute_index in range(len(attribute_accuracies)):
-        attribute_accuracy = attribute_accuracies[attribute_index].item()
-        _metrics[f"attribute_{attribute_index}_accuracy"] = attribute_accuracy
+
+    average_metrics = {}
+    for metric_name in _metrics:
+        averaged_metric_name = f"averaged_{metric_name}"
+        average_metrics[averaged_metric_name] = (
+            state.previous_metrics[metric_name] * averaging_weight + _metrics[metric_name] * (1 - averaging_weight)
+            if state.previous_metrics is not None
+            else _metrics[metric_name]
+        )
+
+    _metrics.update(average_metrics)
+
+    state.previous_metrics = _metrics
+
     return _metrics, state

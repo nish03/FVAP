@@ -34,6 +34,7 @@ def loss_with_metrics(
     model: torch.nn.Module,
     batch_data: (torch.Tensor, torch.Tensor),
     metrics_state: Optional[MetricsState],
+    metrics_averaging_weight: float,
     sensitive_attribute: Attribute,
     target_attribute: Attribute,
     fair_loss_type: str,
@@ -60,6 +61,7 @@ def loss_with_metrics(
         multi_attribute_targets,
         loss_value,
         loss_term_values,
+        metrics_averaging_weight,
         metrics_state,
     )
     return _loss, _metrics, metrics_state
