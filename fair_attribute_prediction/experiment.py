@@ -1,12 +1,20 @@
+import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
 from comet_ml import OfflineExperiment, Experiment
+from comet_ml.experiment import BaseExperiment
 from torch import save
 
 from training import train_classifier
 from util import create_dataset, create_dataloader, create_model, create_optimizer, create_lr_scheduler
+
+
+def log_experiment_status(experiment: BaseExperiment, status: str):
+    status_message = f"Experiment '{experiment.get_name()}' {status}"
+    print(status_message)
+    experiment.send_notification(status_message)
 
 
 def train_model_experiment(parameters: Dict, experiment_name: str, offline_experiment: bool = False):
@@ -18,10 +26,10 @@ def train_model_experiment(parameters: Dict, experiment_name: str, offline_exper
         auto_metric_logging=False,
         auto_param_logging=False,
     )
-    print("Started train model experiment")
+    experiment.set_name(experiment_name)
+    log_experiment_status(experiment, "started")
     try:
 
-        experiment.set_name(experiment_name)
         experiment.log_parameters(parameters)
 
         train_dataset = create_dataset(parameters, split_name="train")
@@ -54,9 +62,12 @@ def train_model_experiment(parameters: Dict, experiment_name: str, offline_exper
         save(parameters, parameters_file_path)
 
         experiment.log_model("results", str(experiment_dir_path))
+
+        log_experiment_status(experiment, "finished successfully")
     except Exception as exception:
-        raise exception
-    finally:
+        log_experiment_status(experiment, f"finished with errors\n{traceback.format_exc()}")
         experiment.end()
-        print("Finished train model experiment")
+        raise exception
+
+    experiment.end()
     return experiment

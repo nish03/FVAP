@@ -25,9 +25,9 @@ def train_classifier(
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]
     metrics_averaging_weight = parameters["metrics_averaging_weight"]
+    epoch_train_metrics = None
+    epoch_valid_metrics = None
     for epoch in range(1, epoch_count + 1):
-        epoch_train_metrics = None
-        epoch_valid_metrics = None
 
         model.train()
         with experiment.context_manager("train"):
