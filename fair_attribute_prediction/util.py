@@ -2,7 +2,7 @@ from pathlib import Path
 
 import torch
 from torch.nn import DataParallel
-from torch.optim import Adam
+from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torchvision.transforms import ConvertImageDtype
@@ -61,7 +61,13 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
 
 def create_optimizer(parameters: dict, model: torch.nn.Module):
     if parameters["optimizer"] == "Adam":
-        return Adam(model.parameters(), lr=parameters["learning_rate"])
+        return Adam(
+            model.parameters(),
+            lr=parameters["learning_rate"],
+            betas=(parameters["adam_beta_1"], parameters["adam_beta_2"]),
+        )
+    if parameters["optimizer"] == "SGD":
+        return SGD(model.parameters(), lr=parameters["learning_rate"], momentum=parameters["sgd_momentum"])
     return None
 
 
@@ -69,8 +75,8 @@ def create_lr_scheduler(parameters: dict, optimizer: torch.optim.Optimizer):
     if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
         return ReduceLROnPlateau(
             optimizer,
-            patience=parameters["learning_rate_scheduler_patience"],
-            factor=parameters["learning_rate_scheduler_factor"],
+            patience=parameters["reduce_lr_on_plateau_patience"],
+            factor=parameters["reduce_lr_on_plateau_factor"],
             verbose=True,
         )
     return None

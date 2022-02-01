@@ -14,16 +14,12 @@ if __name__ == "__main__":
     parser.add_argument("--learning_rate", type=float, default=1e-3, help="Learning rate")
     parser.add_argument(
         "--learning_rate_scheduler",
-        default="ReduceLROnPlateau",
+        default="None",
         choices=["None", "ReduceLROnPlateau"],
         help="Learning rate scheduler",
     )
-    parser.add_argument(
-        "--learning_rate_scheduler_factor", type=float, default=0.5, help="Learning rate scheduler factor"
-    )
-    parser.add_argument(
-        "--learning_rate_scheduler_patience", type=int, default=5, help="Learning rate scheduler patience"
-    )
+    parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5, help="ReduceLROnPlateau factor")
+    parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5, help="ReduceLROnPlateau patience")
     parser.add_argument(
         "--metrics_averaging_weight",
         type=float,
@@ -32,7 +28,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"], help="Dataset")
     parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN"], help="Prediction model")
-    parser.add_argument("--optimizer", default="Adam", choices=["Adam"], help="Optimizer")
+    parser.add_argument("--optimizer", default="Adam", choices=["Adam", "SGD"], help="Optimizer")
+    parser.add_argument("--adam_beta_1", type=float, default=0.9, help="Adam beta_1")
+    parser.add_argument("--adam_beta_2", type=float, default=0.999, help="Adam beta_2")
+    parser.add_argument("--sgd_momentum", type=float, default=0.0, help="SGD momentum")
     parser.add_argument("--sensitive_attribute_index", required=True, type=int, help="Sensitive attribute index")
     parser.add_argument("--target_attribute_index", required=True, type=int, help="Target attribute index")
     parser.add_argument("--fair_loss_weight", type=float, default=1, help="Fair loss weight")
