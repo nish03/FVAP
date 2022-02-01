@@ -1,0 +1,4 @@
+fair_attribute_prediction/.dockerignore
+fair_attribute_prediction/.vscode/launch.json
+fair_attribute_prediction/.vscode/tasks.json
+fair_attribute_prediction/Dockerfile
