@@ -17,4 +17,4 @@ unset XDG_RUNTIME_DIR
 
 source env/bin/activate
 
-srun main.py +experiments/args/${SLURM_JOB_NAME}/${SLURM_ARRAY_TASK_ID}.args --experiment_name ${SLURM_JOB_NAME}
+srun main.py +experiments/args/${SLURM_JOB_NAME}/${SLURM_ARRAY_TASK_ID}.args --experiment_name ${SLURM_JOB_NAME}-${SLURM_ARRAY_TASK_ID}
