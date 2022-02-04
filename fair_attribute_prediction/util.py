@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import torch
+from torch import load
 from torch.nn import DataParallel
 from torch.optim import Adam, SGD
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -50,13 +51,25 @@ def create_dataloader(parameters: dict, dataset: torch.utils.data.Dataset):
 
 
 def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
+    model = None
     if parameters["model"] == "SlimCNN":
         model = SlimCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
         model = DataParallel(model)
         model.to(get_device())
-        return model
+
+    if "pretrained_model" in parameters:
+        pretrained_model_state_file_path = Path(parameters["pretrained_model"])
+        if not pretrained_model_state_file_path.is_file():
+            raise FileNotFoundError(
+                f"Pretrained model state file {str(pretrained_model_state_file_path)} doesn't exist"
+            )
+        pretrained_model_state = load(pretrained_model_state_file_path)
+        pretrained_model_state_dict = pretrained_model_state["model_state_dict"]
+        model.load_state_dict(pretrained_model_state_dict)
+
+    return model
 
 
 def create_optimizer(parameters: dict, model: torch.nn.Module):

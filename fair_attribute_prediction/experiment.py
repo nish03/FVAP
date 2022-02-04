@@ -52,16 +52,16 @@ def train_model_experiment(parameters: Dict, experiment_name: str, offline_exper
             experiment,
         )
 
-        experiment_dir_path = Path("experiments") / experiment_name / start_date.isoformat()
-        best_model_checkpoint_file_path = experiment_dir_path / f"best_model.pt"
-        final_model_checkpoint_file_path = experiment_dir_path / f"final_model.pt"
-        parameters_file_path = experiment_dir_path / f"parameters.pt"
-        experiment_dir_path.mkdir(parents=True, exist_ok=True)
-        save(best_model_state, best_model_checkpoint_file_path)
-        save(final_model_state, final_model_checkpoint_file_path)
+        experiment_results_dir_path = Path("experiments") / "results" / experiment_name / start_date.isoformat()
+        best_model_state_file_path = experiment_results_dir_path / f"best_model.pt"
+        final_model_state_file_path = experiment_results_dir_path / f"final_model.pt"
+        parameters_file_path = experiment_results_dir_path / f"parameters.pt"
+        experiment_results_dir_path.mkdir(parents=True, exist_ok=True)
+        save(best_model_state, best_model_state_file_path)
+        save(final_model_state, final_model_state_file_path)
         save(parameters, parameters_file_path)
 
-        experiment.log_model("results", str(experiment_dir_path))
+        experiment.log_model("results", str(experiment_results_dir_path))
 
         log_experiment_status(experiment, "finished successfully")
     except Exception as exception:
