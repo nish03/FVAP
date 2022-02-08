@@ -120,3 +120,4 @@ for epoch in range(10):
         valid_accuracy.append(valid_acc)
         valid_loss.append(valid_loss_epoch)
 print(train_accuracy, valid_accuracy)
+print(train_loss, valid_loss)
