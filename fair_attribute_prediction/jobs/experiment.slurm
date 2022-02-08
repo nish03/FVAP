@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
 #SBATCH --partition=alpha
-#SBATCH --mem-per-cpu=16G
+#SBATCH --mem-per-cpu=32G
 #SBATCH --output=slurm-%x-%A-%a.out
 #SBATCH --error=slurm-%x-%A-%a.err
 

@@ -25,7 +25,7 @@ if __name__ == "__main__":
         default=0.5,
     )
     parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"])
-    parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN"])
+    parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN", "SimpleCNN"])
     parser.add_argument("--optimizer", default="Adam", choices=["Adam", "SGD"])
     parser.add_argument("--adam_beta_1", type=float, default=0.9)
     parser.add_argument("--adam_beta_2", type=float, default=0.999)

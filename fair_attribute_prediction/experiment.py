@@ -6,6 +6,7 @@ from typing import Dict
 from comet_ml import OfflineExperiment, Experiment
 from comet_ml.experiment import BaseExperiment
 from torch import save
+from torch.backends import cudnn
 
 from training import train_classifier
 from util import create_dataset, create_dataloader, create_model, create_optimizer, create_lr_scheduler
@@ -29,8 +30,10 @@ def train_model_experiment(parameters: Dict, experiment_name: str, offline_exper
     experiment.set_name(experiment_name)
     log_experiment_status(experiment, "started")
     try:
-
         experiment.log_parameters(parameters)
+
+        if cudnn.is_available():
+            cudnn.enabled = False
 
         train_dataset = create_dataset(parameters, split_name="train")
         valid_dataset = create_dataset(parameters, split_name="valid")

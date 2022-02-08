@@ -10,6 +10,7 @@ from torchvision.transforms import ConvertImageDtype
 
 from celeba import CelebA
 from multi_attribute_dataset import MultiAttributeDataset
+from simplecnn import SimpleCNN
 from slimcnn import SlimCNN
 from utkface import UTKFace
 
@@ -51,15 +52,20 @@ def create_dataloader(parameters: dict, dataset: torch.utils.data.Dataset):
 
 
 def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
-    model = None
     if parameters["model"] == "SlimCNN":
         model = SlimCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
-        model = DataParallel(model)
-        model.to(get_device())
+    elif parameters["model"] == "SimpleCNN":
+        model = SimpleCNN(
+            attribute_sizes=train_dataset.attribute_sizes,
+        )
+    else:
+        return None
+    model = DataParallel(model)
+    model.to(get_device())
 
-    if "pretrained_model" in parameters:
+    if "pretrained_model" in parameters and parameters["pretrained_model"] is not None:
         pretrained_model_state_file_path = Path(parameters["pretrained_model"])
         if not pretrained_model_state_file_path.is_file():
             raise FileNotFoundError(
