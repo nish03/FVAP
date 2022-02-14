@@ -1,13 +1,16 @@
 import traceback
+from argparse import ArgumentParser
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
-from comet_ml import OfflineExperiment, Experiment
+from comet_ml import Experiment
 from comet_ml.experiment import BaseExperiment
 from torch import save
 from torch.backends import cudnn
 
+from losses.fair_losses import fair_losses
 from training import train_classifier
 from util import create_dataset, create_dataloader, create_model, create_optimizer, create_lr_scheduler
 
@@ -18,10 +21,9 @@ def log_experiment_status(experiment: BaseExperiment, status: str):
     experiment.send_notification(status_message)
 
 
-def train_model_experiment(parameters: Dict, experiment_name: str, offline_experiment: bool = False):
+def train_model_experiment(parameters: Dict, experiment_name: str):
     start_date = datetime.utcnow()
-    experiment_class = OfflineExperiment if offline_experiment else Experiment
-    experiment = experiment_class(
+    experiment = Experiment(
         project_name="fair-attribute-prediction",
         workspace="tobias-haenel",
         auto_metric_logging=False,
@@ -74,3 +76,48 @@ def train_model_experiment(parameters: Dict, experiment_name: str, offline_exper
 
     experiment.end()
     return experiment
+
+
+def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
+    absolute_args_file_path = args_root_dir_path / relative_args_file_path
+    print(absolute_args_file_path)
+
+    parser = ArgumentParser(fromfile_prefix_chars="+")
+    parser.add_argument("--batch_size", type=int, default=256)
+    parser.add_argument("--epoch_count", type=int, default=15)
+    parser.add_argument("--learning_rate", type=float, default=1e-3)
+    parser.add_argument(
+        "--learning_rate_scheduler",
+        default="None",
+        choices=["None", "ReduceLROnPlateau"],
+    )
+    parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5)
+    parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5)
+    parser.add_argument(
+        "--metrics_averaging_weight",
+        type=float,
+        default=0.5,
+    )
+    parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"])
+    parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN", "SimpleCNN"])
+    parser.add_argument("--optimizer", default="Adam", choices=["Adam", "SGD"])
+    parser.add_argument("--adam_beta_1", type=float, default=0.9)
+    parser.add_argument("--adam_beta_2", type=float, default=0.999)
+    parser.add_argument("--sgd_momentum", type=float, default=0.0)
+    parser.add_argument("--sensitive_attribute_index", required=True, type=int)
+    parser.add_argument("--target_attribute_index", required=True, type=int)
+    parser.add_argument("--fair_loss_weight", type=float, default=1)
+    parser.add_argument(
+        "--fair_loss_type",
+        default="IntersectionOverUnion",
+        choices=fair_losses.keys(),
+    )
+    parser.add_argument("--pretrained_model")
+
+    arguments = parser.parse_args([f"+{absolute_args_file_path}"])
+
+    parameters = deepcopy(vars(arguments))
+    experiment_name_parts = [args_root_dir_path.name, *relative_args_file_path.parts[:-1], relative_args_file_path.stem]
+    experiment_name = "-".join(experiment_name_parts)
+
+    train_model_experiment(parameters, experiment_name)

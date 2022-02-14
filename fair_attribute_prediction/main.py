@@ -1,54 +1,28 @@
 #!/usr/bin/env python3
+from glob import glob
+from pathlib import Path
+import sys
 
-from argparse import ArgumentParser
-from copy import deepcopy
-
-from experiment import train_model_experiment
-from losses.fair_losses import fair_losses
+from experiment import run_experiment
+from tqdm import tqdm
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Train a fair attribute prediction model", fromfile_prefix_chars="+")
+    args_root_dir_paths = []
+    for args_root_dir in sys.argv[1:]:
+        args_root_dir_path = Path(args_root_dir)
+        if not args_root_dir_path.is_dir():
+            raise ValueError(f"{args_root_dir_path} is not a directory")
+        args_root_dir_paths.append(args_root_dir_path)
 
-    parser.add_argument("--batch_size", type=int, default=256)
-    parser.add_argument("--epoch_count", type=int, default=15)
-    parser.add_argument("--learning_rate", type=float, default=1e-3)
-    parser.add_argument(
-        "--learning_rate_scheduler",
-        default="None",
-        choices=["None", "ReduceLROnPlateau"],
-    )
-    parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5)
-    parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5)
-    parser.add_argument(
-        "--metrics_averaging_weight",
-        type=float,
-        default=0.5,
-    )
-    parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"])
-    parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN", "SimpleCNN"])
-    parser.add_argument("--optimizer", default="Adam", choices=["Adam", "SGD"])
-    parser.add_argument("--adam_beta_1", type=float, default=0.9)
-    parser.add_argument("--adam_beta_2", type=float, default=0.999)
-    parser.add_argument("--sgd_momentum", type=float, default=0.0)
-    parser.add_argument("--sensitive_attribute_index", required=True, type=int)
-    parser.add_argument("--target_attribute_index", required=True, type=int)
-    parser.add_argument("--fair_loss_weight", type=float, default=1)
-    parser.add_argument(
-        "--fair_loss_type",
-        default="IntersectionOverUnion",
-        choices=fair_losses.keys(),
-    )
-    parser.add_argument("--experiment_name", default="TrainModel")
-    parser.set_defaults(offline_experiment=False)
-    parser.add_argument("--offline_experiment", action="store_true")
-    parser.add_argument("--pretrained_model")
+    args_file_paths = []
+    for args_root_dir_path in args_root_dir_paths:
+        args_files = glob(str(args_root_dir_path / "**" / "*.args"), recursive=True)
+        relative_args_file_paths = []
+        for args_file in args_files:
+            relative_args_file_path = Path(args_file).relative_to(args_root_dir_path)
+            args_file_paths.append((args_root_dir_path, relative_args_file_path))
 
-    arguments = parser.parse_args()
+    args_file_paths.sort()
 
-    parameters = deepcopy(vars(arguments))
-    parameters.pop("experiment_name")
-    parameters.pop("offline_experiment")
-    experiment_name = arguments.experiment_name
-    offline_experiment = arguments.offline_experiment
-
-    train_model_experiment(parameters, experiment_name, offline_experiment)
+    for args_root_dir_path, relative_args_file_path in tqdm(args_file_paths):
+        run_experiment(args_root_dir_path, relative_args_file_path)
