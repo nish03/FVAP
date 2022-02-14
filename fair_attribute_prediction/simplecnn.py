@@ -14,8 +14,8 @@ class SimpleCNN(MultiAttributeClassifier):
     ):
 
         self.hidden_layer_count = hidden_layer_count
-        self.hidden_layer_padding = 2
-        self.hidden_layer_stride = (1, 1)
+        self.hidden_layer_padding = 1
+        self.hidden_layer_stride = (2, 2)
         self.kernel_size = (4, 4)
         self.base_out_filter_count = base_out_filter_count
 
