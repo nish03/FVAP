@@ -23,8 +23,5 @@ def fair_demographic_parity_loss(
             where_sensitive_class = sensitive_attribute_targets.eq(sensitive_attribute_class)
             target_attribute_probabilities_sensitive_attribute = target_attribute_probabilities[where_sensitive_class]
             p_conditioned = target_attribute_probabilities_sensitive_attribute.mean()
-            try:
-                demographic_loss = demographic_loss + (p_conditioned - p_target_attribute).pow(2)
-            except:
-                pass
-    return tensor(demographic_loss)
+            demographic_loss = demographic_loss + (p_conditioned - p_target_attribute).pow(2)
+    return demographic_loss
