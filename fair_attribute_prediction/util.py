@@ -24,13 +24,13 @@ def get_device_count():
 
 
 def create_dataset(parameters: dict, split_name: str):
-    if parameters["dataset"] == "UTKFace":
+    if parameters["dataset"] == "utkface":
         return UTKFace(
             dataset_dir_path=Path("datasets") / "UTKFace",
             image_transform=ConvertImageDtype(torch.float32),
             split_name=split_name,
         )
-    elif parameters["dataset"] == "CelebA":
+    elif parameters["dataset"] == "celeba":
         return CelebA(
             dataset_dir_path=Path("datasets") / "CelebA" / "celeba",
             image_transform=ConvertImageDtype(torch.float32),
@@ -52,11 +52,11 @@ def create_dataloader(parameters: dict, dataset: torch.utils.data.Dataset):
 
 
 def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
-    if parameters["model"] == "SlimCNN":
+    if parameters["model"] == "slimcnn":
         model = SlimCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
-    elif parameters["model"] == "SimpleCNN":
+    elif parameters["model"] == "simplecnn":
         model = SimpleCNN(
             attribute_sizes=train_dataset.attribute_sizes,
         )
@@ -79,19 +79,19 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
 
 
 def create_optimizer(parameters: dict, model: torch.nn.Module):
-    if parameters["optimizer"] == "Adam":
+    if parameters["optimizer"] == "adam":
         return Adam(
             model.parameters(),
             lr=parameters["learning_rate"],
             betas=(parameters["adam_beta_1"], parameters["adam_beta_2"]),
         )
-    if parameters["optimizer"] == "SGD":
+    if parameters["optimizer"] == "sgd":
         return SGD(model.parameters(), lr=parameters["learning_rate"], momentum=parameters["sgd_momentum"])
     return None
 
 
 def create_lr_scheduler(parameters: dict, optimizer: torch.optim.Optimizer):
-    if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
+    if parameters["learning_rate_scheduler"] == "reduce_lr_on_plateau":
         return ReduceLROnPlateau(
             optimizer,
             patience=parameters["reduce_lr_on_plateau_patience"],

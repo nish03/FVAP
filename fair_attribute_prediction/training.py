@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 import comet_ml
 import torch.utils.data
 
-from losses.loss import loss_with_metrics
+from losses.loss import losses_with_metrics
 from metrics import averaged_metrics
 from util import get_learning_rate
 
@@ -30,13 +30,13 @@ def train_classifier(
     for epoch in range(1, epoch_count + 1):
 
         model.train()
-        with experiment.context_manager("train"):
+        with experiment.train():
             train_metrics_state = None
 
             for batch_data in train_dataloader:
                 optimizer.zero_grad(set_to_none=True)
 
-                _loss, batch_train_metrics, train_metrics_state = loss_with_metrics(
+                optimized_loss, batch_train_metrics, train_metrics_state = losses_with_metrics(
                     model,
                     batch_data,
                     train_metrics_state,
@@ -46,7 +46,7 @@ def train_classifier(
                     fair_loss_weight,
                 )
 
-                _loss.backward()
+                optimized_loss.backward()
                 optimizer.step()
 
             averaged_train_metrics = averaged_metrics(
@@ -58,11 +58,11 @@ def train_classifier(
             experiment.log_metrics(epoch_train_metrics, epoch=epoch)
 
         model.eval()
-        with experiment.context_manager("valid"):
+        with experiment.validate():
             valid_metrics_state = None
 
             for batch_data in valid_dataloader:
-                _loss, batch_valid_metrics, valid_metrics_state = loss_with_metrics(
+                optimized_loss, batch_valid_metrics, valid_metrics_state = losses_with_metrics(
                     model,
                     batch_data,
                     valid_metrics_state,
@@ -90,7 +90,7 @@ def train_classifier(
                 "epoch": epoch,
             }
 
-        if parameters["learning_rate_scheduler"] == "ReduceLROnPlateau":
+        if parameters["learning_rate_scheduler"] == "reduce_lr_on_plateau":
             lr_scheduler.step(averaged_valid_loss)
 
         experiment.log_metric("learning_rate", get_learning_rate(optimizer), epoch=epoch)

@@ -1,12 +1,11 @@
 from losses.fair_demographic_parity_loss import fair_demographic_parity_loss
 from losses.fair_equalized_odds_loss import fair_equalized_odds_loss
 from losses.fair_intersection_over_union import fair_intersection_over_union_loss
-from losses.fair_mutual_information_loss import fair_mutual_information_3_loss, fair_mutual_information_loss
+from losses.fair_mutual_information_loss import fair_mutual_information_loss
 
 fair_losses = {
-    "DemographicParity": fair_demographic_parity_loss,
-    "EqualizedOdds": fair_equalized_odds_loss,
-    "IntersectionOverUnion": fair_intersection_over_union_loss,
-    "MutualInformation": fair_mutual_information_loss,
-    "MutualInformation3": fair_mutual_information_3_loss,
+    "demographic_parity": fair_demographic_parity_loss,
+    "equalized_odds": fair_equalized_odds_loss,
+    "intersection_over_union": fair_intersection_over_union_loss,
+    "mutual_information": fair_mutual_information_loss,
 }

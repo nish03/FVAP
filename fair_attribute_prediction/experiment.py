@@ -71,7 +71,6 @@ def train_model_experiment(parameters: Dict, experiment_name: str):
         log_experiment_status(experiment, "finished successfully")
     except Exception as exception:
         log_experiment_status(experiment, f"finished with errors\n{traceback.format_exc()}")
-        experiment.end()
         raise exception
 
     experiment.end()
@@ -80,7 +79,6 @@ def train_model_experiment(parameters: Dict, experiment_name: str):
 
 def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     absolute_args_file_path = args_root_dir_path / relative_args_file_path
-    print(absolute_args_file_path)
 
     parser = ArgumentParser(fromfile_prefix_chars="+")
     parser.add_argument("--batch_size", type=int, default=256)
@@ -88,8 +86,8 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     parser.add_argument("--learning_rate", type=float, default=1e-3)
     parser.add_argument(
         "--learning_rate_scheduler",
-        default="None",
-        choices=["None", "ReduceLROnPlateau"],
+        default="none",
+        choices=["none", "reduce_lr_on_plateau"],
     )
     parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5)
     parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5)
@@ -98,9 +96,9 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
         type=float,
         default=0.5,
     )
-    parser.add_argument("--dataset", default="UTKFace", choices=["UTKFace", "CelebA"])
-    parser.add_argument("--model", default="SlimCNN", choices=["SlimCNN", "SimpleCNN"])
-    parser.add_argument("--optimizer", default="Adam", choices=["Adam", "SGD"])
+    parser.add_argument("--dataset", default="utkface", choices=["utkface", "celeba"])
+    parser.add_argument("--model", default="slimcnn", choices=["slimcnn", "simplecnn"])
+    parser.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     parser.add_argument("--adam_beta_1", type=float, default=0.9)
     parser.add_argument("--adam_beta_2", type=float, default=0.999)
     parser.add_argument("--sgd_momentum", type=float, default=0.0)
@@ -109,7 +107,7 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     parser.add_argument("--fair_loss_weight", type=float, default=1)
     parser.add_argument(
         "--fair_loss_type",
-        default="IntersectionOverUnion",
+        default="intersection_over_union",
         choices=fair_losses.keys(),
     )
     parser.add_argument("--pretrained_model")
