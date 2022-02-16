@@ -18,7 +18,7 @@ def train_classifier(
     experiment: comet_ml.Experiment,
 ) -> Tuple[Dict, Dict]:
     best_model_state = {}
-    best_averaged_valid_loss = None
+    best_valid_loss = None
     epoch_count = parameters["epoch_count"]
     sensitive_attribute = train_dataloader.dataset.attribute(parameters["sensitive_attribute_index"])
     target_attribute = train_dataloader.dataset.attribute(parameters["target_attribute_index"])
@@ -79,9 +79,9 @@ def train_classifier(
 
             experiment.log_metrics(epoch_valid_metrics, epoch=epoch)
 
-        averaged_valid_loss = epoch_valid_metrics["averaged_loss"]
-        if best_averaged_valid_loss is None or best_averaged_valid_loss < averaged_valid_loss:
-            best_averaged_valid_loss = averaged_valid_loss
+        valid_loss = epoch_valid_metrics["loss"]
+        if best_valid_loss is None or best_valid_loss > valid_loss:
+            best_valid_loss = valid_loss
             best_model_state = {
                 "train_metrics": epoch_train_metrics,
                 "valid_metrics": epoch_valid_metrics,
@@ -91,6 +91,7 @@ def train_classifier(
             }
 
         if parameters["learning_rate_scheduler"] == "reduce_lr_on_plateau":
+            averaged_valid_loss = epoch_valid_metrics["averaged_loss"]
             lr_scheduler.step(averaged_valid_loss)
 
         experiment.log_metric("learning_rate", get_learning_rate(optimizer), epoch=epoch)
