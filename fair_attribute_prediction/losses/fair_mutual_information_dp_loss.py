@@ -10,23 +10,23 @@ def entropy(probabilities: torch.Tensor) -> torch.Tensor:
     return -(nonzero_probabilities * nonzero_probabilities.log()).sum()
 
 
-def fair_mutual_information_loss(
+def fair_mutual_information_dp_loss(
     model: torch.nn.Module,
     multi_output_class_logits: torch.Tensor,
     multi_attribute_targets: torch.Tensor,
     sensitive_attribute: Attribute,
     target_attribute: Attribute,
 ) -> torch.Tensor:
-    batch_target_probabilities = model.module.attribute_class_probabilities(
+    target_class_probabilities = model.module.attribute_class_probabilities(
         multi_output_class_logits, target_attribute.index
     )
-    batch_sensitive_probabilities = one_hot(multi_attribute_targets[:, sensitive_attribute.index]).float()
-    batch_joint_probabilities = batch_sensitive_probabilities.unsqueeze(dim=2) * batch_target_probabilities.unsqueeze(
+    sensitive_class_probabilities = one_hot(multi_attribute_targets[:, sensitive_attribute.index]).float()
+    joint_class_probabilities = sensitive_class_probabilities.unsqueeze(dim=2) * target_class_probabilities.unsqueeze(
         dim=1
     )
-    sensitive_probabilities = batch_sensitive_probabilities.mean(dim=0)
-    target_probabilities = batch_target_probabilities.mean(dim=0)
-    joint_probabilities = batch_joint_probabilities.mean(dim=0)
+    sensitive_probabilities = sensitive_class_probabilities.mean(dim=0)
+    target_probabilities = target_class_probabilities.mean(dim=0)
+    joint_probabilities = joint_class_probabilities.mean(dim=0)
     sensitive_entropy = entropy(sensitive_probabilities)
     target_entropy = entropy(target_probabilities)
     joint_entropy = entropy(joint_probabilities)

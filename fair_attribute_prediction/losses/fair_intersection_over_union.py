@@ -46,22 +46,24 @@ def fair_intersection_over_union_loss(
     target_attribute: Attribute,
 ) -> torch.Tensor:
     sensitive_attribute_targets = multi_attribute_targets[:, sensitive_attribute.index]
-    class_probabilities = model.module.attribute_class_probabilities(multi_output_class_logits, target_attribute.index)
-    attribute_targets = multi_attribute_targets[:, target_attribute.index]
+    target_class_probabilities = model.module.attribute_class_probabilities(
+        multi_output_class_logits, target_attribute.index
+    )
+    target_attribute_targets = multi_attribute_targets[:, target_attribute.index]
     squared_iou_differences = []
     for sensitive_class_a in range(sensitive_attribute.size):
         from_sensitive_class_a = sensitive_attribute_targets.eq(sensitive_class_a)
         if from_sensitive_class_a.sum() == 0:
             return tensor(0.0, device=sensitive_attribute_targets.device)
         sensitive_iou_a = sensitive_intersection_over_union(
-            from_sensitive_class_a, class_probabilities, attribute_targets
+            from_sensitive_class_a, target_class_probabilities, target_attribute_targets
         )
         for sensitive_class_b in range(sensitive_class_a):
             from_sensitive_class_b = sensitive_attribute_targets.eq(sensitive_class_b)
             if from_sensitive_class_b.sum() == 0:
                 return tensor(0.0, device=sensitive_attribute_targets.device)
             sensitive_iou_b = sensitive_intersection_over_union(
-                from_sensitive_class_b, class_probabilities, attribute_targets
+                from_sensitive_class_b, target_class_probabilities, target_attribute_targets
             )
 
             squared_iou_difference = (sensitive_iou_a - sensitive_iou_b).pow(2)
