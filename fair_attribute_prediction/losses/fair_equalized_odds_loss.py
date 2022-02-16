@@ -16,17 +16,30 @@ def fair_equalized_odds_loss(
     sensitive_attribute_targets = multi_attribute_targets[:, sensitive_attribute.index]
     class_probabilities = model.module.attribute_class_probabilities(multi_output_class_logits, target_attribute.index)
     attribute_targets = multi_attribute_targets[:, target_attribute.index]
-    ffp_differences = []
-    for target_attribute_class in range(target_attribute.size):
-        where_target_class = attribute_targets.eq(target_attribute_class)
-        target_attribute_probabilities = class_probabilities[where_target_class]
-        p_target_ground = target_attribute_probabilities.mean()  # p(y|y*)
-        for sensitive_attribute_class in range(sensitive_attribute.size):
-            where_sensitive_class = sensitive_attribute_targets.eq(sensitive_attribute_class)
-            target_attribute_probabilities_sensitive_attribute = class_probabilities[
-                where_target_class.logical_and(where_sensitive_class)
-            ]
-            p_target_ground_sensitive = target_attribute_probabilities_sensitive_attribute.mean()  # p(y|y*,s)
-            ffp_differences.append((p_target_ground_sensitive - p_target_ground).pow(2))
+    equalized_odds = 0
+    for target_class_a in range(target_attribute.size):
+        target_class_a_probabilities = class_probabilities[:, target_class_a]  # p(y=a)
+        for target_class_b in range(target_attribute.size):
+            from_target_class_b = attribute_targets.eq(target_class_b)
+            if from_target_class_b.sum() == 0:
+                print(f"no samples from target class b ({target_class_b})")
+                return tensor(0.0, device=attribute_targets.device)
+            target_class_a_class_b_probabilities = target_class_a_probabilities[from_target_class_b]
+            p_target_ground = target_class_a_class_b_probabilities.mean()  # p(y=a|y*=b)
+            for sensitive_class_c in range(sensitive_attribute.size):
+                from_sensitive_class_c = sensitive_attribute_targets.eq(sensitive_class_c)
+                from_target_class_b_and_sensitive_class_c = from_target_class_b.logical_and(from_sensitive_class_c)
+                if from_target_class_b_and_sensitive_class_c.sum() == 0:
+                    print(
+                        f"no samples from target class b ({target_class_b}) and sensitive class c ({sensitive_class_c})"
+                    )
+                    return tensor(0.0, device=attribute_targets.device)
+                target_class_a_class_b_sensitive_class_c_probabilities = target_class_a_probabilities[
+                    from_target_class_b_and_sensitive_class_c
+                ]
+                p_target_ground_sensitive = (
+                    target_class_a_class_b_sensitive_class_c_probabilities.mean()
+                )  # p(y|y*=b, s=c)
+                equalized_odds = equalized_odds + (p_target_ground_sensitive - p_target_ground).pow(2)
 
-    return tensor(ffp_differences).mean()
+    return equalized_odds
