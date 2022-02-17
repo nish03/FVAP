@@ -4,7 +4,6 @@ from pathlib import Path
 import sys
 
 from experiment import run_experiment
-from tqdm import tqdm
 
 if __name__ == "__main__":
     args_root_dir_paths = []
@@ -24,5 +23,5 @@ if __name__ == "__main__":
 
     args_file_paths.sort()
 
-    for args_root_dir_path, relative_args_file_path in tqdm(args_file_paths):
+    for args_root_dir_path, relative_args_file_path in args_file_paths:
         run_experiment(args_root_dir_path, relative_args_file_path)
