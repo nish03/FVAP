@@ -35,21 +35,19 @@ def metrics(
     state.processed_prediction_count += prediction_count
     state.optimized_loss_total += optimized_loss * prediction_count
     for additional_loss_name, additional_loss in additional_losses.items():
-        state.additional_loss_totals[additional_loss_name, additional_loss] += additional_loss * prediction_count
+        state.additional_loss_totals[additional_loss_name] += additional_loss * prediction_count
     state.correct_prediction_counts += multi_attribute_predictions.eq(multi_attribute_targets).sum(dim=0)
 
     attribute_accuracies = 100 * state.correct_prediction_counts / state.processed_prediction_count
-    accuracy = attribute_accuracies.mean().item()
-    loss = state.optimized_loss_total / state.processed_prediction_count
+    metric_accuracy = attribute_accuracies.mean().item()
+    metric_loss = state.optimized_loss_total / state.processed_prediction_count
     _metrics = {
-        "loss": loss,
-        "accuracy": accuracy,
+        "loss": metric_loss,
+        "accuracy": metric_accuracy,
     }
-    for additional_loss_name, additional_loss in state.additional_loss_totals:
-        loss_term = (
-            state.additional_loss_totals[additional_loss_name, additional_loss] / state.processed_prediction_count
-        )
-        _metrics[f"additional_loss_{additional_loss_name}"] = loss_term
+    for additional_loss_name, additional_loss in state.additional_loss_totals.items():
+        metric_loss = state.additional_loss_totals[additional_loss_name] / state.processed_prediction_count
+        _metrics[f"additional_loss_{additional_loss_name}"] = metric_loss
 
     return _metrics, state
 
