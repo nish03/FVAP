@@ -13,6 +13,7 @@ from multi_attribute_dataset import MultiAttributeDataset
 from simplecnn import SimpleCNN
 from slimcnn import SlimCNN
 from utkface import UTKFace
+from siim_isic_melanoma import SIIMISICMelanoma
 
 
 def get_device():
@@ -33,6 +34,12 @@ def create_dataset(parameters: dict, split_name: str):
     elif parameters["dataset"] == "celeba":
         return CelebA(
             dataset_dir_path=Path("datasets") / "CelebA" / "celeba",
+            image_transform=ConvertImageDtype(torch.float32),
+            split_name=split_name,
+        )
+    elif parameters["dataset"] == "siim_isis_melanoma":
+        return SIIMISICMelanoma(
+            dataset_dir_path=Path("datasets") / "SIIM-ISIC-Melanoma",
             image_transform=ConvertImageDtype(torch.float32),
             split_name=split_name,
         )
