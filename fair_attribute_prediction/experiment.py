@@ -96,7 +96,8 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
         type=float,
         default=0.5,
     )
-    parser.add_argument("--dataset", default="utkface", choices=["utkface", "celeba"])
+    parser.add_argument("--dataset", default="celeba", choices=["utkface", "celeba", "siim_isic_melanoma"])
+    parser.add_argument("--image_resizing", default="direct", choices=["direct", "center_crop"])
     parser.add_argument("--model", default="slimcnn", choices=["slimcnn", "simplecnn"])
     parser.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     parser.add_argument("--adam_beta_1", type=float, default=0.9)

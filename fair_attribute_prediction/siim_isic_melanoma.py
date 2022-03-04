@@ -27,6 +27,8 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         data_file_path = dataset_dir_path / "train.csv"
         self.image_file_paths = sorted(image_directory_path.glob("*.jpg"))
         self.attribute_data = read_csv(data_file_path).sort_values(by="image_name")
+        self.attribute_data['sex'].fillna(self.attribute_data['sex'].mode()[0], inplace=True)
+        self.attribute_data['age_approx'].fillna(self.attribute_data['age_approx'].mode()[0], inplace=True)
         self.image_transform = image_transform
         self.attribute_transform = attribute_transform
         self.split_name = split_name
@@ -55,13 +57,14 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         image = read_image(str(image_file_path))
         if self.image_transform:
             image = self.image_transform(image)
-        sex, age_approx, diagnosis = self.attribute_data.iloc[image_file_index, [2, 3, 7]]
-        gender = torch.nan
+        sex, age_approx, target = self.attribute_data.iloc[image_file_index, [2, 3, 7]]
+        diagnosis = int(target)
         if sex == "male":
             gender = 0
         elif sex == "female":
             gender = 1
-        age = torch.nan
+        else:
+            raise ValueError(f"Invalid sex {sex}")
         if age_approx <= 20:
             age = 0
         elif 21 <= age_approx <= 40:
@@ -72,6 +75,8 @@ class SIIMISICMelanoma(MultiAttributeDataset):
             age = 3
         elif 81 <= age_approx:
             age = 4
+        else:
+            raise ValueError(f"Invalid age {age_approx}")
 
         attribute_values = tensor([age, gender, diagnosis])
         if self.attribute_transform:

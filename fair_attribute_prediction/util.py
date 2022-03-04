@@ -3,17 +3,18 @@ from pathlib import Path
 import torch
 from torch import load
 from torch.nn import DataParallel
-from torch.optim import Adam, SGD
+from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from torchvision.transforms import ConvertImageDtype
+from torchvision.transforms import Compose, ConvertImageDtype, Resize, Lambda
+from torchvision.transforms.functional import center_crop
 
 from celeba import CelebA
 from multi_attribute_dataset import MultiAttributeDataset
+from siim_isic_melanoma import SIIMISICMelanoma
 from simplecnn import SimpleCNN
 from slimcnn import SlimCNN
 from utkface import UTKFace
-from siim_isic_melanoma import SIIMISICMelanoma
 
 
 def get_device():
@@ -25,6 +26,18 @@ def get_device_count():
 
 
 def create_dataset(parameters: dict, split_name: str):
+    resize_transform = None
+    target_image_size = 256
+    if parameters["image_resizing"] == "direct":
+        resize_transform = Resize(size=(target_image_size, target_image_size))
+    elif parameters["image_resizing"] == "center_crop":
+        resize_transform = Compose(
+            [
+                Lambda(lambda image: center_crop(image, min(image.shape[0], image.shape[1]))),
+                Resize(size=(target_image_size, target_image_size)),
+            ]
+        )
+
     if parameters["dataset"] == "utkface":
         return UTKFace(
             dataset_dir_path=Path("datasets") / "UTKFace",
@@ -37,10 +50,10 @@ def create_dataset(parameters: dict, split_name: str):
             image_transform=ConvertImageDtype(torch.float32),
             split_name=split_name,
         )
-    elif parameters["dataset"] == "siim_isis_melanoma":
+    elif parameters["dataset"] == "siim_isic_melanoma":
         return SIIMISICMelanoma(
             dataset_dir_path=Path("datasets") / "SIIM-ISIC-Melanoma",
-            image_transform=ConvertImageDtype(torch.float32),
+            image_transform=Compose([resize_transform, ConvertImageDtype(torch.float32)]),
             split_name=split_name,
         )
     return None
