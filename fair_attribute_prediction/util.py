@@ -33,7 +33,7 @@ def create_dataset(parameters: dict, split_name: str):
     elif parameters["image_resizing"] == "center_crop":
         resize_transform = Compose(
             [
-                Lambda(lambda image: center_crop(image, min(image.shape[0], image.shape[1]))),
+                Lambda(lambda image: center_crop(image, min(image.shape[1], image.shape[2]))),
                 Resize(size=(target_image_size, target_image_size)),
             ]
         )
