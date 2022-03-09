@@ -4,7 +4,6 @@ import comet_ml
 import torch.utils.data
 
 from losses.loss import losses_with_metrics
-from metrics import averaged_metrics
 from util import get_learning_rate
 
 
@@ -22,9 +21,9 @@ def train_classifier(
     epoch_count = parameters["epoch_count"]
     sensitive_attribute = train_dataloader.dataset.attribute(parameters["sensitive_attribute_index"])
     target_attribute = train_dataloader.dataset.attribute(parameters["target_attribute_index"])
+    prediction_attribute_indices = train_dataloader.dataset.prediction_attribute_indices
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]
-    metrics_averaging_weight = parameters["metrics_averaging_weight"]
     epoch_train_metrics = None
     epoch_valid_metrics = None
     for epoch in range(1, epoch_count + 1):
@@ -42,6 +41,7 @@ def train_classifier(
                     train_metrics_state,
                     sensitive_attribute,
                     target_attribute,
+                    prediction_attribute_indices,
                     fair_loss_type,
                     fair_loss_weight,
                 )
@@ -49,11 +49,7 @@ def train_classifier(
                 optimized_loss.backward()
                 optimizer.step()
 
-            averaged_train_metrics = averaged_metrics(
-                batch_train_metrics, epoch_train_metrics, metrics_averaging_weight
-            )
             epoch_train_metrics = batch_train_metrics
-            epoch_train_metrics.update(averaged_train_metrics)
 
             experiment.log_metrics(epoch_train_metrics, epoch=epoch)
 
@@ -68,14 +64,12 @@ def train_classifier(
                     valid_metrics_state,
                     sensitive_attribute,
                     target_attribute,
+                    prediction_attribute_indices,
                     fair_loss_type,
                     fair_loss_weight,
                 )
-            averaged_valid_metrics = averaged_metrics(
-                batch_valid_metrics, epoch_valid_metrics, metrics_averaging_weight
-            )
+
             epoch_valid_metrics = batch_valid_metrics
-            epoch_valid_metrics.update(averaged_valid_metrics)
 
             experiment.log_metrics(epoch_valid_metrics, epoch=epoch)
 
@@ -91,8 +85,8 @@ def train_classifier(
             }
 
         if parameters["learning_rate_scheduler"] == "reduce_lr_on_plateau":
-            averaged_valid_loss = epoch_valid_metrics["averaged_loss"]
-            lr_scheduler.step(averaged_valid_loss)
+            valid_loss = epoch_valid_metrics["loss"]
+            lr_scheduler.step(valid_loss)
 
         experiment.log_metric("learning_rate", get_learning_rate(optimizer), epoch=epoch)
 

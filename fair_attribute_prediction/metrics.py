@@ -50,19 +50,3 @@ def metrics(
         _metrics[f"additional_loss_{additional_loss_name}"] = metric_loss
 
     return _metrics, state
-
-
-def averaged_metrics(
-    current_metrics, previous_averaged_metrics: Optional[Dict[str, float]] = None, averaging_weight: float = 0.5
-):
-    _averaged_metrics = {}
-    for metric_name in current_metrics:
-        averaged_metric_name = f"averaged_{metric_name}"
-        _averaged_metrics[averaged_metric_name] = (
-            previous_averaged_metrics[averaged_metric_name] * averaging_weight
-            + current_metrics[metric_name] * (1 - averaging_weight)
-            if previous_averaged_metrics is not None
-            else current_metrics[metric_name]
-        )
-
-    return _averaged_metrics

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import torch
-from torch import load
+from torch import load, tensor
 from torch.nn import DataParallel
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
@@ -72,13 +72,16 @@ def create_dataloader(parameters: dict, dataset: torch.utils.data.Dataset):
 
 
 def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
+    prediction_attribute_sizes = [
+        train_dataset.attribute_sizes[attribute_index] for attribute_index in train_dataset.prediction_attribute_indices
+    ]
     if parameters["model"] == "slimcnn":
         model = SlimCNN(
-            attribute_sizes=train_dataset.attribute_sizes,
+            attribute_sizes=prediction_attribute_sizes,
         )
     elif parameters["model"] == "simplecnn":
         model = SimpleCNN(
-            attribute_sizes=train_dataset.attribute_sizes,
+            attribute_sizes=prediction_attribute_sizes,
         )
     else:
         return None

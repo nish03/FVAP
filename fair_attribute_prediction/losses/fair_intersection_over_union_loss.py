@@ -39,29 +39,21 @@ def sensitive_intersection_over_union(
 
 
 def fair_intersection_over_union_loss(
-    model: torch.nn.Module,
-    multi_output_class_logits: List[torch.Tensor],
-    multi_attribute_targets: torch.Tensor,
     sensitive_attribute: Attribute,
     target_attribute: Attribute,
 ) -> torch.Tensor:
-    sensitive_attribute_targets = multi_attribute_targets[:, sensitive_attribute.index]
-    target_class_probabilities = model.module.attribute_class_probabilities(
-        multi_output_class_logits, target_attribute.index
-    )
-    target_attribute_targets = multi_attribute_targets[:, target_attribute.index]
     fair_iou_loss = 0.0
     for sensitive_class_a, sensitive_class_b in combinations(range(sensitive_attribute.size), 2):
-        from_sensitive_class_a = sensitive_attribute_targets.eq(sensitive_class_a)
-        from_sensitive_class_b = sensitive_attribute_targets.eq(sensitive_class_b)
+        from_sensitive_class_a = sensitive_attribute.targets.eq(sensitive_class_a)
+        from_sensitive_class_b = sensitive_attribute.targets.eq(sensitive_class_b)
         if from_sensitive_class_a.sum() == 0 or from_sensitive_class_b.sum() == 0:
             print(f"no samples for sensitive class combination ({sensitive_class_a}, {sensitive_class_b})")
-            return tensor(0.0, device=sensitive_attribute_targets.device)
+            return tensor(0.0, device=sensitive_attribute.targets.device)
         iou_a = sensitive_intersection_over_union(
-            from_sensitive_class_a, target_class_probabilities, target_attribute_targets
+            from_sensitive_class_a, target_attribute.class_probabilities, target_attribute.targets
         )
         iou_b = sensitive_intersection_over_union(
-            from_sensitive_class_b, target_class_probabilities, target_attribute_targets
+            from_sensitive_class_b, target_attribute.class_probabilities, target_attribute.targets
         )
         fair_iou_loss = fair_iou_loss + (iou_a - iou_b).pow(2)
 

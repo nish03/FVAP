@@ -19,7 +19,7 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         split_train_factor=0.7,
         split_valid_factor=0.2,
     ):
-        MultiAttributeDataset.__init__(self, ["age", "gender", "diagnosis"], [5, 2, 2])
+        MultiAttributeDataset.__init__(self, ["age", "gender", "diagnosis"], [5, 2, 2], [2])
         self.dataset_dir_path = Path(dataset_dir_path)
         if not self.dataset_dir_path.is_dir():
             raise ValueError(f"Invalid dataset directory path {dataset_dir_path} - does not exist")

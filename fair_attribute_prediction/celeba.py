@@ -32,7 +32,8 @@ class CelebA(MultiAttributeDataset):
             self.dataset_image_count = int(next(attribute_data_reader)[0])
             attribute_names = next(attribute_data_reader)[:-1]
         attribute_class_counts = [2] * len(attribute_names)
-        MultiAttributeDataset.__init__(self, attribute_names, attribute_class_counts)
+        prediction_attribute_indices = list(range(len(attribute_names)))
+        MultiAttributeDataset.__init__(self, attribute_names, attribute_class_counts, prediction_attribute_indices)
 
         self.image_file_numbers, partition_indices = loadtxt(
             str(self.partitions_file_path),

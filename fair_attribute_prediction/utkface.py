@@ -18,7 +18,7 @@ class UTKFace(MultiAttributeDataset):
         split_train_factor=0.7,
         split_valid_factor=0.2,
     ):
-        MultiAttributeDataset.__init__(self, ["age", "gender", "race"], [2, 2, 5])
+        MultiAttributeDataset.__init__(self, ["age", "gender", "race"], [2, 2, 5], [0, 1, 2])
         self.dataset_dir_path = Path(dataset_dir_path)
         if not self.dataset_dir_path.is_dir():
             raise ValueError(
