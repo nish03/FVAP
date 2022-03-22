@@ -12,6 +12,7 @@ from torch.backends import cudnn
 
 from losses.fair_losses import fair_losses
 from training import train_classifier
+from evaluation import evaluate_classifier
 from util import create_dataset, create_dataloader, create_model, create_optimizer, create_lr_scheduler
 
 
@@ -21,7 +22,7 @@ def log_experiment_status(experiment: BaseExperiment, status: str):
     experiment.send_notification(status_message)
 
 
-def train_model_experiment(parameters: Dict, experiment_name: str):
+def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str):
     start_date = datetime.utcnow()
     experiment = Experiment(
         project_name="fair-attribute-prediction",
@@ -55,6 +56,22 @@ def train_model_experiment(parameters: Dict, experiment_name: str):
             valid_dataloader,
             parameters,
             experiment,
+        )
+
+        best_model_state["scores"] = evaluate_classifier(
+            model, best_model_state, valid_dataloader, parameters, experiment
+        )
+        experiment.log_metrics(
+            {f"best_model_{score_name}": score_value for score_name, score_value in best_model_state["scores"].items()}
+        )
+        final_model_state["scores"] = evaluate_classifier(
+            model, final_model_state, valid_dataloader, parameters, experiment
+        )
+        experiment.log_metrics(
+            {
+                f"final_model_{score_name}": score_value
+                for score_name, score_value in final_model_state["scores"].items()
+            }
         )
 
         experiment_results_dir_path = Path("experiments") / "results" / experiment_name / start_date.isoformat()
@@ -114,4 +131,4 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     experiment_name_parts = [args_root_dir_path.name, *relative_args_file_path.parts[:-1], relative_args_file_path.stem]
     experiment_name = "-".join(experiment_name_parts)
 
-    train_model_experiment(parameters, experiment_name)
+    fair_attribute_prediction_experiment(parameters, experiment_name)

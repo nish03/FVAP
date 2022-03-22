@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import torch
-from torch import load, tensor
+from torch import load
 from torch.nn import DataParallel
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
