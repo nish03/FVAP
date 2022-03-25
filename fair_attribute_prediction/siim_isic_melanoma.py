@@ -19,7 +19,7 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         split_train_factor=0.7,
         split_valid_factor=0.2,
     ):
-        MultiAttributeDataset.__init__(self, ["age", "gender", "diagnosis"], [5, 2, 2], [2])
+        MultiAttributeDataset.__init__(self, ["age", "gender", "diagnosis"], [3, 2, 2], [2])
         self.dataset_dir_path = Path(dataset_dir_path)
         if not self.dataset_dir_path.is_dir():
             raise ValueError(f"Invalid dataset directory path {dataset_dir_path} - does not exist")
@@ -65,16 +65,12 @@ class SIIMISICMelanoma(MultiAttributeDataset):
             gender = 1
         else:
             raise ValueError(f"Invalid sex {sex}")
-        if age_approx <= 20:
+        if age_approx <= 30:
             age = 0
-        elif 21 <= age_approx <= 40:
+        elif 31 <= age_approx <= 60:
             age = 1
-        elif 41 <= age_approx <= 60:
+        elif 61 <= age_approx:
             age = 2
-        elif 61 <= age_approx <= 80:
-            age = 3
-        elif 81 <= age_approx:
-            age = 4
         else:
             raise ValueError(f"Invalid age {age_approx}")
 
