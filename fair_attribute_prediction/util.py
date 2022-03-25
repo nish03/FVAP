@@ -6,7 +6,15 @@ from torch.nn import DataParallel
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
-from torchvision.transforms import Compose, ConvertImageDtype, Resize, Lambda
+from torchvision.transforms import (
+    Compose,
+    ConvertImageDtype,
+    Resize,
+    Lambda,
+    RandomHorizontalFlip,
+    RandomVerticalFlip,
+    ColorJitter, RandomRotation,
+)
 from torchvision.transforms.functional import center_crop
 
 from celeba import CelebA
@@ -26,18 +34,6 @@ def get_device_count():
 
 
 def create_dataset(parameters: dict, split_name: str):
-    resize_transform = None
-    target_image_size = 256
-    if parameters["image_resizing"] == "direct":
-        resize_transform = Resize(size=(target_image_size, target_image_size))
-    elif parameters["image_resizing"] == "center_crop":
-        resize_transform = Compose(
-            [
-                Lambda(lambda image: center_crop(image, min(image.shape[1], image.shape[2]))),
-                Resize(size=(target_image_size, target_image_size)),
-            ]
-        )
-
     if parameters["dataset"] == "utkface":
         return UTKFace(
             dataset_dir_path=Path("datasets") / "UTKFace",
@@ -51,9 +47,29 @@ def create_dataset(parameters: dict, split_name: str):
             split_name=split_name,
         )
     elif parameters["dataset"] == "siim_isic_melanoma":
+        target_image_size = 256
+        resize_transform = Compose(
+            [
+                Lambda(lambda image: center_crop(image, min(image.shape[1], image.shape[2]))),
+                Resize(size=(target_image_size, target_image_size)),
+            ]
+        )
+        datatype_conversion_transform = ConvertImageDtype(torch.float32)
+        if split_name == "train":
+            augmentation_transform = Compose(
+                [
+                    RandomHorizontalFlip(),
+                    RandomVerticalFlip(),
+                    RandomRotation(degrees=360),
+                    ColorJitter(brightness=0.2, contrast=0.2, saturation=0.3, hue=0.0),
+                ]
+            )
+            image_transform = Compose([resize_transform, augmentation_transform, datatype_conversion_transform])
+        else:
+            image_transform = Compose([resize_transform, datatype_conversion_transform])
         return SIIMISICMelanoma(
             dataset_dir_path=Path("datasets") / "SIIM-ISIC-Melanoma",
-            image_transform=Compose([resize_transform, ConvertImageDtype(torch.float32)]),
+            image_transform=image_transform,
             split_name=split_name,
         )
     return None
