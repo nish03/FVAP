@@ -2,11 +2,10 @@ from typing import Dict
 
 import comet_ml
 from numpy import array
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, confusion_matrix
 
 import torch.utils.data
 
-from torch import cat
 from util import get_device
 
 
@@ -16,13 +15,14 @@ def evaluate_classifier(
     dataloader: torch.utils.data.DataLoader,
     parameters: Dict,
     experiment: comet_ml.Experiment,
-) -> Dict[str, float]:
+) -> (Dict[str, float], torch.Tensor):
     model_state_dict = model_state["model_state_dict"]
     model.load_state_dict(model_state_dict)
 
     target_attribute = dataloader.dataset.attribute(parameters["target_attribute_index"])
     target_attribute.targets = []
     target_attribute.class_probabilities = []
+    target_attribute.predictions = []
 
     prediction_attribute_indices = dataloader.dataset.prediction_attribute_indices
 
@@ -39,6 +39,9 @@ def evaluate_classifier(
             target_attribute.class_probabilities += model.module.attribute_class_probabilities(
                 multi_output_class_logits, target_prediction_attribute_index
             ).tolist()
+            target_attribute.predictions += model.module.multi_attribute_predictions(multi_output_class_logits)[
+                :, target_prediction_attribute_index
+            ].tolist()
 
     if target_attribute.size == 2:
         scores["roc_auc"] = roc_auc_score(target_attribute.targets, array(target_attribute.class_probabilities)[:, 1])
@@ -49,4 +52,6 @@ def evaluate_classifier(
             multi_class="ovo",
             average="weighted",
         )
-    return scores
+
+    _confusion_matrix = confusion_matrix(target_attribute.targets, target_attribute.predictions)
+    return scores, _confusion_matrix

@@ -58,13 +58,21 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
             experiment,
         )
 
-        best_model_state["scores"] = evaluate_classifier(
+        target_attribute = train_dataset.attribute(parameters["target_attribute_index"])
+        best_model_state["scores"], best_model_confusion_matrix = evaluate_classifier(
             model, best_model_state, valid_dataloader, parameters, experiment
         )
         experiment.log_metrics(
             {f"best_model_{score_name}": score_value for score_name, score_value in best_model_state["scores"].items()}
         )
-        final_model_state["scores"] = evaluate_classifier(
+        experiment.log_confusion_matrix(
+            matrix=best_model_confusion_matrix,
+            title="Best Model Confusion Matrix",
+            row_label=f"Actual {target_attribute.name}",
+            column_label=f"Predicted {target_attribute.name}",
+            file_name="best_model_confusion_matrix.json"
+        )
+        final_model_state["scores"], final_model_confusion_matrix = evaluate_classifier(
             model, final_model_state, valid_dataloader, parameters, experiment
         )
         experiment.log_metrics(
@@ -72,6 +80,13 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
                 f"final_model_{score_name}": score_value
                 for score_name, score_value in final_model_state["scores"].items()
             }
+        )
+        experiment.log_confusion_matrix(
+            matrix=final_model_confusion_matrix,
+            title="Final Model Confusion Matrix",
+            row_label=f"Actual {target_attribute.name}",
+            column_label=f"Predicted {target_attribute.name}",
+            file_name="final_model_confusion_matrix.json"
         )
 
         experiment_results_dir_path = Path("experiments") / "results" / experiment_name / start_date.isoformat()
@@ -109,7 +124,6 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5)
     parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5)
     parser.add_argument("--dataset", default="celeba", choices=["utkface", "celeba", "siim_isic_melanoma"])
-    parser.add_argument("--image_resizing", default="direct", choices=["direct", "center_crop"])
     parser.add_argument("--model", default="slimcnn", choices=["slimcnn", "simplecnn"])
     parser.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     parser.add_argument("--adam_beta_1", type=float, default=0.9)

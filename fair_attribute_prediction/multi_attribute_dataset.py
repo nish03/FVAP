@@ -35,3 +35,4 @@ class Attribute:
     size: int
     targets: torch.Tensor = None
     class_probabilities: torch.Tensor = None
+    predictions: torch.Tensor = None
