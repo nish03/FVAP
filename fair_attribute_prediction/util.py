@@ -1,8 +1,9 @@
 from pathlib import Path
 
 import torch
-from torch import load
+from torch import load, float32, tensor
 from torch.nn import DataParallel
+from torch.nn.functional import normalize
 from torch.optim import SGD, Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
@@ -13,7 +14,8 @@ from torchvision.transforms import (
     Lambda,
     RandomHorizontalFlip,
     RandomVerticalFlip,
-    ColorJitter, RandomRotation,
+    ColorJitter,
+    RandomRotation,
 )
 from torchvision.transforms.functional import center_crop
 
@@ -91,13 +93,25 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
     prediction_attribute_sizes = [
         train_dataset.attribute_sizes[attribute_index] for attribute_index in train_dataset.prediction_attribute_indices
     ]
+    prediction_attribute_class_weights = [
+        (
+            1.0
+            / (
+                prediction_attribute_sizes[attribute_index]
+                * normalize(tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32), p=1, dim=0)
+            )
+        ).tolist()
+        for attribute_index in train_dataset.prediction_attribute_indices
+    ]
     if parameters["model"] == "slimcnn":
         model = SlimCNN(
             attribute_sizes=prediction_attribute_sizes,
+            attribute_class_weights=prediction_attribute_class_weights,
         )
     elif parameters["model"] == "simplecnn":
         model = SimpleCNN(
             attribute_sizes=prediction_attribute_sizes,
+            attribute_class_weights=prediction_attribute_class_weights,
         )
     else:
         return None

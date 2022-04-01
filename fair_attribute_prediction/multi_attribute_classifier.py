@@ -7,9 +7,12 @@ from typing import List, Tuple
 
 
 class MultiAttributeClassifier(ABC, Module):
-    def __init__(self, attribute_sizes: List[int], multi_output_in_filter_count: int):
+    def __init__(
+        self, attribute_sizes: List[int], attribute_class_weights: List[List[int]], multi_output_in_filter_count: int
+    ):
         Module.__init__(self)
         self.attribute_sizes = tensor(attribute_sizes)
+        self.attribute_class_weights = attribute_class_weights
         (
             unique_attribute_sizes,
             inverse_attribute_size_indices,

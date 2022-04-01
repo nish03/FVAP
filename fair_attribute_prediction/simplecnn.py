@@ -11,6 +11,7 @@ class SimpleCNN(MultiAttributeClassifier):
         hidden_layer_count=4,
         base_out_filter_count=64,
         attribute_sizes=None,
+        attribute_class_weights=None,
     ):
 
         self.hidden_layer_count = hidden_layer_count
@@ -22,6 +23,7 @@ class SimpleCNN(MultiAttributeClassifier):
         MultiAttributeClassifier.__init__(
             self,
             attribute_sizes,
+            attribute_class_weights,
             multi_output_in_filter_count=self.base_out_filter_count * 2 ** (self.hidden_layer_count - 1),
         )
 
@@ -52,5 +54,3 @@ class SimpleCNN(MultiAttributeClassifier):
         global_pooling_module = self.get_submodule(f"layer_{self.hidden_layer_count}_global_pooling")
         x = global_pooling_module(x)
         return x
-
-

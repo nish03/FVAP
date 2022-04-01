@@ -1,7 +1,5 @@
-from collections import defaultdict
-
 import torch
-from torch import cat, flatten, stack, tensor
+from torch import cat, tensor
 from torch.nn import (
     AdaptiveAvgPool2d,
     BatchNorm2d,
@@ -82,9 +80,7 @@ class SSEBlock(Module):
         )
         self.add_module(
             "layer_2_expand_dw_sep_3x3_conv",
-            depthwise_separable_3x3_conv(
-                self.squeeze_filter_count, self.expand_filter_count
-            ),
+            depthwise_separable_3x3_conv(self.squeeze_filter_count, self.expand_filter_count),
         )
 
         if init_weights:
@@ -92,9 +88,7 @@ class SSEBlock(Module):
 
     def forward(self, x):
         x = self.layer_1_squeeze_conv(x)
-        x = cat(
-            [self.layer_2_expand_1x1_conv(x), self.layer_2_expand_dw_sep_3x3_conv(x)], 1
-        )
+        x = cat([self.layer_2_expand_1x1_conv(x), self.layer_2_expand_dw_sep_3x3_conv(x)], 1)
         return x
 
 
@@ -105,12 +99,8 @@ class SlimModule(Module):
         expand_filter_count = 4 * squeeze_filter_count
         dw_conv_filters = 3 * squeeze_filter_count
 
-        self.add_module(
-            "layer_1_sse_block", SSEBlock(input_channel_count, squeeze_filter_count)
-        )
-        self.add_module(
-            "layer_2_sse_block", SSEBlock(2 * expand_filter_count, squeeze_filter_count)
-        )
+        self.add_module("layer_1_sse_block", SSEBlock(input_channel_count, squeeze_filter_count))
+        self.add_module("layer_2_sse_block", SSEBlock(2 * expand_filter_count, squeeze_filter_count))
         self.add_module(
             "layer_3_dw_sep_3x3_conv",
             depthwise_separable_3x3_conv(2 * expand_filter_count, dw_conv_filters),
@@ -145,18 +135,15 @@ class SlimCNN(MultiAttributeClassifier):
         self,
         squeeze_filter_counts=None,
         attribute_sizes=None,
+        attribute_class_weights=None,
     ):
 
         if squeeze_filter_counts is None:
             squeeze_filter_counts = [16, 32, 48, 64]
         self.squeeze_filter_counts = tensor(squeeze_filter_counts)
 
-        multi_output_in_filter_count = (
-                self.squeeze_filter_counts[- 1] * 3
-        )
-        MultiAttributeClassifier.__init__(
-            self, attribute_sizes, multi_output_in_filter_count
-        )
+        multi_output_in_filter_count = self.squeeze_filter_counts[-1] * 3
+        MultiAttributeClassifier.__init__(self, attribute_sizes, attribute_class_weights, multi_output_in_filter_count)
 
         self.layer_count = 0
         self.slim_module_count = 0
@@ -192,18 +179,14 @@ class SlimCNN(MultiAttributeClassifier):
         self.add_module(
             f"layer_{self.layer_count}_slim_module",
             SlimModule(
-                self.squeeze_filter_counts[self.slim_module_count - 2] * 3
-                if self.slim_module_count > 1
-                else 96,
+                self.squeeze_filter_counts[self.slim_module_count - 2] * 3 if self.slim_module_count > 1 else 96,
                 self.squeeze_filter_counts[self.slim_module_count - 1],
             ),
         )
 
     def add_global_pooling_layer(self):
         self.layer_count += 1
-        self.add_module(
-            f"layer_{self.layer_count}_global_pooling", AdaptiveAvgPool2d(1)
-        )
+        self.add_module(f"layer_{self.layer_count}_global_pooling", AdaptiveAvgPool2d(1))
 
     def final_layer_output(self, x: torch.Tensor) -> torch.Tensor:
         output = self.layer_1_convolution(x)
