@@ -15,10 +15,9 @@ def cross_entropy_loss(
         for output_class_logits_index, attribute_index in enumerate(attribute_indices):
             attribute_class_logits = output_class_logits[..., output_class_logits_index]
             attribute_targets = multi_attribute_targets[:, attribute_index].flatten()
-            attribute_class_weights = tensor(
-                model.module.attribute_class_weights[attribute_index],
-                device=output_class_logits.device,
-            )
+            attribute_class_weights = model.module.attribute_class_weights[attribute_index]
+            if attribute_class_weights is not None:
+                attribute_class_weights = attribute_class_weights.to(attribute_class_logits.device)
             if attribute_size == 2:
                 attribute_class_logits = stack([-attribute_class_logits, attribute_class_logits], dim=-1)
             output_loss = cross_entropy(

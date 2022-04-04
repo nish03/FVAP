@@ -97,12 +97,20 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
         (
             1.0
             / (
-                prediction_attribute_sizes[attribute_index]
-                * normalize(tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32), p=1, dim=0)
+                prediction_attribute_sizes[prediction_attribute_index]
+                * normalize(
+                    tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32), p=1, dim=0
+                )
             )
-        ).tolist()
-        for attribute_index in train_dataset.prediction_attribute_indices
+        )
+        if parameters["use_class_weights"]
+        else None
+        for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
     ]
+    if parameters["use_class_weights"]:
+        print(f"{train_dataset.attribute_class_counts=}")
+        print(f"{prediction_attribute_sizes=}")
+        print(f"{prediction_attribute_class_weights=}")
     if parameters["model"] == "slimcnn":
         model = SlimCNN(
             attribute_sizes=prediction_attribute_sizes,
