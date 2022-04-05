@@ -1,7 +1,7 @@
 from typing import List
 
 import torch
-from torch import tensor, stack
+from torch import stack
 from torch.nn.functional import cross_entropy
 
 
@@ -20,10 +20,8 @@ def cross_entropy_loss(
                 attribute_class_weights = attribute_class_weights.to(attribute_class_logits.device)
             if attribute_size == 2:
                 attribute_class_logits = stack([-attribute_class_logits, attribute_class_logits], dim=-1)
-            output_loss = cross_entropy(
-                attribute_class_logits, attribute_targets, weight=attribute_class_weights, reduction="sum"
-            )
+            output_loss = cross_entropy(attribute_class_logits, attribute_targets, weight=attribute_class_weights)
             output_losses.append(output_loss)
 
-    _cross_entropy_loss = sum(output_losses) / multi_attribute_targets.numel()
+    _cross_entropy_loss = sum(output_losses) / multi_attribute_targets.shape[1]
     return _cross_entropy_loss
