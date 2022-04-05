@@ -138,7 +138,7 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
         choices=fair_losses.keys(),
     )
     parser.add_argument("--pretrained_model")
-    parser.add_argument("--use_class_weights", action="store_true")
+    parser.add_argument("--class_weights", default="none", choices=["none", "balanced", "ins", "isns"])
 
     arguments = parser.parse_args([f"+{absolute_args_file_path}"])
 

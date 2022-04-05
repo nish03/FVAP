@@ -93,24 +93,34 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
     prediction_attribute_sizes = [
         train_dataset.attribute_sizes[attribute_index] for attribute_index in train_dataset.prediction_attribute_indices
     ]
-    prediction_attribute_class_weights = [
-        (
+
+    if parameters["class_weights"] == "balanced":
+        prediction_attribute_class_weights = [
             1.0
-            / (
-                prediction_attribute_sizes[prediction_attribute_index]
-                * normalize(
-                    tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32), p=1, dim=0
-                )
+            / prediction_attribute_sizes[prediction_attribute_index]
+            / normalize(tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32), p=1, dim=0)
+            for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
+        ]
+    elif parameters["class_weights"] == "ins":
+        prediction_attribute_class_weights = [
+            prediction_attribute_sizes[prediction_attribute_index]
+            * normalize(1.0 / tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32), p=1, dim=0)
+            for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
+        ]
+    elif parameters["class_weights"] == "isns":
+        prediction_attribute_class_weights = [
+            prediction_attribute_sizes[prediction_attribute_index]
+            * normalize(
+                1.0 / tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32).pow(0.5), p=1, dim=0
             )
-        )
-        if parameters["use_class_weights"]
-        else None
-        for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
-    ]
-    if parameters["use_class_weights"]:
-        print(f"{train_dataset.attribute_class_counts=}")
-        print(f"{prediction_attribute_sizes=}")
-        print(f"{prediction_attribute_class_weights=}")
+            for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
+        ]
+    else:
+        prediction_attribute_class_weights = [None] * len(train_dataset.prediction_attribute_indices)
+    print(f"{train_dataset.attribute_class_counts=}")
+    print(f"{prediction_attribute_sizes=}")
+    print(f"{prediction_attribute_class_weights=}")
+
     if parameters["model"] == "slimcnn":
         model = SlimCNN(
             attribute_sizes=prediction_attribute_sizes,
