@@ -115,6 +115,18 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
             )
             for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
         ]
+    elif parameters["class_weights"] == "ens":
+        beta = tensor(parameters["ens_beta"], dtype=float32)
+        prediction_attribute_class_weights = [
+            prediction_attribute_sizes[prediction_attribute_index]
+            * normalize(
+                (1.0 - beta)
+                / (1.0 - beta.pow(tensor(train_dataset.attribute_class_counts[attribute_index], dtype=float32))),
+                p=1,
+                dim=0,
+            )
+            for prediction_attribute_index, attribute_index in enumerate(train_dataset.prediction_attribute_indices)
+        ]
     else:
         prediction_attribute_class_weights = [None] * len(train_dataset.prediction_attribute_indices)
     print(f"{train_dataset.attribute_class_counts=}")
