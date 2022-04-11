@@ -45,8 +45,27 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
         valid_dataloader = create_dataloader(parameters, valid_dataset)
 
         model = create_model(parameters, train_dataset)
+
         optimizer = create_optimizer(parameters, model)
         lr_scheduler = create_lr_scheduler(parameters, optimizer)
+
+        for prediction_attribute_index, prediction_attribute_size in enumerate(model.module.attribute_sizes):
+            experiment.log_other(
+                f"prediction_attribute_{prediction_attribute_index}_size",
+                prediction_attribute_size,
+            )
+            attribute_index = train_dataset.prediction_attribute_indices[prediction_attribute_index]
+            prediction_attribute_class_weights = model.module.attribute_class_weights[prediction_attribute_index]
+            for class_index, attribute_class_count in enumerate(train_dataset.attribute_class_counts[attribute_index]):
+                experiment.log_other(
+                    f"prediction_attribute_{prediction_attribute_index}_class_{class_index}_count",
+                    attribute_class_count,
+                )
+                if prediction_attribute_class_weights is not None:
+                    experiment.log_other(
+                        f"prediction_attribute_{prediction_attribute_index}_class_{class_index}_weight",
+                        prediction_attribute_class_weights[class_index],
+                    )
 
         best_model_state, final_model_state = train_classifier(
             model,
@@ -70,7 +89,7 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
             title="Best Model Confusion Matrix",
             row_label=f"Actual {target_attribute.name}",
             column_label=f"Predicted {target_attribute.name}",
-            file_name="best_model_confusion_matrix.json"
+            file_name="best_model_confusion_matrix.json",
         )
         final_model_state["scores"], final_model_confusion_matrix = evaluate_classifier(
             model, final_model_state, valid_dataloader, parameters, experiment
@@ -86,7 +105,7 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
             title="Final Model Confusion Matrix",
             row_label=f"Actual {target_attribute.name}",
             column_label=f"Predicted {target_attribute.name}",
-            file_name="final_model_confusion_matrix.json"
+            file_name="final_model_confusion_matrix.json",
         )
 
         experiment_results_dir_path = Path("experiments") / "results" / experiment_name / start_date.isoformat()

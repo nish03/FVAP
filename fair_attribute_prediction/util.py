@@ -129,9 +129,6 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
         ]
     else:
         prediction_attribute_class_weights = [None] * len(train_dataset.prediction_attribute_indices)
-    print(f"{train_dataset.attribute_class_counts=}")
-    print(f"{prediction_attribute_sizes=}")
-    print(f"{prediction_attribute_class_weights=}")
 
     if parameters["model"] == "slimcnn":
         model = SlimCNN(
