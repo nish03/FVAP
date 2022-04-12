@@ -143,7 +143,7 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5)
     parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5)
     parser.add_argument("--dataset", default="celeba", choices=["utkface", "celeba", "siim_isic_melanoma"])
-    parser.add_argument("--model", default="slimcnn", choices=["slimcnn", "simplecnn"])
+    parser.add_argument("--model", default="slimcnn", choices=["slimcnn", "simplecnn", "efficientnet"])
     parser.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     parser.add_argument("--adam_beta_1", type=float, default=0.9)
     parser.add_argument("--adam_beta_2", type=float, default=0.999)

@@ -20,6 +20,7 @@ from torchvision.transforms import (
 from torchvision.transforms.functional import center_crop
 
 from celeba import CelebA
+from efficientnet import EfficientNet
 from multi_attribute_dataset import MultiAttributeDataset
 from siim_isic_melanoma import SIIMISICMelanoma
 from simplecnn import SimpleCNN
@@ -137,6 +138,11 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
         )
     elif parameters["model"] == "simplecnn":
         model = SimpleCNN(
+            attribute_sizes=prediction_attribute_sizes,
+            attribute_class_weights=prediction_attribute_class_weights,
+        )
+    elif parameters["model"] == "efficientnet":
+        model = EfficientNet(
             attribute_sizes=prediction_attribute_sizes,
             attribute_class_weights=prediction_attribute_class_weights,
         )
