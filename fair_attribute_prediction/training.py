@@ -2,6 +2,8 @@ from typing import Dict, Tuple
 
 import comet_ml
 import torch.utils.data
+from torch import no_grad
+from torch.cuda import empty_cache
 
 from losses.loss import losses_with_metrics
 from util import get_learning_rate
@@ -53,25 +55,36 @@ def train_classifier(
 
             experiment.log_metrics(epoch_train_metrics, epoch=epoch)
 
+            del batch_data
+            del train_metrics_state
+            del optimized_loss
+            empty_cache()
+
         model.eval()
         with experiment.validate():
             valid_metrics_state = None
 
-            for batch_data in valid_dataloader:
-                optimized_loss, batch_valid_metrics, valid_metrics_state = losses_with_metrics(
-                    model,
-                    batch_data,
-                    valid_metrics_state,
-                    sensitive_attribute,
-                    target_attribute,
-                    prediction_attribute_indices,
-                    fair_loss_type,
-                    fair_loss_weight,
-                )
+            with no_grad():
+                for batch_data in valid_dataloader:
+                    optimized_loss, batch_valid_metrics, valid_metrics_state = losses_with_metrics(
+                        model,
+                        batch_data,
+                        valid_metrics_state,
+                        sensitive_attribute,
+                        target_attribute,
+                        prediction_attribute_indices,
+                        fair_loss_type,
+                        fair_loss_weight,
+                    )
 
             epoch_valid_metrics = batch_valid_metrics
 
             experiment.log_metrics(epoch_valid_metrics, epoch=epoch)
+
+            del optimized_loss
+            del valid_metrics_state
+            del batch_data
+            empty_cache()
 
         valid_loss = epoch_valid_metrics["loss"]
         if best_valid_loss is None or best_valid_loss > valid_loss:

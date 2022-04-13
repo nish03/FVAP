@@ -9,7 +9,7 @@ from efficientnet_pytorch import EfficientNet as EfficientNetBase
 class EfficientNet(MultiAttributeClassifier):
     def __init__(
         self,
-        b=3,
+        b=2,
         base_out_filter_count=1000,
         attribute_sizes=None,
         attribute_class_weights=None,
