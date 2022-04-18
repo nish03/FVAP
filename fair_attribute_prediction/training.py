@@ -1,12 +1,19 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, OrderedDict
 
 import comet_ml
 import torch.utils.data
-from torch import no_grad
+from torch import no_grad, Tensor
 from torch.cuda import empty_cache
 
 from losses.loss import losses_with_metrics
 from util import get_learning_rate
+
+
+def model_state_dict(model: torch.nn.Module, device="cpu") -> OrderedDict[str, Tensor]:
+    state_dict = model.state_dict()
+    for key, value in state_dict.items():
+        state_dict[key] = value.to(device)
+    return state_dict
 
 
 def train_classifier(
@@ -92,7 +99,7 @@ def train_classifier(
             best_model_state = {
                 "train_metrics": epoch_train_metrics,
                 "valid_metrics": epoch_valid_metrics,
-                "model_state_dict": model.state_dict(),
+                "model_state_dict": model_state_dict(model),
                 "optimizer_state_dict": optimizer.state_dict(),
                 "epoch": epoch,
             }
@@ -106,7 +113,7 @@ def train_classifier(
     final_model_state = {
         "train_metrics": epoch_train_metrics,
         "valid_metrics": epoch_valid_metrics,
-        "model_state_dict": model.state_dict(),
+        "model_state_dict": model_state_dict(model),
         "optimizer_state_dict": optimizer.state_dict(),
         "epoch": epoch_count,
     }
