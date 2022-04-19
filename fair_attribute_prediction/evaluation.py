@@ -2,7 +2,7 @@ from typing import Dict
 
 import comet_ml
 from numpy import array
-from sklearn.metrics import roc_auc_score, confusion_matrix
+from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score
 
 import torch.utils.data
 from torch import no_grad
@@ -52,6 +52,7 @@ def evaluate_classifier(
 
     if target_attribute.size == 2:
         scores["roc_auc"] = roc_auc_score(target_attribute.targets, array(target_attribute.class_probabilities)[:, 1])
+        scores["f1"] = f1_score(target_attribute.targets, target_attribute.predictions, average="binary")
     else:
         scores["roc_auc"] = roc_auc_score(
             target_attribute.targets,
@@ -59,9 +60,11 @@ def evaluate_classifier(
             multi_class="ovo",
             average="weighted",
         )
+        scores["f1"] = f1_score(target_attribute.targets, target_attribute.predictions, average="macro")
+
+    _confusion_matrix = confusion_matrix(target_attribute.targets, target_attribute.predictions)
 
     for key, value in model_state_dict.items():
         model_state_dict[key] = value.cpu()
 
-    _confusion_matrix = confusion_matrix(target_attribute.targets, target_attribute.predictions)
     return scores, _confusion_matrix
