@@ -141,11 +141,18 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
             attribute_sizes=prediction_attribute_sizes,
             attribute_class_weights=prediction_attribute_class_weights,
         )
-    elif parameters["model"] == "efficientnet":
-        model = EfficientNet(
-            attribute_sizes=prediction_attribute_sizes,
-            attribute_class_weights=prediction_attribute_class_weights,
-        )
+    elif parameters["model"][:-1] == "efficientnet-b":
+        try:
+            b = int(parameters["model"][-1])
+            if b < 1 or b > 7:
+                return None
+            model = EfficientNet(
+                attribute_sizes=prediction_attribute_sizes,
+                attribute_class_weights=prediction_attribute_class_weights,
+                b=b,
+            )
+        except ValueError:
+            return None
     else:
         return None
     model = DataParallel(model)
