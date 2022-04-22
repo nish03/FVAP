@@ -6,22 +6,22 @@ import sys
 from experiment import run_experiment
 
 if __name__ == "__main__":
-    args_root_dir_paths = []
-    for args_root_dir in sys.argv[1:]:
-        args_root_dir_path = Path(args_root_dir)
-        if not args_root_dir_path.is_dir():
-            raise ValueError(f"{args_root_dir_path} is not a directory")
-        args_root_dir_paths.append(args_root_dir_path)
+    relative_args_file_paths = []
+    if len(sys.argv) < 2:
+        raise ValueError(f"Root argument directory wasn't specified")
 
-    args_file_paths = []
-    for args_root_dir_path in args_root_dir_paths:
-        args_files = glob(str(args_root_dir_path / "**" / "*.args"), recursive=True)
-        relative_args_file_paths = []
-        for args_file in args_files:
-            relative_args_file_path = Path(args_file).relative_to(args_root_dir_path)
-            args_file_paths.append((args_root_dir_path, relative_args_file_path))
+    args_root_dir_path = Path(sys.argv[1])
+    if not args_root_dir_path.is_dir():
+        raise ValueError(f"{args_root_dir_path} is not a directory")
 
-    args_file_paths.sort()
+    args_files = []
+    if len(sys.argv) == 2:
+        args_file_path_strs = glob(str(args_root_dir_path / "**" / "*.args"), recursive=True)
+        relative_args_file_paths = [Path(args_file_path_str) for args_file_path_str in args_file_path_strs]
+    else:
+        relative_args_file_paths = [Path(relative_args_file_path_str) for relative_args_file_path_str in sys.argv[2:]]
 
-    for args_root_dir_path, relative_args_file_path in args_file_paths:
+    relative_args_file_paths.sort()
+
+    for relative_args_file_path in relative_args_file_paths:
         run_experiment(args_root_dir_path, relative_args_file_path)
