@@ -27,9 +27,16 @@ def train_classifier(
 ) -> Tuple[Dict, Dict]:
     best_model_state = {}
     best_valid_loss = None
+
     epoch_count = parameters["epoch_count"]
     sensitive_attribute = train_dataloader.dataset.attribute(parameters["sensitive_attribute_index"])
     target_attribute = train_dataloader.dataset.attribute(parameters["target_attribute_index"])
+    target_attribute_prediction_index = train_dataloader.dataset.prediction_attribute_indices.index(
+        target_attribute.index
+    )
+    target_attribute.class_weights = (
+        torch.tensor(model.module.attribute_class_weights[target_attribute_prediction_index]) / target_attribute.size
+    ).tolist()
     prediction_attribute_indices = train_dataloader.dataset.prediction_attribute_indices
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]

@@ -144,7 +144,7 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
     elif parameters["model"][:-1] == "efficientnet-b":
         try:
             b = int(parameters["model"][-1])
-            if b < 1 or b > 7:
+            if b < 0 or b > 7:
                 return None
             model = EfficientNet(
                 attribute_sizes=prediction_attribute_sizes,

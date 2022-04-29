@@ -9,8 +9,7 @@ from multi_attribute_dataset import Attribute
 
 
 def intersection_over_union(
-    class_probabilities: torch.Tensor,
-    attribute_targets: torch.Tensor,
+    class_probabilities: torch.Tensor, attribute_targets: torch.Tensor, attribute_class_weights: List[float]
 ) -> torch.Tensor:
     attribute_size = class_probabilities.shape[1]
     confusion_matrix = (
@@ -18,11 +17,12 @@ def intersection_over_union(
     ).sum(dim=0)
     iou = 0
     for attribute_class in range(attribute_size):
-        iou = iou + confusion_matrix[attribute_class, attribute_class] / (
+        attribute_class_iou = confusion_matrix[attribute_class, attribute_class] / (
             confusion_matrix[attribute_class, :].sum()
             + confusion_matrix[:, attribute_class].sum()
             - confusion_matrix[attribute_class, attribute_class]
         )
+        iou = iou + attribute_class_weights[attribute_class] * attribute_class_iou
     iou /= attribute_size
     return iou
 
@@ -31,10 +31,11 @@ def sensitive_intersection_over_union(
     from_sensitive_class: torch.Tensor,
     target_class_probabilities: torch.Tensor,
     target_attribute_targets: torch.Tensor,
+    target_attribute_class_weights: List[float],
 ) -> torch.Tensor:
     class_probabilities = target_class_probabilities[from_sensitive_class]
     attribute_targets = target_attribute_targets[from_sensitive_class]
-    sensitive_iou = intersection_over_union(class_probabilities, attribute_targets)
+    sensitive_iou = intersection_over_union(class_probabilities, attribute_targets, target_attribute_class_weights)
     return sensitive_iou
 
 
@@ -50,10 +51,16 @@ def fair_intersection_over_union_loss(
             print(f"no samples for sensitive class combination ({sensitive_class_a}, {sensitive_class_b})")
             return tensor(0.0, device=sensitive_attribute.targets.device)
         iou_a = sensitive_intersection_over_union(
-            from_sensitive_class_a, target_attribute.class_probabilities, target_attribute.targets
+            from_sensitive_class_a,
+            target_attribute.class_probabilities,
+            target_attribute.targets,
+            target_attribute.class_weights,
         )
         iou_b = sensitive_intersection_over_union(
-            from_sensitive_class_b, target_attribute.class_probabilities, target_attribute.targets
+            from_sensitive_class_b,
+            target_attribute.class_probabilities,
+            target_attribute.targets,
+            target_attribute.class_weights,
         )
         fair_iou_loss = fair_iou_loss + (iou_a - iou_b).pow(2)
 

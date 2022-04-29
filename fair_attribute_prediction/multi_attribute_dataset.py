@@ -37,6 +37,7 @@ class Attribute:
     name: str
     size: int
     class_counts: List[int] = None
+    class_weights: List[float] = None
     targets: torch.Tensor = None
     class_probabilities: torch.Tensor = None
     predictions: torch.Tensor = None
