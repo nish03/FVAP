@@ -34,9 +34,13 @@ def train_classifier(
     target_attribute_prediction_index = train_dataloader.dataset.prediction_attribute_indices.index(
         target_attribute.index
     )
-    target_attribute.class_weights = (
-        torch.tensor(model.module.attribute_class_weights[target_attribute_prediction_index]) / target_attribute.size
-    ).tolist()
+    if parameters["fair_loss_class_weighting"]:
+        target_attribute.class_weights = (
+            model.module.attribute_class_weights[target_attribute_prediction_index].clone().detach()
+            / target_attribute.size
+        ).tolist()
+    else:
+        target_attribute.class_weights = [1.0 / target_attribute.size] * target_attribute.size
     prediction_attribute_indices = train_dataloader.dataset.prediction_attribute_indices
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]

@@ -156,6 +156,7 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
         default="intersection_over_union",
         choices=fair_losses.keys(),
     )
+    parser.add_argument("--fair_loss_class_weighting", action="store_true")
     parser.add_argument("--pretrained_model")
     parser.add_argument("--class_weights", default="none", choices=["none", "balanced", "ins", "isns", "ens"])
     parser.add_argument("--ens_beta", type=float, default=0.99)
