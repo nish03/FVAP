@@ -78,19 +78,6 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
         )
 
         target_attribute = train_dataset.attribute(parameters["target_attribute_index"])
-        best_model_state["scores"], best_model_confusion_matrix = evaluate_classifier(
-            model, best_model_state, valid_dataloader, parameters, experiment
-        )
-        experiment.log_metrics(
-            {f"best_model_{score_name}": score_value for score_name, score_value in best_model_state["scores"].items()}
-        )
-        experiment.log_confusion_matrix(
-            matrix=best_model_confusion_matrix,
-            title="Best Model Confusion Matrix",
-            row_label=f"Actual {target_attribute.name}",
-            column_label=f"Predicted {target_attribute.name}",
-            file_name="best_model_confusion_matrix.json",
-        )
         final_model_state["scores"], final_model_confusion_matrix = evaluate_classifier(
             model, final_model_state, valid_dataloader, parameters, experiment
         )
