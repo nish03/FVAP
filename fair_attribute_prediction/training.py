@@ -31,16 +31,6 @@ def train_classifier(
     epoch_count = parameters["epoch_count"]
     sensitive_attribute = train_dataloader.dataset.attribute(parameters["sensitive_attribute_index"])
     target_attribute = train_dataloader.dataset.attribute(parameters["target_attribute_index"])
-    target_attribute_prediction_index = train_dataloader.dataset.prediction_attribute_indices.index(
-        target_attribute.index
-    )
-    if parameters["fair_loss_class_weighting"]:
-        target_attribute.class_weights = (
-            model.module.attribute_class_weights[target_attribute_prediction_index].clone().detach()
-            / target_attribute.size
-        ).tolist()
-    else:
-        target_attribute.class_weights = [1.0 / target_attribute.size] * target_attribute.size
     prediction_attribute_indices = train_dataloader.dataset.prediction_attribute_indices
     fair_loss_type = parameters["fair_loss_type"]
     fair_loss_weight = parameters["fair_loss_weight"]
