@@ -2,6 +2,8 @@
 
 shopt -s nullglob
 
+JOB_NAME=$(echo "$(basename $1)"/$2 | tr "/" "-" | sed "s/\.args$//")
+
 sbatch <<EOT
 #!/bin/bash -l
  
@@ -15,7 +17,7 @@ sbatch <<EOT
 #SBATCH --mem-per-cpu=10G
 #SBATCH --output=slurm-%x-%A-%a.out
 #SBATCH --error=slurm-%x-%A-%a.err
-#SBATCH --job-name="fair_attribute_prediction-$(date -Iseconds)"
+#SBATCH --job-name="fair_attribute_prediction-$(date -Iseconds)-$JOB_NAME"
 
 source ~/prog/discoret/load_alpha_modules.sh
 
