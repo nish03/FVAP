@@ -81,10 +81,19 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
         final_model_state["scores"], final_model_confusion_matrix = evaluate_classifier(
             model, final_model_state, valid_dataloader, parameters, experiment
         )
+        experiment.log_metric("final_accuracy", f"{final_model_state['valid_metrics']['accuracy'] / 100.0:.3}")
         experiment.log_metrics(
             {
-                f"final_model_{score_name}": score_value
+                f"final_{score_name}_score": f"{score_value:.3}"
                 for score_name, score_value in final_model_state["scores"].items()
+            }
+        )
+        loss_prefix = "additional_loss_fair_"
+        experiment.log_metrics(
+            {
+                f"final_{loss_name[len(loss_prefix):]}_loss": f"{loss_value:.2E}"
+                for loss_name, loss_value in final_model_state["valid_metrics"].items()
+                if loss_name.startswith(loss_prefix)
             }
         )
         experiment.log_confusion_matrix(
@@ -130,7 +139,22 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     parser.add_argument("--reduce_lr_on_plateau_factor", type=float, default=0.5)
     parser.add_argument("--reduce_lr_on_plateau_patience", type=int, default=5)
     parser.add_argument("--dataset", default="celeba", choices=["utkface", "celeba", "siim_isic_melanoma"])
-    parser.add_argument("--model", default="slimcnn", choices=["slimcnn", "simplecnn", "efficientnet-b0", "efficientnet-b1", "efficientnet-b2", "efficientnet-b3", "efficientnet-b4", "efficientnet-b5", "efficientnet-b6", "efficientnet-b7"])
+    parser.add_argument(
+        "--model",
+        default="slimcnn",
+        choices=[
+            "slimcnn",
+            "simplecnn",
+            "efficientnet-b0",
+            "efficientnet-b1",
+            "efficientnet-b2",
+            "efficientnet-b3",
+            "efficientnet-b4",
+            "efficientnet-b5",
+            "efficientnet-b6",
+            "efficientnet-b7",
+        ],
+    )
     parser.add_argument("--optimizer", default="adam", choices=["adam", "sgd"])
     parser.add_argument("--adam_beta_1", type=float, default=0.9)
     parser.add_argument("--adam_beta_2", type=float, default=0.999)
