@@ -140,7 +140,7 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
     parser.add_argument("--fair_loss_weight", type=float, default=1)
     parser.add_argument(
         "--fair_loss_type",
-        default="intersection_over_union",
+        default="intersection_over_union_conditioned",
         choices=fair_losses.keys(),
     )
     parser.add_argument("--pretrained_model")
