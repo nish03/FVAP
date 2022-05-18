@@ -41,27 +41,23 @@ class UTKFace(MultiAttributeDataset):
             "test": test_data_range,
         }
         self.image_file_indices = self.image_file_indices[split_data_ranges[self.split_name]]
-        attribute_names = ["age", "gender", "race"]
+        attribute_names = ["age_group", "gender", "ethnicity"]
         self.attribute_data = {attribute_name: [] for attribute_name in attribute_names}
         for image_file_index in self.image_file_indices:
             image_file_path = self.image_file_paths[image_file_index]
             image_file_name_sections = image_file_path.name.split("_")
-            age, gender, race = [int(x) for x in image_file_name_sections[0:3]]
-            if age <= 20:
-                age = 0
-            elif 21 <= age <= 40:
-                age = 1
-            elif 41 <= age <= 60:
-                age = 2
-            elif 61 <= age <= 80:
-                age = 3
+            age, gender, ethnicity = [int(x) for x in image_file_name_sections[0:3]]
+            if age <= 30:
+                age_group = 0
+            elif 31 <= age <= 60:
+                age_group = 1
             else:
-                age = 4
-            self.attribute_data["age"].append(age)
+                age_group = 2
+            self.attribute_data["age_group"].append(age_group)
             self.attribute_data["gender"].append(gender)
-            self.attribute_data["race"].append(race)
+            self.attribute_data["ethnicity"].append(ethnicity)
         self.attribute_data = DataFrame(self.attribute_data)
-        attribute_sizes = [5, 2, 5]
+        attribute_sizes = [3, 2, 5]
         attribute_class_counts = [
             self.attribute_data[attribute_name].value_counts().tolist() for attribute_name in attribute_names
         ]
