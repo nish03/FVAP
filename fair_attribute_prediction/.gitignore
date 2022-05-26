@@ -137,7 +137,10 @@ slurm-*.out
 # directory links
 datasets
 experiments
-figures
+
+# figure data
+figures/*.json
+figures/*.png
 
 # Comet ML
 .comet.config
