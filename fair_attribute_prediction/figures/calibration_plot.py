@@ -29,8 +29,8 @@ if __name__ == "__main__":
     for i, (experiment_id, experiment_data) in enumerate(experiment_descriptions["experiments"].items()):
         loss_name = experiment_data["loss"]
         display = CalibrationDisplay.from_predictions(
-            numpy.array(experiment_data["targets"]),
-            numpy.array(experiment_data["class_probabilities"])[:, 1],
+            numpy.array(experiment_data["target_attribute_values"]),
+            numpy.array(experiment_data["target_attribute_class_probabilities"])[:, 1],
             n_bins=5,
             name=loss_name,
             ax=calibration_curve_axes,
