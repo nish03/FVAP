@@ -44,7 +44,6 @@ def fair_intersection_over_union_paired_loss(
         from_sensitive_class_a = sensitive_attribute.targets.eq(sensitive_class_a)
         from_sensitive_class_b = sensitive_attribute.targets.eq(sensitive_class_b)
         if from_sensitive_class_a.sum() == 0 or from_sensitive_class_b.sum() == 0:
-            print(f"no samples for sensitive class combination ({sensitive_class_a}, {sensitive_class_b})")
             return tensor(0.0, device=sensitive_attribute.targets.device)
         iou_a = sensitive_intersection_over_union(
             from_sensitive_class_a, target_attribute.class_probabilities, target_attribute.targets
@@ -67,7 +66,6 @@ def fair_intersection_over_union_conditioned_loss(
         from_sensitive_class_a = sensitive_attribute.targets.eq(sensitive_class_a)
         from_any_sensitive_class = ones_like(from_sensitive_class_a)
         if from_sensitive_class_a.sum() == 0:
-            print(f"no samples for sensitive class ({sensitive_class_a})")
             return tensor(0.0, device=sensitive_attribute.targets.device)
         iou_a = sensitive_intersection_over_union(
             from_sensitive_class_a, target_attribute.class_probabilities, target_attribute.targets

@@ -26,8 +26,12 @@ class MultiAttributeDataset(ABC, Dataset):
         attribute_class_counts = self.attribute_class_counts[attribute_index]
         return Attribute(attribute_index, attribute_name, attribute_size, attribute_class_counts)
 
+    def __getitem__(self, index: int) -> (torch.Tensor, torch.Tensor, int):
+        attribute_values, image = self._get_sample(index)
+        return attribute_values, image, index
+
     @abstractmethod
-    def __getitem__(self, index: int) -> (torch.Tensor, torch.Tensor):
+    def _get_sample(self, index: int) -> (torch.Tensor, torch.Tensor):
         raise NotImplementedError()
 
 

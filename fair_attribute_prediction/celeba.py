@@ -2,6 +2,8 @@ from csv import reader
 from pathlib import Path
 
 import numpy
+import torch
+
 from multi_attribute_dataset import MultiAttributeDataset
 from numpy import arange, loadtxt, unique
 from torch import tensor
@@ -65,7 +67,7 @@ class CelebA(MultiAttributeDataset):
     def __len__(self):
         return self.attribute_data.shape[0]
 
-    def __getitem__(self, image_index):
+    def _get_sample(self, image_index: int) -> (torch.Tensor, torch.Tensor):
         image_file_path = self.image_dir_path / f"{self.image_file_numbers[image_index]:0>6}.jpg"
         image = read_image(str(image_file_path))
         attribute_values = tensor(self.attribute_data[image_index])

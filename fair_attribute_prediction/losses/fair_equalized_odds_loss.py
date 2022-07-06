@@ -16,7 +16,6 @@ def fair_equalized_odds_loss(
         for target_class_b in range(target_attribute.size):
             from_target_class_b = target_attribute.targets.eq(target_class_b)
             if from_target_class_b.sum() == 0:
-                print(f"no samples from target class b ({target_class_b})")
                 return tensor(0.0, device=target_attribute.targets.device)
             target_class_a_class_b_probabilities = target_class_a_probabilities[from_target_class_b]
             p_target_ground = target_class_a_class_b_probabilities.mean()  # p(y=a|y*=b)
@@ -24,9 +23,6 @@ def fair_equalized_odds_loss(
                 from_sensitive_class_c = sensitive_attribute.targets.eq(sensitive_class_c)
                 from_target_class_b_and_sensitive_class_c = from_target_class_b.logical_and(from_sensitive_class_c)
                 if from_target_class_b_and_sensitive_class_c.sum() == 0:
-                    print(
-                        f"no samples from target class b ({target_class_b}) and sensitive class c ({sensitive_class_c})"
-                    )
                     return tensor(0.0, device=target_attribute.targets.device)
                 target_class_a_class_b_sensitive_class_c_probabilities = target_class_a_probabilities[
                     from_target_class_b_and_sensitive_class_c

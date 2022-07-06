@@ -17,7 +17,6 @@ def fair_demographic_parity_loss(
         for sensitive_class_b in range(sensitive_attribute.size):
             from_sensitive_class_b = sensitive_attribute.targets.eq(sensitive_class_b)
             if from_sensitive_class_b.sum() == 0:
-                print(f"no samples from sensitive class b ({sensitive_class_b})")
                 return tensor(0, device=sensitive_attribute.targets.device)
             target_class_a_sensitive_class_b_probabilities = target_class_a_probabilities[
                 from_sensitive_class_b

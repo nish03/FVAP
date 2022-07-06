@@ -37,7 +37,7 @@ def evaluate_classifier(
     with experiment.validate():
         model.eval()
         with no_grad():
-            for images, attributes in dataloader:
+            for images, attributes, image_indices in dataloader:
                 images, attributes = images.to(get_device()), attributes.to(get_device())
 
                 multi_output_class_logits = model(images)

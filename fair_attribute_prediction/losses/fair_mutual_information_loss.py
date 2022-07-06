@@ -42,7 +42,6 @@ def fair_mutual_information_eo_loss(
     for target_class_a in range(target_attribute.size):
         from_target_class_a = target_attribute.targets.eq(target_class_a)
         if from_target_class_a.sum() == 0:
-            print(f"no samples from target class a ({target_class_a})")
             return tensor(0.0, device=sensitive_attribute.targets.device)
 
         p_sensitive = sensitive_class_probabilities[from_target_class_a].mean(dim=0)

@@ -121,7 +121,7 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
         raise exception
 
     experiment.end()
-    return experiment
+    return experiment, best_model_state, final_model_state
 
 
 def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):

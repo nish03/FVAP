@@ -1,4 +1,4 @@
-#!/usr/bin python
+#!/usr/bin/env python3
 
 import json
 from argparse import ArgumentParser
@@ -26,11 +26,11 @@ if __name__ == "__main__":
 
     calibration_curve_axes = calibration_plot_figure.add_subplot(grid_spec[:2, :2])
     calibration_displays = {}
-    for i, (experiment_id, experiment_data) in enumerate(experiment_descriptions["experiments"].items()):
+    for i, (experiment_id, experiment_data) in enumerate(sorted(experiment_descriptions["experiments"].items())):
         loss_name = experiment_data["loss"]
         display = CalibrationDisplay.from_predictions(
             numpy.array(experiment_data["target_attribute_values"]),
-            numpy.array(experiment_data["target_attribute_class_probabilities"])[:, 1],
+            numpy.array(experiment_data["target_class_probabilities"])[:, 1],
             n_bins=5,
             name=loss_name,
             ax=calibration_curve_axes,
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     )
 
     # Add histogram
-    for i, (experiment_id, experiment_data) in enumerate(experiment_descriptions["experiments"].items()):
+    for i, (experiment_id, experiment_data) in enumerate(sorted(experiment_descriptions["experiments"].items())):
         row = 2 + int(i / 2)
         column = i % 2
         histogram_axes = calibration_plot_figure.add_subplot(grid_spec[row, column])
@@ -59,7 +59,8 @@ if __name__ == "__main__":
         histogram_axes.set(title=experiment_data["loss"], xlabel="Mean predicted probability", ylabel="Count")
 
     plt.tight_layout()
-    plt.show()
     plt.savefig(
-        experiment_descriptions_file_path.parent / (experiment_descriptions_file_path.stem + "-calibration_plot.png")
+        experiment_descriptions_file_path.parent
+        / ("-".join(experiment_descriptions_file_path.stem.split("-")[:-1]) + "-calibration_plot.png")
     )
+    plt.show()

@@ -69,7 +69,7 @@ class UTKFace(MultiAttributeDataset):
     def __len__(self) -> int:
         return len(self.image_file_indices)
 
-    def __getitem__(self, index: int) -> (torch.Tensor, torch.Tensor):
+    def _get_sample(self, index: int) -> (torch.Tensor, torch.Tensor):
         image_file_index = self.image_file_indices[index]
         image_file_path = self.image_file_paths[image_file_index]
         image = read_image(str(image_file_path))

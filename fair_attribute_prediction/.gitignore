@@ -139,8 +139,7 @@ datasets
 experiments
 
 # figure data
-figures/*.json
-figures/*.png
+figures/data
 
 # Comet ML
 .comet.config
