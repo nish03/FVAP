@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 
@@ -138,8 +138,11 @@ slurm-*.out
 datasets
 experiments
 
-# figure data
-figures/data
+# figure scripts
+figures
+
+# job scripts
+jobs
 
 # Comet ML
 .comet.config
