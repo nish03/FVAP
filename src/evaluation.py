@@ -1,7 +1,7 @@
 from typing import Dict
 
 import comet_ml
-from numpy import array
+from numpy import array, ndarray
 from sklearn.metrics import roc_auc_score, confusion_matrix, f1_score
 
 import torch.utils.data
@@ -17,7 +17,18 @@ def evaluate_classifier(
     dataloader: torch.utils.data.DataLoader,
     parameters: Dict,
     experiment: comet_ml.Experiment,
-) -> (Dict[str, float], torch.Tensor):
+) -> (Dict[str, float], ndarray):
+    """
+    Evaluates a trained multi attribute classifier from a previous fair_attribute_prediction_experiment().
+
+    :param model: Module / MultiAttributeClassifier that was trained with our system.
+    :param model_state: Dict storing the model state returned from Module.state_dict()
+    :param dataloader: DataLoader containing the samples from the validation dateset split
+    :param parameters: Dict containing the parameters that were used in the fair_attribute_prediction_experiment()
+    :param experiment: comet_ml.Experiment that was used in the fair_attribute_prediction_experiment()
+    :return: Dict[str, float] storing the validation F1 score ("f1") and the ROC AUC score ("roc_auc"),
+             ndarray[target_attribute_class_count, target_attribute_class_count] storing a confusion matrix
+    """
     empty_cache()
 
     model_state_dict = model_state["model_state_dict"]

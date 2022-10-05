@@ -23,7 +23,6 @@ from celeba import CelebA
 from efficientnet import EfficientNet
 from multi_attribute_dataset import MultiAttributeDataset
 from siim_isic_melanoma import SIIMISICMelanoma
-from simplecnn import SimpleCNN
 from slimcnn import SlimCNN
 from utkface import UTKFace
 
@@ -133,11 +132,6 @@ def create_model(parameters: dict, train_dataset: MultiAttributeDataset):
 
     if parameters["model"] == "slimcnn":
         model = SlimCNN(
-            attribute_sizes=prediction_attribute_sizes,
-            attribute_class_weights=prediction_attribute_class_weights,
-        )
-    elif parameters["model"] == "simplecnn":
-        model = SimpleCNN(
             attribute_sizes=prediction_attribute_sizes,
             attribute_class_weights=prediction_attribute_class_weights,
         )
