@@ -9,6 +9,27 @@ from multi_attribute_dataset import MultiAttributeDataset
 
 
 class SIIMISICMelanoma(MultiAttributeDataset):
+    """
+    SIIMISICMelanoma provides access to the dataset from the SIIM-ISIC-Melanoma classification challenge as an
+    :class:`MultiAttributeDataset`.
+    
+    See https://www.kaggle.com/competitions/siim-isic-melanoma-classification for more information on this dataset.
+    This class requires the JPEG images (such as jpeg/train/ISIC_0015719.jpg) and attribute labels (train.csv) for
+    training. The test sample data isn't required it doesn't contain age and gender annotations. This class can create
+    new dateset splits from the original training samples instead.
+
+    We derive three categorical attributes from the original labels:
+        age_group (derived from the original age_approx values)
+            0 - 30 or fewer years old
+            1 - between 31 and 60 years old
+            2 - 61 or more years old
+        gender
+            0 - Male
+            1 - Female
+        diagnosis:
+            0 - Benign (noncancerous)
+            1 - Malignant (cancerous)
+    """
     def __init__(
         self,
         dataset_dir_path,
@@ -19,6 +40,17 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         split_train_factor=0.7,
         split_valid_factor=0.2,
     ):
+        """
+        Creates a new SIIMISICMelanoma dataset instance.
+
+        :param dataset_dir_path: Path pointing to the location of the dataset directory
+        :param image_transform: Transformation(Tensor[3, 32, 32]) that is applied to each image
+        :param attribute_transform: Transformation(Tensor[40]) that is applied to the attributes of each image
+        :param split_name: Name of the dataset partition ("all", "train", "valid" or "test")
+        :param split_seed: Seed for the random dataset split generation
+        :param split_train_factor: Fraction of samples in the train partition
+        :param split_valid_factor: Fraction of samples in the validation partition
+        """
         self.dataset_dir_path = Path(dataset_dir_path)
         if not self.dataset_dir_path.is_dir():
             raise ValueError(f"Invalid dataset directory path {dataset_dir_path} - does not exist")
@@ -46,7 +78,7 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         raw_attribute_data = read_csv(data_file_path).sort_values(by="image_name")
         raw_attribute_data["sex"].fillna(raw_attribute_data["sex"].mode()[0], inplace=True)
         raw_attribute_data["age_approx"].fillna(raw_attribute_data["age_approx"].mode()[0], inplace=True)
-        attribute_names = ["age", "gender", "diagnosis"]
+        attribute_names = ["age_group", "gender", "diagnosis"]
         self.attribute_data = {attribute_name: [] for attribute_name in attribute_names}
         for image_file_index in self.image_file_indices:
             sex, age_approx, target = raw_attribute_data.iloc[image_file_index, [2, 3, 7]]
@@ -75,9 +107,22 @@ class SIIMISICMelanoma(MultiAttributeDataset):
         )
 
     def __len__(self) -> int:
+        """
+        Gets the amount of samples inside the selected partition.
+
+        :return: int Dataset partition sample count
+        """
         return len(self.image_file_indices)
 
     def _get_sample(self, index: int) -> (torch.Tensor, torch.Tensor):
+        """
+        Gets the sample data for a given index.
+
+        :param index: Sample index
+        :return: Tensor[3, image_height, image_width] containing the sample image,
+                 ndarray[3] containing the sample attribute class labels (age_group, gender, ethnicity)
+            Types can vary if image_transform and attribute_transform were set during construction
+        """
         image_file_index = self.image_file_indices[index]
         image_file_path = self.image_file_paths[image_file_index]
         image = read_image(str(image_file_path))

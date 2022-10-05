@@ -17,12 +17,27 @@ from util import create_dataset, create_dataloader, create_model, create_optimiz
 
 
 def log_experiment_status(experiment: BaseExperiment, status: str):
+    """
+    Logs an experiment status to the command line and to the CometML notification service.
+
+    :param experiment: comet_ml.Experiment
+    :param status: Status message
+    """
     status_message = f"Experiment '{experiment.get_name()}' {status}"
     print(status_message)
     experiment.send_notification(status_message)
 
 
-def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str):
+def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str) -> (BaseExperiment, Dict, Dict):
+    """
+    Performs a fair attribute prediction experiment.
+
+    :param parameters: Dict containing experiment hyperparameters
+    :param experiment_name: Name of the experiment
+    :return: comet_ml.Experiment that was performed,
+             Dict containing the best model state that was returned from train_classifier(),
+             Dict containing the final model state that was returned from train_classifier()
+    """
     start_date = datetime.utcnow()
     experiment = Experiment(
         project_name="fair-attribute-prediction",
@@ -125,6 +140,57 @@ def fair_attribute_prediction_experiment(parameters: Dict, experiment_name: str)
 
 
 def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
+    """
+    Performs a fair attribute prediction experiment by reading its hyperparemeters from an argument file (*.args).
+
+    Each argument file may contain the following parameters:
+        --batch_size: int = 256
+            The batch size for training and evaluation (should be large for good fairness estimates)
+        --epoch_count: int = 15
+            The number of epochs for training
+        --learning_rate: float = 1e-3
+            The learning rate for the optimization procedure
+        --learning_rate_scheduler: str = "none"
+            The learning rate scheduling method ("none" or "reduce_lr_on_plateau") for the optimization procedure
+        --reduce_lr_on_plateau_factor: float = 0.5
+            ReduceLROnPlateau factor
+        --reduce_lr_on_plateau_patience: int = 5
+            ReduceLROnPlateau patience
+        --dataset: str = "celeba"
+            Dataset ("celeba", "siim_isic_melanoma", "utkface")
+        --model: str = "slimcnn"
+            Model type ("efficientnet-b0", "efficientnet-b1", "efficientnet-b2", "efficientnet-b3", "efficientnet-b4",
+                        "efficientnet-b5", "efficientnet-b6", "efficientnet-b7" or "slimcnn")
+        --optimizer: str = "adam"
+            Optimizer ("adam", "sgd")
+        --adam_beta_1: float = 0.9
+            Adam optimizer beta_1 parameter
+        --adam_beta_2: float = 0.999
+            Adam optimizer beta_2 parameter
+        --sgd_momentum: float = 0.0
+            SGD momentum parameter
+        --sensitive_attribute_index: int
+            Index of the sensitive attribute
+        --target_attribute_index: int
+            Index of the target attribute
+        --fair_loss_weight: float = 1
+            Weighting coefficient for the fair loss term
+        --fair_loss_type: str = "intersection_over_union_conditioned"
+            Fair loss type ("demographic_parity", "equalized_odds", "intersection_over_union_paired",
+                            "intersection_over_union_conditioned", "mutual_information_dp", "mutual_information_eo")
+        --pretrained_model: str
+            (Optional) path to a pretrained model state file (*.pt) to reuse weights from a previous training procedure
+        --class_weights: str = "none"
+            Class weighting method for the cross entropy loss ("none", "balanced", "ins", "isns", "ens")
+        --ens_beta: float = 0.99
+            ENS class weighting beta parameter
+
+    The experiment name is derived from the specified arguments root directory, of its subdirectories
+    and of the argument files.
+
+    :param args_root_dir_path: Path pointing to the arguments root directory for this set of experiments
+    :param relative_args_file_path: Path of the arguments files relative to the arguments root directory
+    """
     absolute_args_file_path = args_root_dir_path / relative_args_file_path
 
     parser = ArgumentParser(fromfile_prefix_chars="+")
@@ -144,7 +210,6 @@ def run_experiment(args_root_dir_path: Path, relative_args_file_path: Path):
         default="slimcnn",
         choices=[
             "slimcnn",
-            "simplecnn",
             "efficientnet-b0",
             "efficientnet-b1",
             "efficientnet-b2",

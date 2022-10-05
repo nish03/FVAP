@@ -9,7 +9,13 @@ from losses.loss import losses_with_metrics
 from util import get_learning_rate
 
 
-def model_state_dict(model: torch.nn.Module, device="cpu") -> OrderedDict[str, Tensor]:
+def model_state_dict(model: torch.nn.Module, device: str = "cpu") -> OrderedDict[str, Tensor]:
+    """
+    Gets the state dict of a module stored on a given device.
+    :param model: Module
+    :param device: Device for storage
+    :return: OrderedDict[str, Tensor] maps names to weight Tensors
+    """
     state_dict = model.state_dict()
     for key, value in state_dict.items():
         state_dict[key] = value.to(device)
@@ -25,6 +31,21 @@ def train_classifier(
     parameters: Dict,
     experiment: comet_ml.Experiment,
 ) -> Tuple[Dict, Dict]:
+    """
+    Trains a fair classifier.
+
+    :param model: Module / MultiAttributeClassifier predicting the logits for each attribute
+    :param optimizer: Optimizer
+    :param lr_scheduler: Learning rate scheduler
+    :param train_dataloader: DataLoader for the train dataset split
+    :param valid_dataloader: DataLoader for the validation dataset split
+    :param parameters: Dict mapping hyperparameter names to values (see :func:`run_experiment`)
+    :param experiment: comet_ml.Experiment
+    :return: Dict State of the model with the lowest validation loss during the entire training procedure,
+             Dict State of the final model after the entire training procedure was performed
+        States consists of training metrics ("train_metrics"), validation metrics ("valid_metrics"),
+        model state("model_state_dict"), optimizer state ("optimizer_state_dict") and the corresponding epoch ("epoch").
+    """
     best_model_state = {}
     best_valid_loss = None
 

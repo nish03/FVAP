@@ -1,15 +1,30 @@
 from abc import ABC, abstractmethod
 
 import torch
-from torch import flatten, tensor, sigmoid, softmax, stack
+from torch import flatten, tensor, sigmoid, softmax, stack, Tensor
 from torch.nn import Linear, Module
 from typing import List, Tuple
 
 
 class MultiAttributeClassifier(ABC, Module):
+    """
+    MultiAttributeClassifier is an abstract base class that uses the output feature vectors of feed forward networks to
+    predict multiple attributes at once.
+
+    Deriving classes need to implement the :meth:`final_layer_output` method and initialise this base class at
+    construction.
+    """
     def __init__(
-        self, attribute_sizes: List[int], attribute_class_weights: List[List[int]], multi_output_in_filter_count: int
+        self, attribute_sizes: List[int], attribute_class_weights: List[Tensor], multi_output_in_filter_count: int
     ):
+        """
+        Initialises the MultiAttributeClassifier.
+
+        :param attribute_sizes: List[int] contains the class counts for each predicted attribute
+        :param attribute_class_weights: List[Tensor] contains a Tensor[attribute_class_count] for each predicted
+            attribute that stores the class weighting coefficients (in the range [0, 1] with a sum of 1)
+        :param multi_output_in_filter_count: Dimensionality of the output feature vector from the deriving network class
+        """
         Module.__init__(self)
         self.attribute_sizes = tensor(attribute_sizes)
         self.attribute_class_weights = attribute_class_weights
@@ -39,9 +54,26 @@ class MultiAttributeClassifier(ABC, Module):
 
     @abstractmethod
     def final_layer_output(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Feeds an input Tensor through the deriving network instance.
+
+        Abstract method that needs to be implemented by the deriving class.
+
+        :param x: Input Tensor[N, 3, image_height, image_width] containing N images of arbitrary size
+        :return: Tensor[N, base_out_filter_count] containing N feature vectors with base_out_filter_count elements
+        """
         raise NotImplementedError
 
-    def forward(self, x: torch.Tensor) -> (List[torch.Tensor], torch.Tensor):
+    def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """
+        Feeds an input Tensor through the wrapped network.
+
+        :param x: Input Tensor[N, 3, image_height, image_width] containing N images of arbitrary size
+        :return: List[Tensor] containing the multi output class logits stored in a
+            Tensor[N, attribute_count(, attribute_class_count)] for each unique attribute size (number of classes).
+            Each tensor contains the predicted logits for each of the N samples, attributes of the corresponding size
+            and classes of the corresponding attribute. The last dimension is omitted if an attribute is binary.
+        """
         output = self.final_layer_output(x)
         multi_output_class_logits = []
         for attribute_size, attribute_size_frequency, multi_output_module in zip(
@@ -54,6 +86,13 @@ class MultiAttributeClassifier(ABC, Module):
         return multi_output_class_logits
 
     def multi_output_indices(self, attribute_index: int) -> Tuple[int, int]:
+        """
+        Computes indices of an attribute in the multi output class logits from the :meth:`forward` method.
+
+        :param attribute_index: Prediction attribute index (corresponds to the order of attributes in attribute_sizes)
+        :return: int list index of the Tensor within the wrapped model output,
+                 int attribute dimension index of the predicted attribute with this Tensor
+        """
         multi_output_index = self.inverse_attribute_size_indices[attribute_index].item()
         attribute_size = self.attribute_sizes[attribute_index]
         previous_attribute_sizes = self.attribute_sizes[0:attribute_index]
@@ -61,6 +100,12 @@ class MultiAttributeClassifier(ABC, Module):
         return multi_output_index, output_index
 
     def multi_attribute_predictions(self, multi_output_class_logits: List[torch.Tensor]) -> torch.Tensor:
+        """
+        Computes the attribute class labels from the multi output class logits from the :meth:`forward` method.
+
+        :param multi_output_class_logits: List[Tensor] returned from :meth:`forward` method containing predicted logits
+        :return: Tensor[N, attribute_prediction_count] storing the most likely class label of each sample and attribute
+        """
         multi_output_attribute_predictions = []
         for output_class_logits in multi_output_class_logits:
             if output_class_logits.dim() == 2:
@@ -80,6 +125,13 @@ class MultiAttributeClassifier(ABC, Module):
     def attribute_class_probabilities(
         self, multi_output_class_logits: List[torch.Tensor], attribute_index: int
     ) -> torch.Tensor:
+        """
+        Computes class probabilities of an attribute from the multi output class logits from the :meth:`forward` method.
+
+        :param multi_output_class_logits: List[Tensor] returned from :meth:`forward` method containing predicted logits
+        :param attribute_index: Prediction attribute index (corresponds to the order of attributes in attribute_sizes)
+        :return: Tensor[N, class_count] containing the probabilities for each sample and attribute class
+        """
         multi_output_index, output_index = self.multi_output_indices(attribute_index)
         class_logits = multi_output_class_logits[multi_output_index][..., output_index]
         if class_logits.dim() == 1:
