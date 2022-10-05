@@ -18,11 +18,16 @@ predicted and ground-truth target attributes from the samples within each batch.
 * (2022/09/16) The ACCV2022 program chairs accepted our paper
 
 ## Requirements
-The code base was designed to be used on Linux with the
+The code base is designed to be used on Linux/Mac OS.
 
-## Installation
-* Clone this repository to your desired location of the project root directory (`$PROJ_ROOT`)<br> 
-``$ export PROJ_ROOT=path/to/proj/root``
+## Installation (Linux)
+* Clone the repository to your desired location of the project root directory (`$PROJ_ROOT`)<br> 
+``$ export PROJ_ROOT=$PWD``
+* Installing the python virtual environment via virtualenv and the required PyPI libraries
+``$ pip install -U virtualenv``
+``$ python3 -m virtualenv .env``
+``$ source .env/bin/activate``
+``$ pip install -r requirements.txt``
 
 ## Data preparation
 Each supported dataset will be stored an individual folder in the `datasets` directory in the project root (destination of `git clone`).
